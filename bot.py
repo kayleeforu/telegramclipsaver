@@ -32,7 +32,7 @@ async def video(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_video(
             chat_id=update.effective_chat.id,
             video=f,
-            caption = "Here is your video. @clip_saverbot"
+            caption = "Here is your video.\n@clip_saverbot"
         )
 
 if __name__ == '__main__':
