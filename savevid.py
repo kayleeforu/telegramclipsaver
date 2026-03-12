@@ -7,7 +7,7 @@ def downloadVideo(url):
         f.write(str(count + 1))
     
     URL = [url]
-    filepath = f"downloadedVideos/video{count}.%(ext)s"
+    filepath = f"downloadedVideos/video{count}.mp4"
     
     with YoutubeDL({
         "quiet": True,
