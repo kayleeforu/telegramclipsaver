@@ -35,7 +35,7 @@ async def video(update: Update, context: ContextTypes.DEFAULT_TYPE):
             video=f,
             caption = "Here is your video.\n@clip_saverbot"
         )
-        # os.remove(f)
+        os.remove(f)
 
 patterns = [
     r"^(https://)?v.\.tiktok\.com/.{9}/$",
