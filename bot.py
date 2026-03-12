@@ -37,10 +37,12 @@ async def video(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 patterns = [
     r"^(https://)?v.\.tiktok\.com/.{9}/$",
-    r"^(https://(www\.)?)?tiktok\.com/@.*/\d{19}(\?.*)\?$",
+    r"^(https://(www\.)?)?tiktok.com/@(.*)/(\d{19})\?.*$",
     r"^(https://(www\.)?)?youtube\.com/watch\?v=.{11}$",
-    r"(^(https://(www\.)?)?youtu\.be/.{11}$)",
+    r"^(https://(www\.)?)?youtu\.be/.{11}$",
 ]
+
+print(patterns)
 
 combined = "|".join(f"({p})" for p in patterns)
 
