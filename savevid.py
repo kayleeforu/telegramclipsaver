@@ -6,11 +6,12 @@ def downloadVideo(url):
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
         "format": "bestvideo+bestaudio/best",
         "merge_output_format": "mp4",
+        "http_headers": {"User-Agent": "Mozilla/5.0"},
         "extractor_args": {
             "youtube": {
-                "player_client": ["ios", "web"],
+                "player_client": ["android", "ios", "web"]
             }
-        },
+        }
     }
     try:
         with YoutubeDL(ydl_opts) as ydl:
