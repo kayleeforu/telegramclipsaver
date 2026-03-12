@@ -28,12 +28,14 @@ async def video(update: Update, context: ContextTypes.DEFAULT_TYPE):
             chat_id = update.effective_chat.id,
             text = "Invalid URL.\nTry an existing URL."
         )
+        return
     with open(filepath, "rb") as f:
         await context.bot.send_video(
             chat_id=update.effective_chat.id,
             video=f,
             caption = "Here is your video.\n@clip_saverbot"
         )
+        os.remove(f)
 
 patterns = [
     r"^(https://)?v.\.tiktok\.com/.{9}/$",
