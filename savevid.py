@@ -15,6 +15,7 @@ def downloadVideo(url):
         },
         "retries": 10,
         "fragment_retries": 10,
+        "remote_components": ["ejs:github"],
     }
     try:
         with YoutubeDL(ydl_opts) as ydl:
