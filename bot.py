@@ -35,10 +35,14 @@ async def video(update: Update, context: ContextTypes.DEFAULT_TYPE):
             caption = "Here is your video.\n@clip_saverbot"
         )
 
-regexLinks = [
-    "(^(https://v(.){1}\.tiktok\.com/(.){9}/){1}$)",
-    "(^(https://www.tiktok.com/@(.*)/(\d{19})\?.*){1}$)"
-    ]
+patterns = [
+    r"^(https://)?v.\.tiktok\.com/.{9}/$",
+    r"^(https://(www\.)?)?tiktok\.com/@.*/\d{19}(\?.*)\?$",
+    r"^(https://(www\.)?)?youtube\.com/watch\?v=.{11}$",
+    r"(^(https://(www\.)?)?youtu\.be/.{11}$)",
+]
+
+combined = "|".join(f"({p})" for p in patterns)
 
 if __name__ == '__main__':
     TOKEN = os.environ.get("BOT_TOKEN")
@@ -48,7 +52,7 @@ if __name__ == '__main__':
     start_handler = CommandHandler('start', start)
     application.add_handler(start_handler)
 
-    link_handler = telegram.ext.MessageHandler((filters.TEXT & filters.Regex(r"(^(https://v(.){1}\.tiktok\.com/(.){9}/){1}$)|(^https://www.tiktok.com/@(.*)/(\d{19})\?.*$){1}")), video, True)
+    link_handler = telegram.ext.MessageHandler((filters.TEXT & filters.Regex(combined)), video, True)
     application.add_handler(link_handler)
 
     application.run_polling()
