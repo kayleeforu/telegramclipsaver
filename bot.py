@@ -43,7 +43,7 @@ if __name__ == '__main__':
     start_handler = CommandHandler('start', start)
     application.add_handler(start_handler)
 
-    link_handler = telegram.ext.MessageHandler((filters.TEXT & filters.Regex(r"^(https://v(.){1}\.tiktok\.com/(.){9}/){1}$")), video, True)
+    link_handler = telegram.ext.MessageHandler((filters.TEXT & filters.Regex(r"(^(https://v(.){1}\.tiktok\.com/(.){9}/){1}$)|(^https://www.tiktok.com/@(.*)/(\d{19})\?.*$){1}")), video, True)
     application.add_handler(link_handler)
 
     application.run_polling()
