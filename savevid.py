@@ -14,7 +14,9 @@ def downloadVideo(url):
         "outtmpl": filepath,
         "format": "bestvideo+bestaudio/best",
         "merge_output_format": "mp4",
-        "js_runtimes": ["node"],
+        "js_runtimes": {
+            "node": {}
+        }
         }) as ydl:
         try:
             ydl.download(URL)

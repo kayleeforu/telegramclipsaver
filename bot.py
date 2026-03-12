@@ -42,8 +42,6 @@ patterns = [
     r"^(https://(www\.)?)?youtu\.be/.{11}$",
 ]
 
-print(patterns)
-
 combined = "|".join(f"({p})" for p in patterns)
 
 if __name__ == '__main__':
