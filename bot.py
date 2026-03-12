@@ -35,6 +35,11 @@ async def video(update: Update, context: ContextTypes.DEFAULT_TYPE):
             caption = "Here is your video.\n@clip_saverbot"
         )
 
+regexLinks = [
+    "(^(https://v(.){1}\.tiktok\.com/(.){9}/){1}$)",
+    "(^(https://www.tiktok.com/@(.*)/(\d{19})\?.*){1}$)"
+    ]
+
 if __name__ == '__main__':
     TOKEN = os.environ.get("BOT_TOKEN")
 
