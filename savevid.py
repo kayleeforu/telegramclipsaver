@@ -6,9 +6,9 @@ def downloadVideo(url):
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
         "format": "bv*[height<=720]+ba/b",
         "merge_output_format": "mp4",
-        "cookiefile": "cookies.txt",
         "retries": 10,
         "fragment_retries": 10,
+        "js_runtimes": {"node": {}},
     }
     try:
         with YoutubeDL(ydl_opts) as ydl:
