@@ -39,6 +39,13 @@ async def video(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if filepath and os.path.exists(filepath):
         os.remove(filepath)
 
+    with open("downloadedCount.txt", "r+") as f:
+        count = int(f.read())
+        print(count)
+        count += 1
+        f.seek(0)
+        f.write(str(count))
+
 patterns = [
     r"^(https://)?v.\.tiktok\.com/.{9}/$",
     r"^(https://(www\.)?)?tiktok.com/@(.*)/(\d{19})\?.*$",
