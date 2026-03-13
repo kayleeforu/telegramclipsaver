@@ -17,6 +17,13 @@ def downloadVideo(url):
         "remote_components": ["ejs:github"],
         "concurrent_fragment_downloads": 4,
         "buffersize": 1024,
+        "postprocessors": [{
+            "key": "FFmpegVideoConvertor",
+            "preferedformat": "mp4",
+        }],
+        "postprocessor_args": {
+            "ffmpeg": ["-crf", "26", "-preset", "fast"]
+        },
     }
     try:
         with YoutubeDL(ydl_opts) as ydl:
