@@ -10,7 +10,7 @@ def downloadVideo(url):
         "quiet": False,
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
         "match_filter": duration_filter,
-        "format": "bestvideo[height<=1080][fps<=30]+bestaudio/bestvideo[height<=720]+bestaudio/best",
+        "format": "bestvideo[height<=1080][ext=mp4][protocol=https]+bestaudio[ext=m4a]/bestvideo[height<=1080][protocol=https]+bestaudio/best",
         "merge_output_format": "mp4",
         "cookiefile": "/home/kaylee/telegramclipsaver/cookies.txt",
         "js_runtimes": {"node": {}},
