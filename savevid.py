@@ -1,4 +1,6 @@
 from yt_dlp import YoutubeDL
+from ffmpeg import FFmpeg
+import os
 
 def downloadVideo(url):
     ydl_opts = {
@@ -17,13 +19,6 @@ def downloadVideo(url):
         "remote_components": ["ejs:github"],
         "concurrent_fragment_downloads": 4,
         "buffersize": 1024,
-        "postprocessors": [{
-            "key": "FFmpegVideoConvertor",
-            "preferedformat": "mp4",
-        }],
-        "postprocessor_args": {
-            "ffmpeg": ["-crf", "28", "-preset", "fast"]
-        },
     }
     try:
         with YoutubeDL(ydl_opts) as ydl:
@@ -31,6 +26,18 @@ def downloadVideo(url):
             filepath = ydl.prepare_filename(info)
             if filepath.endswith(".webm") or filepath.endswith(".mkv"):
                 filepath = filepath.rsplit(".", 1)[0] + ".mp4"
-            return str(filepath)
+            
+            compressed = filepath.replace(".mp4", "_compressed.mp4")
+            FFmpeg().input(filepath).output(
+                compressed,
+                vcodec = "libx264",
+                acodec = "aac",
+                crf = 29,
+                preset = "fast"
+                ).execute()
+            
+            os.remove(filepath)
+
+            return str(compressed)
     except Exception:
         return None
