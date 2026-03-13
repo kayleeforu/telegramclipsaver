@@ -22,9 +22,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def video(update: Update, context: ContextTypes.DEFAULT_TYPE):
     link = update.message.text
     isGroupChat = update.effective_chat.type in ["group", "supergroup"]
-    requestedBy = update.effective_sender.username if isGroupChat else None
-    if requestedBy is not None:
-        requestedBy = "@".join(requestedBy)
+    requestedBy = "@" + update.effective_sender.username if isGroupChat else None
     requestedMessage = update.effective_message.id if isGroupChat else None
 
     filepath = downloadVideo(link)
