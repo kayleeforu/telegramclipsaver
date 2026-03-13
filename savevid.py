@@ -10,9 +10,9 @@ def downloadVideo(url):
         "quiet": False,
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
         "match_filter": duration_filter,
-        "format": "(bestvideo[height<=720]+bestaudio/best[height<=720])[duration>840] / (bestvideo[height<=1080]+bestaudio/best[height<=1080])",
+        "format": "bestvideo+bestaudio/best",
         "merge_output_format": "mp4",
-        "cookiefile": "/home/ubuntu/bot/cookies.txt",
+        "cookiefile": "/home/kaylee/telegramclipsaver/cookies.txt",
         "js_runtimes": {"node": {}},
         "extractor_args": {
             "youtube": {
