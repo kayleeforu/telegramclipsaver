@@ -51,9 +51,10 @@ patterns = [
     r"^(https://(www\.)?)?tiktok.com/@(.*)/(\d{19})\?.*$",
     r"^(https://(www\.)?)?youtube\.com/watch\?v=.{11}$",
     r"^(https://(www\.)?)?youtu\.be/.{11}$",
-    r"(^(https://(www\.)?)?instagram\.com/reel/.{11}/\?(.){25}$)",
-    r"(^(https://(www\.)?)?pin\..{2}/.{9}$)",
-    r"(^(https://(www\.)?)?pinterest\.com/pin/\d*/$)",
+    r"^(https://(www\.)?)?youtube\.com/shorts/.{11}\?feature=share$",
+    r"^(https://(www\.)?)?instagram\.com/reel/.{11}/\?(.){25}$",
+    r"^(https://(www\.)?)?pin\..{2}/.{9}$",
+    r"^(https://(www\.)?)?pinterest\.com/pin/\d*/$",
 ]
 
 combined = "|".join(f"({p})" for p in patterns)
