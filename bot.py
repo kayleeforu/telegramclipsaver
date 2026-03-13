@@ -21,6 +21,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def video(update: Update, context: ContextTypes.DEFAULT_TYPE):
     link = update.message.text
+    isGroupChat = update.effective_chat.type in ["group", "supergroup"]
+    requestedBy = update.effective_sender.id if isGroupChat else None
 
     filepath = downloadVideo(link)
     if filepath is None:
@@ -28,18 +30,21 @@ async def video(update: Update, context: ContextTypes.DEFAULT_TYPE):
             chat_id = update.effective_chat.id,
             text = "Invalid URL.\nTry an existing URL."
         )
-        if filepath and os.path.exists(filepath):
-            os.remove(filepath)
         return
-    with open(filepath, "rb") as f:
-        await context.bot.send_video(
-            chat_id=update.effective_chat.id,
-            video=f,
-            caption = "Here is your video.\n@clip_saverbot"
-        )
     
-    if filepath and os.path.exists(filepath):
-        os.remove(filepath)
+    try:
+        with open(filepath, "rb") as f:
+            caption = f"Here is your video.\nRequested by: {requestedBy}\n\n@clip_saverbot"if isGroupChat \
+                else "Here is your video.\n\n@clip_saverbot"
+            await context.bot.send_video(
+                chat_id=update.effective_chat.id,
+                video=f,
+                caption=caption,
+                supports_streaming=True
+            )
+    finally:
+        if os.path.exists(filepath):
+            os.remove(filepath)
 
     with open("downloadedCount.txt", "r+") as f:
         count = int(f.read())
