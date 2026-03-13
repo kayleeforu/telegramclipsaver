@@ -1,5 +1,5 @@
 from yt_dlp import YoutubeDL
-from ffmpeg import FFmpeg
+import subprocess
 import os
 
 def downloadVideo(url):
@@ -28,13 +28,14 @@ def downloadVideo(url):
                 filepath = filepath.rsplit(".", 1)[0] + ".mp4"
             
             compressed = filepath.replace(".mp4", "_compressed.mp4")
-            FFmpeg().input(filepath).output(
-                compressed,
-                vcodec = "libx264",
-                acodec = "aac",
-                crf = 29,
-                preset = "fast"
-                ).execute()
+            subprocess.run([
+                "ffmpeg", "-i", filepath,
+                "-crf", "29",
+                "-preset", "fast",
+                "-vcodec", "libx264",
+                "-acodec", "aac",
+                compressed, "-y"
+            ], check=True)
             
             os.remove(filepath)
 
