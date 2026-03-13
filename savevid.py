@@ -1,12 +1,10 @@
 from yt_dlp import YoutubeDL
-import subprocess
-import os
 
 def downloadVideo(url):
     ydl_opts = {
         "quiet": True,
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
-        "format": "bestvideo[height<=1080]+bestaudio/best[height<=1080]",
+        "format": "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=1080]+bestaudio/best",
         "merge_output_format": "mp4",
         "cookiefile": "/home/ubuntu/bot/cookies.txt",
         "js_runtimes": {"node": {}},
