@@ -28,6 +28,8 @@ async def video(update: Update, context: ContextTypes.DEFAULT_TYPE):
             chat_id = update.effective_chat.id,
             text = "Invalid URL.\nTry an existing URL."
         )
+        if filepath and os.path.exists(filepath):
+            os.remove(filepath)
         return
     with open(filepath, "rb") as f:
         await context.bot.send_video(
@@ -62,7 +64,11 @@ combined = "|".join(f"({p})" for p in patterns)
 if __name__ == '__main__':
     TOKEN = os.environ.get("BOT_TOKEN")
 
-    application = ApplicationBuilder().token(TOKEN).local_mode(False).build()
+    application = ApplicationBuilder() \
+    .token(TOKEN) \
+    .base_url("http://localhost:8081/bot") \
+    .base_file_url("http://localhost:8081/file/bot") \
+    .build()
 
     start_handler = CommandHandler('start', start)
     application.add_handler(start_handler)

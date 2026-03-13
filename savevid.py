@@ -4,7 +4,7 @@ import os
 
 def downloadVideo(url):
     ydl_opts = {
-        "quiet": False,
+        "quiet": True,
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
         "format": "bv*[height<=1080]+ba/b",
         "merge_output_format": "mp4",
@@ -26,20 +26,7 @@ def downloadVideo(url):
             filepath = ydl.prepare_filename(info)
             if filepath.endswith(".webm") or filepath.endswith(".mkv"):
                 filepath = filepath.rsplit(".", 1)[0] + ".mp4"
-            
-            compressed = filepath.replace(".mp4", "_compressed.mp4")
-            subprocess.run([
-                "ffmpeg", "-i", filepath,
-                "-crf", "29",
-                "-preset", "fast",
-                "-vcodec", "libx264",
-                "-acodec", "aac",
-                compressed, "-y"
-            ], check=True)
-            
-            os.remove(filepath)
-
-            return str(compressed)
+            return str(filepath)
     except Exception as e:
         print(f"Error: {e}")
         return None
