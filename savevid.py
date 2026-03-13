@@ -1,16 +1,17 @@
 from yt_dlp import YoutubeDL
+from yt_dlp.utils import DownloadError
 
 def duration_filter(info):
     duration = info.get("duration")
     if duration and duration > 900:
-        return "too_long"
+        return "Video is too long (max 15 minutes)"
 
 def downloadVideo(url):
     ydl_opts = {
         "quiet": False,
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
         "match_filter": duration_filter,
-        "format": "bestvideo[height<=1080][ext=mp4][protocol=https]+bestaudio[ext=m4a]/bestvideo[height<=1080][protocol=https]+bestaudio/best",
+        "format": "bestvideo[height<=1080]+bestaudio/best[height<=1080]/best",
         "merge_output_format": "mp4",
         "cookiefile": "/home/kaylee/telegramclipsaver/cookies.txt",
         "js_runtimes": {"node": {}},
@@ -30,9 +31,12 @@ def downloadVideo(url):
             filepath = ydl.prepare_filename(info)
             if filepath.endswith(".webm") or filepath.endswith(".mkv"):
                 filepath = filepath.rsplit(".", 1)[0] + ".mp4"
-
-
             return str(filepath)
+    except DownloadError as e:
+        if "too long" in str(e).lower() or "max 15 minutes" in str(e).lower():
+            return "too_long"
+        print(f"Error: {e}")
+        return None
     except Exception as e:
         print(f"Error: {e}")
         return None
