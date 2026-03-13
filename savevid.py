@@ -15,8 +15,8 @@ def downloadVideo(url):
         },
         "fragment_retries": 10,
         "remote_components": ["ejs:github"],
-        "concurrent_fragment_downloads": 4,
-        "buffersize": 1024,
+        "concurrent_fragment_downloads": 2,
+        "buffersize": 8192,
     }
     try:
         with YoutubeDL(ydl_opts) as ydl:
