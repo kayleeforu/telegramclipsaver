@@ -25,6 +25,11 @@ def downloadVideo(url):
             filepath = ydl.prepare_filename(info)
             if filepath.endswith(".webm") or filepath.endswith(".mkv"):
                 filepath = filepath.rsplit(".", 1)[0] + ".mp4"
+
+            print(f"Format: {info.get('format')}")
+            print(f"Resolution: {info.get('width')}x{info.get('height')}")
+            print(f"FPS: {info.get('fps')}")
+
             return str(filepath)
     except Exception as e:
         print(f"Error: {e}")
