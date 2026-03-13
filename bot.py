@@ -22,7 +22,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def video(update: Update, context: ContextTypes.DEFAULT_TYPE):
     link = update.message.text
     isGroupChat = update.effective_chat.type in ["group", "supergroup"]
-    requestedBy = update.effective_sender.id if isGroupChat else None
+    requestedBy = update.effective_sender.username if isGroupChat else None
+    requestedMessage = update.effective_message.id if isGroupChat else None
 
     filepath = downloadVideo(link)
     if filepath is None:
@@ -42,6 +43,8 @@ async def video(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 caption=caption,
                 supports_streaming=True
             )
+            if requestedBy is not None:
+                await context.bot.delete_message(update.effective_chat.id, requestedMessage)
     finally:
         if os.path.exists(filepath):
             os.remove(filepath)
@@ -80,7 +83,5 @@ if __name__ == '__main__':
 
     link_handler = telegram.ext.MessageHandler((filters.TEXT & filters.Regex(combined)), video, False)
     application.add_handler(link_handler)
-
-    inline_handler = telegram.ext.InlineQueryHandler(video, combined, False)
 
     application.run_polling()
