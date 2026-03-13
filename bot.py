@@ -47,14 +47,14 @@ async def video(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f.write(str(count))
 
 patterns = [
-    r"^(https://)?v.\.tiktok\.com/.{9}/$",
-    r"^(https://(www\.)?)?tiktok.com/@(.*)/(\d{19})\?.*$",
-    r"^(https://(www\.)?)?youtube\.com/watch\?v=.{11}$",
-    r"^(https://(www\.)?)?youtu\.be/.{11}$",
-    r"^(https://(www\.)?)?youtube\.com/shorts/.{11}(\?feature=share)?$",
-    r"^(https://(www\.)?)?instagram\.com/reel/.{11}/\?(.){25}$",
-    r"^(https://(www\.)?)?pin\..{2}/.{9}$",
-    r"^(https://(www\.)?)?pinterest\.com/pin/\d*/$",
+    r"(https://)?v.\.tiktok\.com/.{9}/",
+    r"(https://(www\.)?)?tiktok.com/@(.*)/(\d{19})\?.*",
+    r"(https://(www\.)?)?youtube\.com/watch(.*)",
+    r"(https://(www\.)?)?youtu\.be/.*",
+    r"(https://(www\.)?)?youtube\.com/shorts/.*",
+    r"(https://(www\.)?)?instagram\.com/reel/.*",
+    r"(https://(www\.)?)?pin\..{2}/.*",
+    r"(https://(www\.)?)?pinterest\.com/pin/.*",
 ]
 
 combined = "|".join(f"({p})" for p in patterns)
