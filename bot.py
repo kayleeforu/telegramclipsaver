@@ -76,6 +76,7 @@ if __name__ == '__main__':
     .token(TOKEN) \
     .base_url("http://localhost:8081/bot") \
     .base_file_url("http://localhost:8081/file/bot") \
+    .concurrent_updates(True)\
     .build()
 
     start_handler = CommandHandler('start', start)
