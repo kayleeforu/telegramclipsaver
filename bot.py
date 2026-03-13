@@ -59,6 +59,7 @@ async def video(update: Update, context: ContextTypes.DEFAULT_TYPE):
 patterns = [
     r"(https://)?v.\.tiktok\.com/.*/",
     r"(https://(www\.)?)?tiktok.com/@(.*)/(\d{19})\?.*",
+    r"(https://(www\.)?)?tiktok.com/.*/",
     r"(https://(www\.)?)?youtube\.com/watch(.*)",
     r"(https://(www\.)?)?youtu\.be/.*",
     r"(https://(www\.)?)?youtube\.com/shorts/.*",
