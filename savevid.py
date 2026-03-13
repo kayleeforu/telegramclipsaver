@@ -2,7 +2,7 @@ from yt_dlp import YoutubeDL
 
 def duration_filter(info):
     duration = info.get("duration")
-    if duration and duration > 1500:
+    if duration and duration > 900:
         return "too_long"
 
 def downloadVideo(url):
