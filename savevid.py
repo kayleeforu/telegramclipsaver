@@ -4,7 +4,7 @@ import os
 
 def downloadVideo(url):
     ydl_opts = {
-        "quiet": True,
+        "quiet": False,
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
         "format": "bv*[height<=1080]+ba/b",
         "merge_output_format": "mp4",
@@ -40,5 +40,6 @@ def downloadVideo(url):
             os.remove(filepath)
 
             return str(compressed)
-    except Exception:
+    except Exception as e:
+        print(f"Error: {e}")
         return None
