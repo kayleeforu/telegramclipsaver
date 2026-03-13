@@ -10,7 +10,7 @@ def downloadVideo(url):
         "js_runtimes": {"node": {}},
         "extractor_args": {
             "youtube": {
-                "player_client": ["tv"],
+                "player_client": ["web", "web_safari"],
             }
         },
         "fragment_retries": 10,
