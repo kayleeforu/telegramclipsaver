@@ -67,7 +67,9 @@ if __name__ == '__main__':
     start_handler = CommandHandler('start', start)
     application.add_handler(start_handler)
 
-    link_handler = telegram.ext.MessageHandler((filters.TEXT & filters.Regex(combined)), video, True)
+    link_handler = telegram.ext.MessageHandler((filters.TEXT & filters.Regex(combined)), video, False)
     application.add_handler(link_handler)
+
+    inline_handler = telegram.ext.InlineQueryHandler(video, combined, False)
 
     application.run_polling()
