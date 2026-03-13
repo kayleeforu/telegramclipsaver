@@ -1,10 +1,15 @@
 from yt_dlp import YoutubeDL
 
+def duration_filter(info):
+    duration = info.get("duration")
+    if duration and duration > 900:
+        return "Video longer than 15 minutes"
+
 def downloadVideo(url):
     ydl_opts = {
         "quiet": False,
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
-        "match_filter": "duration <= 900",
+        "match_filter": duration_filter,
         "format": "(bestvideo[height<=720]+bestaudio/best[height<=720])[duration>840] / (bestvideo[height<=1080]+bestaudio/best[height<=1080])",
         "merge_output_format": "mp4",
         "cookiefile": "/home/ubuntu/bot/cookies.txt",
