@@ -2,7 +2,7 @@ from yt_dlp import YoutubeDL
 
 def downloadVideo(url):
     ydl_opts = {
-        "quiet": False,
+        "quiet": True,
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
         "format": "bv*[height<=1080]+ba/b",
         "merge_output_format": "mp4",
@@ -17,6 +17,13 @@ def downloadVideo(url):
         "remote_components": ["ejs:github"],
         "concurrent_fragment_downloads": 4,
         "buffersize": 1024,
+        "postprocessors": [{
+            "key": "FFmpegVideoConvertor",
+            "preferedformat": "mp4",
+        }],
+        "postprocessor_args": {
+            "ffmpeg": ["-crf", "28", "-preset", "fast"]
+        },
     }
     try:
         with YoutubeDL(ydl_opts) as ydl:
@@ -26,5 +33,4 @@ def downloadVideo(url):
                 filepath = filepath.rsplit(".", 1)[0] + ".mp4"
             return str(filepath)
     except Exception:
-        print(Exception)
         return None
