@@ -2,7 +2,7 @@ from yt_dlp import YoutubeDL
 
 def downloadVideo(url):
     ydl_opts = {
-        "quiet": True,
+        "quiet": False,
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
         "format": "bv*[height<=1080]+ba/b",
         "merge_output_format": "mp4",
@@ -26,4 +26,5 @@ def downloadVideo(url):
                 filepath = filepath.rsplit(".", 1)[0] + ".mp4"
             return str(filepath)
     except Exception:
+        print(Exception)
         return None
