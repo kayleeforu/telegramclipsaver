@@ -4,14 +4,13 @@ def downloadVideo(url):
     ydl_opts = {
         "quiet": False,
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
-        "format": "bestvideo[height<=1080]+bestaudio/best[height<=1080]",
-        "format_sort": ["res:1080", "tbr", "vcodec:h264"],
+        "format": "bestvideo[height<=1080]+bestaudio/best[height<=1080]/best",
         "merge_output_format": "mp4",
         "cookiefile": "/home/ubuntu/bot/cookies.txt",
         "js_runtimes": {"node": {}},
         "extractor_args": {
             "youtube": {
-                "player_client": ["web"],
+                "player_client": ["ios"],
             }
         },
         "fragment_retries": 10,
