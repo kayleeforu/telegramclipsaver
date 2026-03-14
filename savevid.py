@@ -29,6 +29,9 @@ def downloadVideo(url):
             "key": "FFmpegVideoConvertor",
             "preferedformat": "mp4",
         }],
+        "postprocessor_args": {
+            "ffmpeg": ["-movflags", "+faststart"]
+        },
     }
     try:
         with YoutubeDL(ydl_opts) as ydl:
