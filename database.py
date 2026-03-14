@@ -1,4 +1,4 @@
-from supabase import supabase
+from supabase import create_client
 import os
 
 url = os.environ.get("SUPABASE_URL")
