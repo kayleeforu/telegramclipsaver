@@ -12,7 +12,7 @@ def downloadVideo(url):
         "quiet": True,
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
         "match_filter": duration_filter,
-        "format": "bestvideo[height<=1080]+bestaudio/best[height<=1080]/best",
+        "format": "bestvideo[vcodec^=avc][height<=1080]+bestaudio/bestvideo[height<=1080]+bestaudio/best",
         "merge_output_format": "mp4",
         "cookiefile": "/home/kaylee/telegramclipsaver/cookies.txt",
         "js_runtimes": {"node": {}},
@@ -25,6 +25,10 @@ def downloadVideo(url):
         "remote_components": ["ejs:github"],
         "concurrent_fragment_downloads": 2,
         "buffersize": 8192,
+        "postprocessors": [{
+            "key": "FFmpegVideoConvertor",
+            "preferedformat": "mp4",
+        }],
     }
     try:
         with YoutubeDL(ydl_opts) as ydl:
