@@ -6,6 +6,7 @@ from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, filte
 from savevid import downloadVideo
 import os
 import asyncio
+from inlineProcessing import inlineVideo
 
 logging.basicConfig(
    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -57,14 +58,8 @@ async def video(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     animation=f,
                     caption=caption,
                 )
-            if requestedBy is not None:
-                try:
-                    await context.bot.delete_message(update.effective_chat.id, requestedMessage)
-                except:
-                    unableToDeleteMessage = await context.bot.send_message(update.effective_chat.id, text = "I can't delete the original message with a link.\n" \
-                    "If you want me to delete them, give me the right to delete the messages.")
-                    await asyncio.sleep(5)
-                    await context.bot.delete_message(update.effective_chat.id, unableToDeleteMessage.message_id)
+            await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
+
     finally:
         if os.path.exists(filepath):
             os.remove(filepath)
@@ -74,7 +69,18 @@ async def video(update: Update, context: ContextTypes.DEFAULT_TYPE):
         print(count)
         count += 1
         f.seek(0)
+        f.truncate()
         f.write(str(count))
+
+async def deleteOriginalMessage(update, context, requestedMessage, requestedBy):
+    if requestedBy is not None:
+                try:
+                    await context.bot.delete_message(update.effective_chat.id, requestedMessage)
+                except:
+                    unableToDeleteMessage = await context.bot.send_message(update.effective_chat.id, text = "I can't delete the original message with a link.\n" \
+                    "If you want me to delete them, give me the right to delete the messages.")
+                    await asyncio.sleep(5)
+                    await context.bot.delete_message(update.effective_chat.id, unableToDeleteMessage.message_id)
 
 patterns = [
     r"(https://)?v.\.tiktok\.com/.*/",
@@ -105,5 +111,8 @@ if __name__ == '__main__':
 
     link_handler = telegram.ext.MessageHandler((filters.TEXT & filters.Regex(combined)), video, False)
     application.add_handler(link_handler)
+
+    inline_handler = telegram.ext.InlineQueryHandler(inlineVideo, pattern=combined)
+    application.add_handler(inline_handler)
 
     application.run_polling()
