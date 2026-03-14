@@ -4,6 +4,7 @@ from savevid import downloadVideo
 from count import countAdd
 import subprocess
 import asyncio
+from database import supabase
 
 async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE):
     link = update.message.text
