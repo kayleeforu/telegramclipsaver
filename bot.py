@@ -36,7 +36,7 @@ async def video(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif filepath == "too_long":
         await context.bot.send_message(
             chat_id = update.effective_chat.id,
-            text = "The video is too long.\nTry a video that is shorter than 15 minutes."
+            text = "The video is too long.\nTry a video that is shorter than 10 minutes."
         )
         return
     

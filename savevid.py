@@ -4,8 +4,8 @@ import ffmpeg
 
 def duration_filter(info):
     duration = info.get("duration")
-    if duration and duration > 900:
-        return "Video is too long (max 15 minutes)"
+    if duration and duration > 600:
+        return "Video is too long (max 10 minutes)"
 
 def downloadVideo(url):
     ydl_opts = {
