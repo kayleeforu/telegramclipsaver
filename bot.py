@@ -5,6 +5,7 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, filters
 from savevid import downloadVideo
 import os
+import asyncio
 
 logging.basicConfig(
    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -50,7 +51,13 @@ async def video(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 supports_streaming=True
             )
             if requestedBy is not None:
-                await context.bot.delete_message(update.effective_chat.id, requestedMessage)
+                try:
+                    await context.bot.delete_message(update.effective_chat.id, requestedMessage)
+                except:
+                    unableToDeleteMessage = await context.bot.send_message(update.effective_chat.id, text = "I can't delete the original message with a link.\n" \
+                    "If you want me to delete them, give me the right to delete the messages.")
+                    await asyncio.sleep(5)
+                    await context.bot.delete_message(update.effective_chat.id, unableToDeleteMessage.message_id)
     finally:
         if os.path.exists(filepath):
             os.remove(filepath)
