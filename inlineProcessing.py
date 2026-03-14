@@ -3,9 +3,10 @@ from telegram.ext import ContextTypes
 from savevid import downloadVideo
 import uuid
 import subprocess
+from count import countAdd
 
 clearVids = ["rm", "/downloadedVideos/*"]
-async def inlineVideo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def processInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
     link = update.inline_query.query
 
     (filepath, hasAudio) = downloadVideo(link)
@@ -38,5 +39,7 @@ async def inlineVideo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     subprocess.run(clearVids)
 
     await context.bot.answer_inline_query(inline_query_id = update.inline_query.id, results=[inlineID])
+
+    countAdd()
 
     return
