@@ -42,6 +42,9 @@ if __name__ == '__main__':
     .base_url("http://localhost:8081/bot") \
     .base_file_url("http://localhost:8081/file/bot") \
     .concurrent_updates(True)\
+    .read_timeout(120) \
+    .write_timeout(120) \
+    .connect_timeout(120) \
     .build()
 
     start_handler = CommandHandler('start', start)
