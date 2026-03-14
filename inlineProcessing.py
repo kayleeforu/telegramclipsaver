@@ -6,7 +6,7 @@ import subprocess
 from count import countAdd
 from database import supabase
 
-clearVids = ["rm", "~/telegramclipsaver/downloadedVideos/*"]
+clearVids = ["rm", "-f", "/home/kaylee/telegramclipsaver/downloadedVideos/*"]
 async def processInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
     link = update.inline_query.query
 
