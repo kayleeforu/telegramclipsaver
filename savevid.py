@@ -1,25 +1,11 @@
 from yt_dlp import YoutubeDL
 from yt_dlp.utils import DownloadError
 import ffmpeg
-import os
 
 def duration_filter(info):
     duration = info.get("duration")
     if duration and duration > 900:
         return "Video is too long (max 15 minutes)"
-    
-def convertToGif(filepath):
-    converted = filepath.replace(".mp4", ".gif")
-    try:
-        ffmpeg\
-            .input(filepath)\
-            .filter("fps", fps=20)\
-            .filter("scale", 640, -1)\
-            .output(converted, loop = 0)\
-            .run(overwrite_output = True, quiet = True)
-        return converted
-    except:
-        return None
 
 def downloadVideo(url):
     ydl_opts = {
@@ -50,16 +36,14 @@ def downloadVideo(url):
             probe = ffmpeg.probe(filepath)
             audio_streams = [s for s in probe['streams'] if s['codec_type'] == 'audio']
             if audio_streams == []:
-                gifPath = convertToGif(filepath)
-                os.remove(filepath)
-                return gifPath
+                return filepath, False
 
-            return str(filepath)
+            return str(filepath), True
     except DownloadError as e:
         if "too long" in str(e).lower() or "max 15 minutes" in str(e).lower():
-            return "too_long"
+            return "too_long", None
         print(f"Error: {e}")
-        return None
+        return None, None
     except Exception as e:
         print(f"Error: {e}")
-        return None
+        return None, None

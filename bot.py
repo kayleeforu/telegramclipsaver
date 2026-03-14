@@ -26,7 +26,7 @@ async def video(update: Update, context: ContextTypes.DEFAULT_TYPE):
     requestedBy = "@" + update.effective_sender.username if isGroupChat else None
     requestedMessage = update.effective_message.id if isGroupChat else None
 
-    filepath = downloadVideo(link)
+    (filepath, hasAudio) = downloadVideo(link)
     if filepath is None:
         await context.bot.send_message(
             chat_id = update.effective_chat.id,
@@ -44,12 +44,19 @@ async def video(update: Update, context: ContextTypes.DEFAULT_TYPE):
         with open(filepath, "rb") as f:
             caption = f"Here is your video.\nRequested by: {requestedBy}\n\n@clip_saverbot"if isGroupChat \
                 else "Here is your video.\n\n@clip_saverbot"
-            await context.bot.send_video(
-                chat_id=update.effective_chat.id,
-                video=f,
-                caption=caption,
-                supports_streaming=True
-            )
+            if hasAudio:
+                await context.bot.send_video(
+                    chat_id=update.effective_chat.id,
+                    video=f,
+                    caption=caption,
+                    supports_streaming=True
+                )
+            else:
+                await context.bot.send_animation(
+                    chat_id=update.effective_chat.id,
+                    animation=f,
+                    caption=caption,
+                )
             if requestedBy is not None:
                 try:
                     await context.bot.delete_message(update.effective_chat.id, requestedMessage)
