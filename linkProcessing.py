@@ -3,8 +3,8 @@ from telegram.ext import ContextTypes
 from savevid import downloadVideo
 from count import countAdd
 import subprocess
-import asyncio
 from database import supabase
+from deleteOriginalMessage import deleteOriginalMessage
 
 clearVids = ["rm", "-f", "/home/kaylee/telegramclipsaver/downloadedVideos/*"]
 
@@ -97,13 +97,3 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE):
     }).execute()
 
     await countAdd()
-
-async def deleteOriginalMessage(update, context, requestedMessage, requestedBy):
-    if requestedBy is not None:
-                try:
-                    await context.bot.delete_message(update.effective_chat.id, requestedMessage)
-                except:
-                    unableToDeleteMessage = await context.bot.send_message(update.effective_chat.id, text = "I can't delete the original message with a link.\n" \
-                    "If you want me to delete them, give me the right to delete the messages.")
-                    await asyncio.sleep(5)
-                    await context.bot.delete_message(update.effective_chat.id, unableToDeleteMessage.message_id)
