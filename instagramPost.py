@@ -54,14 +54,14 @@ async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYP
             media2.append(InputMediaVideo(entry.video.file_id))
         else:
             media2.append(InputMediaPhoto(entry.photo[-1].file_id))
-    media2[-1].caption = caption
 
     for file in glob("downloadedVideos/*"):
         os.remove(file)
 
     await context.bot.send_media_group(
         chat_id = update.effective_chat.id,
-        media = media2
+        media = media2,
+        caption = caption
     )
 
     countAdd()
