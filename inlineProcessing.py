@@ -14,7 +14,7 @@ async def processInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     response = await database.lookup(link)
     if response.data:
-        file = (response.data[0]["file_id"][0], response.data[0]["has_audio"][0])
+        file = (response.data[0]["file_ids"][0], response.data[0]["has_audio"][0])
         if file[1]:
             inlineID = InlineQueryResultCachedVideo(
                 id = str(uuid.uuid4()),
@@ -77,6 +77,6 @@ async def processInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await context.bot.answer_inline_query(inline_query_id = update.inline_query.id, results=[inlineID]) # Answer Inline
 
-    countAdd() # Downloaded Count + 1
+    await countAdd() # Downloaded Count + 1
 
     return
