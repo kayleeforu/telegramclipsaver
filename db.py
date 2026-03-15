@@ -24,7 +24,7 @@ class database:
 
         db.table("savedVideos").insert({
             "link": row[0],
-            "file_id": [row[1]],
+            "file_ids": [row[1]],
             "has_audio": [file[1]]
         }).execute()
         return
@@ -34,6 +34,6 @@ class database:
 
         db.table("savedVideos").insert({
             "link": link,
-            "file_id": [file[0] for file in fileArray],
+            "file_ids": [file[0] for file in fileArray],
             "has_audio": [file[1] for file in fileArray]
         }).execute()
