@@ -3,10 +3,11 @@ from telegram.ext import ContextTypes
 from savevid import downloadVideo
 from count import countAdd
 import subprocess
-from database import supabase
+import db
 from deleteOriginalMessage import deleteOriginalMessage
 
 clearVids = ["rm", "-f", "/home/kaylee/telegramclipsaver/downloadedVideos/*"]
+database = db.database()
 
 async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE):
     link = update.message.text
@@ -18,9 +19,10 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 else "Here is your video.\n\n@clip_saverbot"
 
     # Cache check
-    response = supabase.table("savedVideos").select("*").eq("link", link).execute()
+    response = await database.lookup(link)
     if response.data:
-        file = (response.data[0]["file_id"], response.data[0]["has_audio"])
+        row = response.data[0]
+        file = (row["file_ids"][0], row["has_audio"][0])
         if file[1]:
                 await context.bot.send_video(
                     chat_id = update.effective_chat.id,
@@ -29,7 +31,7 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
         else:
                 await context.bot.send_animation(
-                    chat_id = update.effective_chat.id,
+                    chat_id = update.effective_chat.id, 
                     animation = file[0],
                     caption = caption
                 )
@@ -90,10 +92,6 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE):
     finally:
         subprocess.run(clearVids) # Clear downloadedVideos Folder
     
-    supabase.table("savedVideos").insert({
-            "link": link,
-            "file_id": file[0],
-            "has_audio": file[1]
-    }).execute()
+    await database.insert(link, file) # Insert the data in cache
 
     await countAdd()

@@ -4,16 +4,17 @@ from savevid import downloadVideo
 import uuid
 import subprocess
 from count import countAdd
-from database import supabase
+import db
 
 clearVids = ["rm", "-f", "/home/kaylee/telegramclipsaver/downloadedVideos/*"]
+database = db.database()
 
 async def processInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
     link = update.inline_query.query
 
-    response = supabase.table("savedVideos").select("*").eq("link", link).execute()
+    response = await database.lookup(link)
     if response.data:
-        file = (response.data[0]["file_id"], response.data[0]["has_audio"])
+        file = (response.data[0]["file_id"][0], response.data[0]["has_audio"][0])
         if file[1]:
             inlineID = InlineQueryResultCachedVideo(
                 id = str(uuid.uuid4()),
@@ -30,7 +31,7 @@ async def processInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         await context.bot.answer_inline_query(inline_query_id = update.inline_query.id, results = [inlineID]) # Answer Inline
 
-        countAdd() # Downloaded Count + 1
+        await countAdd() # Downloaded Count + 1
 
         return
 
@@ -72,11 +73,7 @@ async def processInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
     subprocess.run(clearVids) # Clear downloadedVideos Folder
 
-    supabase.table("savedVideos").insert({
-        "link": link,
-        "file_id": file[0],
-        "has_audio": file[1]
-    }).execute()
+    await database.insert(link, file)
 
     await context.bot.answer_inline_query(inline_query_id = update.inline_query.id, results=[inlineID]) # Answer Inline
 

@@ -6,6 +6,9 @@ from telegram import Update, InputMediaPhoto, InputMediaVideo
 from telegram.ext import ContextTypes
 from count import countAdd
 from deleteOriginalMessage import deleteOriginalMessage
+import db
+
+database = db.database()
 
 async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYPE):
     link = update.message.text
@@ -19,6 +22,26 @@ async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYP
 
     caption = f"Here is your post.\nRequested by: {requestedBy}\n\n@clip_saverbot"if isGroupChat \
                 else "Here is your post.\n\n@clip_saverbot"
+    
+    response = await database.lookup(link)
+    if response.data:
+        media = []
+        row = response.data[0]
+        for file_id, has_audio in zip(row["file_ids"], row["has_audio"]):
+            if has_audio:
+                media.append(InputMediaVideo(file_id))
+            else:
+                media.append(InputMediaPhoto(file_id))
+
+        await context.bot.send_media_group(
+            chat_id = update.effective_chat.id,
+            media = media,
+            caption = caption
+        )
+
+        await countAdd()
+
+        return
 
     instance = Instaloader()
     
@@ -49,10 +72,13 @@ async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYP
     )
 
     media2 = []
+    files = []
     for entry in msg:
         if entry.video:
+            files.append((entry.video.file_id, True))
             media2.append(InputMediaVideo(entry.video.file_id))
         else:
+            files.append((entry.photo[-1].file_id, False))
             media2.append(InputMediaPhoto(entry.photo[-1].file_id))
 
     for file in glob("downloadedVideos/*"):
@@ -64,8 +90,8 @@ async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYP
         caption = caption
     )
 
-    countAdd()
+    await database.insert(link, files)
 
     await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
 
-    return
+    await countAdd()
