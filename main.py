@@ -52,7 +52,7 @@ if __name__ == '__main__':
     application.add_handler(startHandler)
 
     videoLinkHandler = telegram.ext.MessageHandler((filters.TEXT & filters.Regex(combinedVideos)), processLink, False)
-    inlineVideoLinkHandler = telegram.ext.InlineQueryHandler(processInline, pattern=combinedVideos)
+    inlineVideoLinkHandler = telegram.ext.InlineQueryHandler(processInline, pattern=combinedVideos, block = True)
     application.add_handler(inlineVideoLinkHandler)
     application.add_handler(videoLinkHandler)
 
