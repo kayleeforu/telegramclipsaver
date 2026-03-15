@@ -56,6 +56,7 @@ if __name__ == '__main__':
     application.add_handler(inlineVideoLinkHandler)
     application.add_handler(videoLinkHandler)
 
-    photoLinkHandler = telegram.ext.MessageHandler((filters.TEXT & filters.Regex(r"(https://(www\.))?instagram\.com/p/(.{11})/.*")), processInstagramPost)
-
+    instagramPostLinkHandler = telegram.ext.MessageHandler((filters.TEXT & filters.Regex(r"(https://(www\.))?instagram\.com/p/(.{11})/.*")), processInstagramPost)
+    application.add_handler(instagramPostLinkHandler)
+    
     application.run_polling()
