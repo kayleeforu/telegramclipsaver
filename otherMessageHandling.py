@@ -48,7 +48,7 @@ async def otherMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         await context.bot.send_message(
             chat_id = update.effective_chat.id,
-            parse_mode = "Markdown",
+            parse_mode = "MarkdownV2",
             text = text
         )
         return
