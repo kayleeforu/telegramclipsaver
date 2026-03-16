@@ -1,24 +1,16 @@
 import logging
-from telegram import Update
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, filters, MessageHandler, InlineQueryHandler
+from telegram.ext import ApplicationBuilder, CommandHandler, filters, MessageHandler, InlineQueryHandler
 import os
 from inlineProcessing import processInline
 from linkProcessing import processLink
 from instagramPost import processInstagramPost
 from otherMessageHandling import otherMessage
+from start import start
 
 logging.basicConfig(
    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
    level=logging.INFO
 )
-
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
-    await context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text="This is a test message.\n\n" \
-        "Hello, how are you, " + str(update.effective_user.first_name) + "?"
-        )
 
 patternsVideos = [
     r"(https://)?v.\.tiktok\.com/.*",
@@ -47,7 +39,7 @@ if __name__ == '__main__':
     .connect_timeout(120) \
     .build()
 
-    startHandler = CommandHandler('start', start)
+    startHandler = CommandHandler('start', start())
     application.add_handler(startHandler)
 
     videoLinkHandler = MessageHandler((filters.TEXT & filters.Regex(combinedVideos)), processLink, False)
