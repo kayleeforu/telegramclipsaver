@@ -23,7 +23,7 @@ async def otherMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     "• Инстаграм пост/рилс. Поддерживаются посты до 10 вложений.\n" \
                     "• YouTube шортс\n" \
                     "• YouTube видео до 10 минут (Будет меняться в будущем)\n\n" \
-                    "Помните, вы можете использовать @clip_saverbot {ссылка}, чтобы отправить пост через команду @\n\n" \
+                    "Помните, вы можете использовать @clip_saverbot {ссылка} в любом другом чате, чтобы отправить пост через команду @\n\n" \
                     "Спасибо за использование этого бота."
             else:
                 text = "Sorry, I don't support this type of posts.\n" \
@@ -32,12 +32,12 @@ async def otherMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     "• Instagram Post/Reels. Only posts up to 10 attachments are supported\n" \
                     "• YouTube Shorts\n" \
                     "• YouTube video up to 10 minutes (Will be changed in the future)\n\n" \
-                    "Remember, you can use @clip_saverbot {link} to send the post via the @ command.\n" \
+                    "Remember, you can use @clip_saverbot {link} in any other chat to send the post via the @ command.\n" \
                     "Thank you for using this bot."
         else:
             if russian:
-                text = "Для того, чтобы скачать пост, отправьте ссылку в данный чат.\n\n" \
-                    "Другой способ скачать пост - это использовать:\n@clip_saverbot {ссылка} в любом другом чате.\n" \
+                text = "Для того, чтобы скачать пост, отправьте ссылку чат.\n\n" \
+                    "Другой способ скачать пост - это использовать\n@clip_saverbot {ссылка} в любом другом чате.\n" \
                     "Скачивание YouTube видео (не Shorts) не рекомендуется, потому что требует больше времени.\n\n" \
                     "Спасибо за использование этого бота."
             else:
