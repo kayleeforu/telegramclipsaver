@@ -37,12 +37,12 @@ async def otherMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             if russian:
                 text = "Для того, чтобы скачать пост, отправьте ссылку в данный чат.\n\n" \
-                    "Другой способ скачать пост - это использовать @clip_saverbot {ссылка} в любом другом чате.\n" \
+                    "Другой способ скачать пост - это использовать:\n@clip_saverbot {ссылка} в любом другом чате.\n" \
                     "Скачивание YouTube видео (не Shorts) не рекомендуется, потому что требует больше времени.\n\n" \
                     "Спасибо за использование этого бота."
             else:
                 text = "To download a post, send me a link in this chat.\n\n" \
-                    "Another way to download the post is to use @clip_saverbot {link} in any other chat.\n" \
+                    "Another way to download the post is to use:\n@clip_saverbot {link} in any other chat.\n" \
                     "However, it is not recommended to download YouTube videos (not Shorts), because of the larger video size.\n\n" \
                     "Thank you for using this bot."
 
