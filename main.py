@@ -39,7 +39,7 @@ if __name__ == '__main__':
     .connect_timeout(120) \
     .build()
 
-    startHandler = CommandHandler('start', start())
+    startHandler = CommandHandler('start', start)
     application.add_handler(startHandler)
 
     videoLinkHandler = MessageHandler((filters.TEXT & filters.Regex(combinedVideos)), processLink, False)
