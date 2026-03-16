@@ -2,7 +2,7 @@ import telegram.ext
 import logging
 import telegram
 from telegram import Update
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, filters
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, filters, MessageHandler, InlineQueryHandler
 import os
 from inlineProcessing import processInline
 from linkProcessing import processLink
@@ -22,9 +22,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
 patternsVideos = [
-    r"(https://)?v.\.tiktok\.com/.*/",
+    r"(https://)?v.\.tiktok\.com/.*",
     r"(https://(www\.)?)?tiktok.com/@(.*)/(\d{19})\?.*",
-    r"(https://(www\.)?)?tiktok.com/.*/",
+    r"(https://(www\.)?)?tiktok.com/.*",
     r"(https://(www\.)?)?youtube\.com/watch(.*)",
     r"(https://(www\.)?)?youtu\.be/.*",
     r"(https://(www\.)?)?youtube\.com/shorts/.*",
@@ -51,12 +51,12 @@ if __name__ == '__main__':
     startHandler = CommandHandler('start', start)
     application.add_handler(startHandler)
 
-    videoLinkHandler = telegram.ext.MessageHandler((filters.TEXT & filters.Regex(combinedVideos)), processLink, False)
-    inlineVideoLinkHandler = telegram.ext.InlineQueryHandler(processInline, pattern=combinedVideos, block = True)
+    videoLinkHandler = MessageHandler((filters.TEXT & filters.Regex(combinedVideos)), processLink, False)
+    inlineVideoLinkHandler = InlineQueryHandler(processInline, pattern=combinedVideos, block = True)
     application.add_handler(inlineVideoLinkHandler)
     application.add_handler(videoLinkHandler)
 
-    instagramPostLinkHandler = telegram.ext.MessageHandler((filters.TEXT & filters.Regex(r"(https://(www\.))?instagram\.com/p/(.{11})/.*")), processInstagramPost)
+    instagramPostLinkHandler = MessageHandler((filters.TEXT & filters.Regex(r"(https://(www\.))?instagram\.com/p/(.{11})/.*")), processInstagramPost)
     application.add_handler(instagramPostLinkHandler)
     
     application.run_polling()
