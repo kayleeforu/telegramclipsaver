@@ -19,7 +19,7 @@ async def otherMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if russian:
                 text = "Простите, но пока что я не поддерживаю данный тип постов.\n" \
                     "Вы можете отправить мне:\n" \
-                    "• ТикТок **видео**\n" \
+                    "• ТикТок видео\n" \
                     "• Инстаграм пост/рилс. Поддерживаются посты до 10 вложений.\n" \
                     "• YouTube шортс\n" \
                     "• YouTube видео до 10 минут (Будет меняться в будущем)\n\n" \
@@ -28,7 +28,7 @@ async def otherMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
             else:
                 text = "Sorry, I don't support this type of posts.\n" \
                     "You can send me:\n" \
-                    "• TikTok **video**\n" \
+                    "• TikTok video\n" \
                     "• Instagram Post/Reels. Only posts up to 10 attachments are supported\n" \
                     "• YouTube Shorts\n" \
                     "• YouTube video up to 10 minutes (Will be changed in the future)\n\n" \
@@ -38,17 +38,16 @@ async def otherMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if russian:
                 text = "Для того, чтобы скачать пост, отправьте ссылку в данный чат.\n\n" \
                     "Другой способ скачать пост - это использовать @clip_saverbot {ссылка} в любом другом чате.\n" \
-                    "Скачивание **YouTube видео** (не Shorts) не рекомендуется, потому что требует больше времени.\n\n" \
+                    "Скачивание YouTube видео (не Shorts) не рекомендуется, потому что требует больше времени.\n\n" \
                     "Спасибо за использование этого бота."
             else:
                 text = "To download a post, send me a link in this chat.\n\n" \
                     "Another way to download the post is to use @clip_saverbot {link} in any other chat.\n" \
-                    "However, it is not recommended to download **YouTube videos** (not Shorts), because of the larger video size.\n\n" \
+                    "However, it is not recommended to download YouTube videos (not Shorts), because of the larger video size.\n\n" \
                     "Thank you for using this bot."
 
         await context.bot.send_message(
             chat_id = update.effective_chat.id,
-            parse_mode = "MarkdownV2",
             text = text
         )
         return
