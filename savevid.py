@@ -37,7 +37,7 @@ def downloadVideo(url):
         with YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
             filepath = ydl.prepare_filename(info)
-            if filepath.endswith(".webm") or filepath.endswith(".mkv"):
+            if filepath.endswith(".webm") or filepath.endswith(".mkv") or filepath.endswith(".gif"):
                 filepath = filepath.rsplit(".", 1)[0] + ".mp4"
                 
             probe = ffmpeg.probe(filepath)
