@@ -1,12 +1,11 @@
-import telegram.ext
 import logging
-import telegram
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, filters, MessageHandler, InlineQueryHandler
 import os
 from inlineProcessing import processInline
 from linkProcessing import processLink
 from instagramPost import processInstagramPost
+from otherMessageHandling import otherMessage
 
 logging.basicConfig(
    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -58,5 +57,8 @@ if __name__ == '__main__':
 
     instagramPostLinkHandler = MessageHandler((filters.TEXT & filters.Regex(r"(https://(www\.))?instagram\.com/p/(.{11})/.*")), processInstagramPost)
     application.add_handler(instagramPostLinkHandler)
+
+    anyMessageHandler = MessageHandler(filters.TEXT, otherMessage)
+    application.add_handler(anyMessageHandler)
     
     application.run_polling()
