@@ -25,7 +25,7 @@ instagramPost = r"((https://(www\.))?instagram\.com/p/(.{11})/\S*)"
 
 database = db.database()
 
-async def processMessage(update: Update, context: ContextTypes.DEFAULT_TYPES):
+async def processMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.effective_message.text
     videoPostLink = re.search(combinedVideos, message)
     instagramPostLink = re.search(instagramPost, message)
