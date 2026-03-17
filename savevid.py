@@ -1,9 +1,10 @@
 from yt_dlp import YoutubeDL
 from yt_dlp.utils import DownloadError
 import ffmpeg
-from getThumbnailtest import getThumbnail
+from getThumbnail import getThumbnail
 import logging
 import subprocess
+import asyncio
 
 logging.basicConfig(
    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -49,7 +50,7 @@ async def downloadVideo(url):
                 filepath = filepath.rsplit(".", 1)[0] + ".mp4"
             
 
-            thumbnailpath = await getThumbnail(str(filepath))
+            thumbnailpath = asyncio.run(getThumbnail(str(filepath)))
             logging.warning(f"{thumbnailpath}")
             subprocess.run(["ls", "downloadedVideos/"])
 
