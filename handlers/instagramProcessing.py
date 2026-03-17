@@ -1,15 +1,16 @@
 from instaloader import Instaloader, Post
 import os
 from glob import glob
+import subprocess
 import re
 from telegram import Update, InputMediaPhoto, InputMediaVideo
 from telegram.ext import ContextTypes
 import db
 
+clearVids = ["rm", "-f", "/home/kaylee/telegramclipsaver/downloadedVideos/*"]
 database = db.database()
 
 async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
-    link = update.message.text
     shortcode = (re.search(r"(https://(www\.))?instagram\.com/p/(.{11})/.*", link)).group(3)
 
     instance = Instaloader()
@@ -21,6 +22,8 @@ async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYP
             text = "Invalid Link."
         )
         return False
+    
+    subprocess.run(clearVids)
 
     instance.download_post(post = post, target = "downloadedVideos")
 

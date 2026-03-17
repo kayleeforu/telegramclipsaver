@@ -36,7 +36,7 @@ async def processMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
         link = instagramPostLink.group(1)
         linkType = "instagrampost"
     else:
-        await otherMessage
+        await otherMessage(update, context)
         return
 
     await getLinkAnswer(update, context, link, linkType)
@@ -92,17 +92,19 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
     caption = f"Here is your video.\nRequested by: {requestedBy}\n\n@clip_saverbot"if isGroupChat \
                 else "Here is your video.\n\n@clip_saverbot"
 
-    if await databaseCheck(update, context, link, caption):
-        await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
-        return
-    elif await databaseCheckMediaGroup(update, context, link, caption):
-        await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
-        return
+    if linkType == "video":
+        if await databaseCheck(update, context, link, caption):
+            await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
+            return
+    elif linkType == "instagrampost":
+        if await databaseCheckMediaGroup(update, context, link, caption):
+            await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
+            return
     
     isMediaGroup = False
     if linkType == "video":
         result = await processLink(update, context, link)
-    else:
+    elif linkType == "instagrampost":
         result = await processInstagramPost(update, context, link)
         isMediaGroup = True
          
