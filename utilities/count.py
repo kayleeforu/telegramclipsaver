@@ -1,5 +1,5 @@
 async def countClear():
-    with open("resource/downloadedCount.txt", "r+") as f:
+    with open("resources/downloadedCount.txt", "r+") as f:
         count = f.read()
         print(f"The Downloaded Count was: {count}.\n")
         f.seek(0)
@@ -7,7 +7,7 @@ async def countClear():
         f.write("0")
 
 async def countAdd():
-    with open("resource/downloadedCount.txt", "r+") as f:
+    with open("resources/downloadedCount.txt", "r+") as f:
         count = int(f.read())
         print(count)
         count += 1
