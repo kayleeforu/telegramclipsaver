@@ -37,10 +37,10 @@ async def processMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.info(f"group 0: {videoPostLink.group(0)}")
     logger.info(f"group 1: {videoPostLink.group(1)}")
     if videoPostLink:
-        link = videoPostLink.group(1)
+        link = videoPostLink.group(0)
         linkType = "video"
     elif instagramPostLink:
-        link = instagramPostLink.group(1)
+        link = instagramPostLink.group(0)
         linkType = "instagrampost"
     else:
         await otherMessage(update, context)
