@@ -42,6 +42,7 @@ async def downloadVideo(url):
                 filepath = filepath.rsplit(".", 1)[0] + ".mp4"
             
             thumbnailpath = await getThumbnail(filepath)
+            print(f"\n\n{thumbnailpath}\n\n")
 
             probe = ffmpeg.probe(filepath)
             audio_streams = [s for s in probe['streams'] if s['codec_type'] == 'audio']
