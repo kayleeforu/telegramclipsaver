@@ -2,10 +2,7 @@ import logging
 from telegram.ext import ApplicationBuilder, CommandHandler, filters, MessageHandler, InlineQueryHandler
 import os
 from handlers.inlineProcessing import processInline
-from handlers.linkProcessing import processLink
-from handlers.instagramProcessing import processInstagramPost
-from handlers.otherMessageHandling import otherMessage
-from handlers.linkAnswer import getLinkAnswer
+from handlers.linkAnswer import processMessage
 from commands.commands import start, support
 
 logging.basicConfig(
@@ -43,7 +40,7 @@ if __name__ == '__main__':
     startHandler = CommandHandler("start", start)
     supportHandler = CommandHandler("support", support)
     # Message Handler
-    messageHandler = MessageHandler(filters.TEXT, getLinkAnswer)
+    messageHandler = MessageHandler(filters.TEXT, processMessage)
     # Link, which is not instagram post, handler
     inlineVideoLinkHandler = InlineQueryHandler(processInline, pattern = combinedVideos, block = True)
 
