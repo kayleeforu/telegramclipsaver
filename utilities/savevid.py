@@ -50,7 +50,7 @@ async def downloadVideo(url):
 
             return str(filepath), True, thumbnailpath, height, width
     except DownloadError as e:
-        if "too long" in str(e).lower() or "max 15 minutes" in str(e).lower():
+        if "too long" in str(e).lower():
             return "too_long", None, None, None, None
         
         print(f"Error: {e}")

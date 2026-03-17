@@ -4,49 +4,15 @@ from glob import glob
 import re
 from telegram import Update, InputMediaPhoto, InputMediaVideo
 from telegram.ext import ContextTypes
-from utilities.count import countAdd
-from utilities.deleteOriginalMessage import deleteOriginalMessage
 import db
 
 database = db.database()
 
-async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
     link = update.message.text
-    match = re.search(r"(https://(www\.))?instagram\.com/p/(.{11})/.*", link)
-    if match:
-        shortcode = match.group(3)
-    
-    isGroupChat = update.effective_chat.type in ["group", "supergroup"]
-    requestedBy = "@" + update.effective_sender.username if isGroupChat else None
-    requestedMessage = update.effective_message.id if isGroupChat else None
-
-    caption = f"Here is your post.\nRequested by: {requestedBy}\n\n@clip_saverbot"if isGroupChat \
-                else "Here is your post.\n\n@clip_saverbot"
-    
-    response = await database.lookup(link)
-    if response.data:
-        media = []
-        row = response.data[0]
-        for file_id, has_audio in zip(row["file_ids"], row["has_audio"]):
-            if has_audio:
-                media.append(InputMediaVideo(file_id))
-            else:
-                media.append(InputMediaPhoto(file_id))
-
-        await context.bot.send_media_group(
-            chat_id = update.effective_chat.id,
-            media = media,
-            caption = caption
-        )
-
-        await countAdd()
-
-        await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
-
-        return
+    shortcode = (re.search(r"(https://(www\.))?instagram\.com/p/(.{11})/.*", link)).group(3)
 
     instance = Instaloader()
-    
     try:
         post = Post.from_shortcode(instance.context, shortcode)
     except:
@@ -54,10 +20,7 @@ async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYP
             chat_id = update.effective_chat.id,
             text = "Invalid Link."
         )
-        return
-    
-    for file in glob("downloadedVideos/*"):
-        os.remove(file)
+        return False
 
     instance.download_post(post = post, target = "downloadedVideos")
 
@@ -86,14 +49,6 @@ async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYP
     for file in glob("downloadedVideos/*"):
         os.remove(file)
 
-    await context.bot.send_media_group(
-        chat_id = update.effective_chat.id,
-        media = media2,
-        caption = caption
-    )
-
     await database.insert(link, files)
 
-    await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
-
-    await countAdd()
+    return True
