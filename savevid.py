@@ -1,6 +1,7 @@
 from yt_dlp import YoutubeDL
 from yt_dlp.utils import DownloadError
 import ffmpeg
+from getThumbnail import getThumbnail
 
 def duration_filter(info):
     duration = info.get("duration")
@@ -39,18 +40,20 @@ def downloadVideo(url):
             filepath = ydl.prepare_filename(info)
             if filepath.endswith(".webm") or filepath.endswith(".mkv") or filepath.endswith(".gif"):
                 filepath = filepath.rsplit(".", 1)[0] + ".mp4"
-                
+            
+            thumbnailpath = getThumbnail(filepath)
+
             probe = ffmpeg.probe(filepath)
             audio_streams = [s for s in probe['streams'] if s['codec_type'] == 'audio']
             if audio_streams == []:
-                return filepath, False
+                return filepath, False, thumbnailpath
 
-            return str(filepath), True
+            return str(filepath), True, thumbnailpath
     except DownloadError as e:
         if "too long" in str(e).lower() or "max 15 minutes" in str(e).lower():
-            return "too_long", None
+            return "too_long", None, None
         print(f"Error: {e}")
-        return None, None
+        return None, None, None
     except Exception as e:
         print(f"Error: {e}")
-        return None, None
+        return None, None, None

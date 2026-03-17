@@ -36,7 +36,7 @@ async def processInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
 
-    (filepath, hasAudio) = downloadVideo(link)
+    (filepath, hasAudio, thumbnailpath) = downloadVideo(link)
     if filepath is None:
         subprocess.run(clearVids)
         return
@@ -46,7 +46,8 @@ async def processInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
             msg = await context.bot.send_video(
                 chat_id = -1003794009076,
                 video = f,
-                supports_streaming = True
+                supports_streaming = True,
+                thumbnail = thumbnailpath
             )
 
             file_id = msg.video.file_id
@@ -60,7 +61,8 @@ async def processInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else: 
             msg = await context.bot.send_animation(
                 chat_id = -1003794009076,
-                animation = f
+                animation = f,
+                thumbnail = thumbnailpath
             )
 
             file_id = msg.animation.file_id

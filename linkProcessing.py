@@ -5,6 +5,7 @@ from count import countAdd
 import subprocess
 import db
 from deleteOriginalMessage import deleteOriginalMessage
+import os
 
 clearVids = ["rm", "-f", "/home/kaylee/telegramclipsaver/downloadedVideos/*"]
 database = db.database()
@@ -36,10 +37,12 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     caption = caption
                 )
         await countAdd() # Downloaded Count + 1
+
+        await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
     
         return
 
-    (filepath, hasAudio) = downloadVideo(link)
+    (filepath, hasAudio, thumbnailpath) = downloadVideo(link)
 
     # Cache Has No Entry, filepath check
     if filepath is None:
@@ -64,7 +67,8 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 msg = await context.bot.send_video(
                     chat_id = -1003794009076,
                     video = f,
-                    supports_streaming = True
+                    supports_streaming = True,
+                    thumbnail = thumbnailpath
                 )
                 file = (msg.video.file_id, True)
 
@@ -77,7 +81,8 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE):
             else:
                 msg = await context.bot.send_animation(
                     chat_id = -1003794009076,
-                    animation = f
+                    animation = f,
+                    thumbnail = thumbnailpath
                 )
                 file = (msg.animation.file_id, False)
 
@@ -86,7 +91,8 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE):
                      animation = file[0],
                      caption = caption
                 )
-        
+        os.remove(filepath)
+        os.remove(thumbnailpath)
         await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
 
     finally:
