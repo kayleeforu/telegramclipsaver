@@ -10,7 +10,7 @@ def duration_filter(info):
 
 def downloadVideo(url):
     ydl_opts = {
-        "quiet": True,
+        "quiet": False,
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
         "match_filter": duration_filter,
         "format": "bestvideo[vcodec^=avc][height<=1080]+bestaudio/bestvideo[height<=1080]+bestaudio/best",
@@ -52,6 +52,7 @@ def downloadVideo(url):
     except DownloadError as e:
         if "too long" in str(e).lower() or "max 15 minutes" in str(e).lower():
             return "too_long", None, None
+        
         print(f"Error: {e}")
         return None, None, None
     except Exception as e:
