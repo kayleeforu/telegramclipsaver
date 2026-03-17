@@ -41,7 +41,7 @@ async def downloadVideo(url):
             if filepath.endswith(".webm") or filepath.endswith(".mkv") or filepath.endswith(".gif"):
                 filepath = filepath.rsplit(".", 1)[0] + ".mp4"
             
-            thumbnailpath = await getThumbnail(filepath)
+            thumbnailpath = await getThumbnail(str(filepath))
             print(f"\n\n{thumbnailpath}\n\n")
 
             probe = ffmpeg.probe(filepath)
