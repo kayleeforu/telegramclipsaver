@@ -1,10 +1,10 @@
 from telegram import Update
 from telegram.ext import ContextTypes
-from savevid import downloadVideo
-from count import countAdd
+from utilities.savevid import downloadVideo
+from utilities.count import countAdd
 import subprocess
 import db
-from deleteOriginalMessage import deleteOriginalMessage
+from utilities.deleteOriginalMessage import deleteOriginalMessage
 import os
 
 clearVids = ["rm", "-f", "/home/kaylee/telegramclipsaver/downloadedVideos/*"]

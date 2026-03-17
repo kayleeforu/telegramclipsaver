@@ -4,8 +4,8 @@ from glob import glob
 import re
 from telegram import Update, InputMediaPhoto, InputMediaVideo
 from telegram.ext import ContextTypes
-from count import countAdd
-from deleteOriginalMessage import deleteOriginalMessage
+from utilities.count import countAdd
+from utilities.deleteOriginalMessage import deleteOriginalMessage
 import db
 
 database = db.database()

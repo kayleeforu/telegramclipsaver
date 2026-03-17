@@ -1,9 +1,9 @@
 from telegram import Update, InlineQueryResultCachedVideo, InlineQueryResultCachedMpeg4Gif
 from telegram.ext import ContextTypes
-from savevid import downloadVideo
+from utilities.savevid import downloadVideo
 import uuid
 import subprocess
-from count import countAdd
+from utilities.count import countAdd
 import db
 
 clearVids = ["rm", "-f", "/home/kaylee/telegramclipsaver/downloadedVideos/*"]
