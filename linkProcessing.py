@@ -42,7 +42,7 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
         return
 
-    (filepath, hasAudio, thumbnailpath) = await downloadVideo(link)
+    (filepath, hasAudio, thumbnailpath, height, width) = await downloadVideo(link)
 
     # Cache Has No Entry, filepath check
     if filepath is None:
@@ -68,7 +68,9 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     chat_id = -1003794009076,
                     video = f,
                     supports_streaming = True,
-                    thumbnail = thumbnailpath
+                    thumbnail = thumbnailpath,
+                    height = height,
+                    width = width
                 )
                 file = (msg.video.file_id, True)
 
@@ -82,7 +84,9 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 msg = await context.bot.send_animation(
                     chat_id = -1003794009076,
                     animation = f,
-                    thumbnail = thumbnailpath
+                    thumbnail = thumbnailpath,
+                    height = height,
+                    width = width
                 )
                 file = (msg.animation.file_id, False)
 

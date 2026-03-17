@@ -1,7 +1,7 @@
 import cv2
 
-async def getThumbnail(filepath):
-    print("\n\nTHUMBNAIL\n\n")
+async def getVideoInfo(filepath):
+
     framepath = filepath.replace(".mp4", "_frame.jpg")
     vid = cv2.VideoCapture(filepath)
     for i in range(60):
@@ -9,4 +9,8 @@ async def getThumbnail(filepath):
     if success:
         cv2.imwrite(framepath, image)
     vid.release()
-    return framepath
+
+    height = vid.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    width = vid.get(cv2.CAP_PROP_FRAME_WIDTH)
+
+    return framepath, height, width
