@@ -41,6 +41,8 @@ async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYP
 
         await countAdd()
 
+        await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
+
         return
 
     instance = Instaloader()

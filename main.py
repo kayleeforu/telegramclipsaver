@@ -3,9 +3,10 @@ from telegram.ext import ApplicationBuilder, CommandHandler, filters, MessageHan
 import os
 from inlineProcessing import processInline
 from linkProcessing import processLink
-from instagramPost import processInstagramPost
+from instagramProcessing import processInstagramPost
 from otherMessageHandling import otherMessage
 from start import start
+from support import support
 
 logging.basicConfig(
    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -39,18 +40,23 @@ if __name__ == '__main__':
     .connect_timeout(120) \
     .build()
 
-    startHandler = CommandHandler('start', start)
-    application.add_handler(startHandler)
+    # Commands
+    startHandler = CommandHandler("start", start)
+    supportHandler = CommandHandler("support", support)
+    application.add_handlers([startHandler, supportHandler])
 
+    # Link, which is not instagram post, handler
     videoLinkHandler = MessageHandler((filters.TEXT & filters.Regex(combinedVideos)), processLink, False)
     inlineVideoLinkHandler = InlineQueryHandler(processInline, pattern=combinedVideos, block = True)
-    application.add_handler(inlineVideoLinkHandler)
-    application.add_handler(videoLinkHandler)
+    application.add_handlers(inlineVideoLinkHandler, videoLinkHandler)
 
+    # Instagram post download
     instagramPostLinkHandler = MessageHandler((filters.TEXT & filters.Regex(r"(https://(www\.))?instagram\.com/p/(.{11})/.*")), processInstagramPost)
     application.add_handler(instagramPostLinkHandler)
 
+    # If user sends any other message than the supported link or command
     anyMessageHandler = MessageHandler(filters.TEXT, otherMessage)
     application.add_handler(anyMessageHandler)
     
+    # Run bot
     application.run_polling()
