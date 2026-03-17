@@ -1,7 +1,7 @@
 from yt_dlp import YoutubeDL
 from yt_dlp.utils import DownloadError
 import ffmpeg
-from getThumbnail import getThumbnail
+from getThumbnailtest import getThumbnail
 
 def duration_filter(info):
     duration = info.get("duration")
