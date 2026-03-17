@@ -41,7 +41,7 @@ async def processMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await getLinkAnswer(update, context, link, linkType)
 
-async def databaseCheck(update: Update, context: ContextTypes.DEFAULT_TYPE, link, caption):
+async def databaseCheck(update: Update, context: ContextTypes.DEFAULT_TYPE, link, caption, repliesTo):
     response = await database.lookup(link)
     if response.data:
         row = response.data[0]
@@ -50,20 +50,22 @@ async def databaseCheck(update: Update, context: ContextTypes.DEFAULT_TYPE, link
                 await context.bot.send_video(
                     chat_id = update.effective_chat.id,
                     video = file[0],
-                    caption = caption
+                    caption = caption,
+                    reply_to_message_id = repliesTo
                 )
         else:
                 await context.bot.send_animation(
                     chat_id = update.effective_chat.id, 
                     animation = file[0],
-                    caption = caption
+                    caption = caption,
+                    reply_to_message_id = repliesTo
                 )
         await countAdd() # Downloaded Count + 1
     
         return True
     return False
 
-async def databaseCheckMediaGroup(update: Update, context: ContextTypes.DEFAULT_TYPE, link, caption):
+async def databaseCheckMediaGroup(update: Update, context: ContextTypes.DEFAULT_TYPE, link, caption, repliesTo):
     response = await database.lookup(link)
     if response.data:
         media = []
@@ -77,7 +79,8 @@ async def databaseCheckMediaGroup(update: Update, context: ContextTypes.DEFAULT_
         await context.bot.send_media_group(
             chat_id = update.effective_chat.id,
             media = media,
-            caption = caption
+            caption = caption,
+            reply_to_message_id = repliesTo
         )
         await countAdd() # Downloaded Count + 1
 
@@ -91,6 +94,8 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
 
     caption = f"Here is your video.\nRequested by: {requestedBy}\n\n@clip_saverbot"if isGroupChat \
                 else "Here is your video.\n\n@clip_saverbot"
+    
+    repliesTo = update.effective_message.reply_to_message.id
 
     if linkType == "video":
         if await databaseCheck(update, context, link, caption):
@@ -109,11 +114,11 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
         isMediaGroup = True
          
     if result and not isMediaGroup:
-        await databaseCheck(update, context, link, caption)
+        await databaseCheck(update, context, link, caption, repliesTo)
         await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
         return
     if result and isMediaGroup:
-        await databaseCheckMediaGroup(update, context, link, caption)
+        await databaseCheckMediaGroup(update, context, link, caption, repliesTo)
         await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
         return
     else:
