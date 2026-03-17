@@ -14,6 +14,8 @@ async def otherMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not isLink and len(message) < 3:
         return
 
+    print("hello \n hello \n hello \n")
+
     if not isGroupChat:
         if isLink:
             if russian:
