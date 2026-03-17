@@ -27,6 +27,7 @@ database = db.database()
 
 async def processMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.effective_message.text
+    repliesTo = update.effective_message.reply_to_message.id
     videoPostLink = re.search(combinedVideos, message)
     instagramPostLink = re.search(instagramPost, message)
     if videoPostLink:
@@ -39,7 +40,7 @@ async def processMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await otherMessage(update, context)
         return
 
-    await getLinkAnswer(update, context, link, linkType)
+    await getLinkAnswer(update, context, link, linkType, repliesTo)
 
 async def databaseCheck(update: Update, context: ContextTypes.DEFAULT_TYPE, link, caption, repliesTo):
     response = await database.lookup(link)
