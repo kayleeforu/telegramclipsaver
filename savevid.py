@@ -50,7 +50,7 @@ async def downloadVideo(url):
                 filepath = filepath.rsplit(".", 1)[0] + ".mp4"
             
 
-            thumbnailpath = asyncio.run(getThumbnail(str(filepath)))
+            thumbnailpath = await asyncio.run(getThumbnail(str(filepath)))
             logging.warning(f"{thumbnailpath}")
             subprocess.run(["ls", "downloadedVideos/"])
 
