@@ -2,6 +2,12 @@ from yt_dlp import YoutubeDL
 from yt_dlp.utils import DownloadError
 import ffmpeg
 from getThumbnailtest import getThumbnail
+import logging
+
+logging.basicConfig(
+   format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+   level=logging.INFO
+)
 
 def duration_filter(info):
     duration = info.get("duration")
@@ -41,9 +47,9 @@ async def downloadVideo(url):
             if filepath.endswith(".webm") or filepath.endswith(".mkv") or filepath.endswith(".gif"):
                 filepath = filepath.rsplit(".", 1)[0] + ".mp4"
             
-            print("\n\nDebug\n\n")
+
             thumbnailpath = await getThumbnail(str(filepath))
-            print(f"\n\n{thumbnailpath}\n\n")
+            logging.warning(f"{thumbnailpath} \n\n\n\n")
 
             probe = ffmpeg.probe(filepath)
             audio_streams = [s for s in probe['streams'] if s['codec_type'] == 'audio']
