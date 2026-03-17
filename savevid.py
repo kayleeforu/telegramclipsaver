@@ -8,7 +8,7 @@ def duration_filter(info):
     if duration and duration > 600:
         return "Video is too long (max 10 minutes)"
 
-def downloadVideo(url):
+async def downloadVideo(url):
     ydl_opts = {
         "quiet": False,
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
@@ -41,7 +41,7 @@ def downloadVideo(url):
             if filepath.endswith(".webm") or filepath.endswith(".mkv") or filepath.endswith(".gif"):
                 filepath = filepath.rsplit(".", 1)[0] + ".mp4"
             
-            thumbnailpath = getThumbnail(filepath)
+            thumbnailpath = await getThumbnail(filepath)
 
             probe = ffmpeg.probe(filepath)
             audio_streams = [s for s in probe['streams'] if s['codec_type'] == 'audio']

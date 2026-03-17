@@ -36,7 +36,7 @@ async def processInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
 
-    (filepath, hasAudio, thumbnailpath) = downloadVideo(link)
+    (filepath, hasAudio, thumbnailpath) = await downloadVideo(link)
     if filepath is None:
         subprocess.run(clearVids)
         return

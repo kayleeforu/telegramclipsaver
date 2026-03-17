@@ -42,7 +42,7 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
         return
 
-    (filepath, hasAudio, thumbnailpath) = downloadVideo(link)
+    (filepath, hasAudio, thumbnailpath) = await downloadVideo(link)
 
     # Cache Has No Entry, filepath check
     if filepath is None:
@@ -91,7 +91,7 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE):
                      animation = file[0],
                      caption = caption
                 )
-        subprocess.run(["ls", "downloadedVideos/"])
+            subprocess.run(["ls", "downloadedVideos/"])
         await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
 
     finally:
