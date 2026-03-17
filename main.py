@@ -48,7 +48,7 @@ if __name__ == '__main__':
     # Link, which is not instagram post, handler
     videoLinkHandler = MessageHandler((filters.TEXT & filters.Regex(combinedVideos)), processLink, False)
     inlineVideoLinkHandler = InlineQueryHandler(processInline, pattern=combinedVideos, block = True)
-    application.add_handlers(inlineVideoLinkHandler, videoLinkHandler)
+    application.add_handlers([inlineVideoLinkHandler, videoLinkHandler])
 
     # Instagram post download
     instagramPostLinkHandler = MessageHandler((filters.TEXT & filters.Regex(r"(https://(www\.))?instagram\.com/p/(.{11})/.*")), processInstagramPost)
