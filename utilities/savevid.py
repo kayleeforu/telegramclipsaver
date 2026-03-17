@@ -1,7 +1,7 @@
 from yt_dlp import YoutubeDL
 from yt_dlp.utils import DownloadError
 import ffmpeg
-from getVideoInfo import getVideoInfo
+from utilities.getVideoInfo import getVideoInfo
 
 def duration_filter(info):
     duration = info.get("duration")
