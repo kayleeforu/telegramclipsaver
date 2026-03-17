@@ -3,6 +3,7 @@ from yt_dlp.utils import DownloadError
 import ffmpeg
 from getThumbnailtest import getThumbnail
 import logging
+import subprocess
 
 logging.basicConfig(
    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -49,7 +50,8 @@ async def downloadVideo(url):
             
 
             thumbnailpath = await getThumbnail(str(filepath))
-            logging.warning(f"{thumbnailpath} \n\n\n\n")
+            logging.warning(f"{thumbnailpath}")
+            subprocess.run(["ls", "downloadedVideos/"])
 
             probe = ffmpeg.probe(filepath)
             audio_streams = [s for s in probe['streams'] if s['codec_type'] == 'audio']
