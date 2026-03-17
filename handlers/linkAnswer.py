@@ -101,9 +101,9 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
     
     isMediaGroup = False
     if linkType == "video":
-        result = processLink(update, context, link)
+        result = await processLink(update, context, link)
     else:
-        result = processInstagramPost(update, context, link)
+        result = await processInstagramPost(update, context, link)
         isMediaGroup = True
          
     if result and not isMediaGroup:
