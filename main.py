@@ -5,6 +5,7 @@ from handlers.inlineProcessing import processInline
 from handlers.linkProcessing import processLink
 from handlers.instagramProcessing import processInstagramPost
 from handlers.otherMessageHandling import otherMessage
+from handlers.linkAnswer import getLinkAnswer
 from commands.commands import start, support
 
 logging.basicConfig(
@@ -12,19 +13,18 @@ logging.basicConfig(
    level=logging.INFO
 )
 
-patternsVideos = [
-    r"(https://)?v.\.tiktok\.com/.*",
-    r"(https://(www\.)?)?tiktok.com/@(.*)/(\d{19})\?.*",
-    r"(https://(www\.)?)?tiktok.com/.*",
-    r"(https://(www\.)?)?youtube\.com/watch(.*)",
-    r"(https://(www\.)?)?youtu\.be/.*",
-    r"(https://(www\.)?)?youtube\.com/shorts/.*",
-    r"(https://(www\.)?)?instagram\.com/reel/.*",
-    r"(https://(www\.)?)?pin\..{2}/.*",
-    r"(https://(www\.)?)?pinterest\.com/pin/.*",
+videoPost = [
+    r"((https://)?v.\.tiktok\.com/\S*)",
+    r"((https://(www\.)?)?tiktok.com/@(.*)/(\d{19})\?\S*)",
+    r"((https://(www\.)?)?tiktok.com/\S*)",
+    r"((https://(www\.)?)?youtube\.com/watch(\S*))",
+    r"((https://(www\.)?)?youtu\.be/\S*)",
+    r"((https://(www\.)?)?youtube\.com/shorts/\S*)",
+    r"((https://(www\.)?)?instagram\.com/reel/\S*)",
+    r"((https://(www\.)?)?pin\..{2}/\S*)",
+    r"((https://(www\.)?)?pinterest\.com/pin/\S*)",
 ]
-
-combinedVideos = "|".join(f"({p})" for p in patternsVideos)
+combinedVideos = "|".join(f"({p})" for p in videoPost)
 
 if __name__ == '__main__':
     TOKEN = os.environ.get("BOT_TOKEN")
@@ -42,20 +42,13 @@ if __name__ == '__main__':
     # Commands
     startHandler = CommandHandler("start", start)
     supportHandler = CommandHandler("support", support)
-    application.add_handlers([startHandler, supportHandler])
-
+    # Message Handler
+    messageHandler = MessageHandler(filters.TEXT, getLinkAnswer)
     # Link, which is not instagram post, handler
-    videoLinkHandler = MessageHandler((filters.TEXT & filters.Regex(combinedVideos)), processLink, False)
-    inlineVideoLinkHandler = InlineQueryHandler(processInline, pattern=combinedVideos, block = True)
-    application.add_handlers([inlineVideoLinkHandler, videoLinkHandler])
+    inlineVideoLinkHandler = InlineQueryHandler(processInline, pattern = combinedVideos, block = True)
 
-    # Instagram post download
-    instagramPostLinkHandler = MessageHandler((filters.TEXT & filters.Regex(r"(https://(www\.))?instagram\.com/p/(.{11})/.*")), processInstagramPost)
-    application.add_handler(instagramPostLinkHandler)
-
-    # If user sends any other message than the supported link or command
-    anyMessageHandler = MessageHandler(filters.TEXT, otherMessage)
-    application.add_handler(anyMessageHandler)
+    # Adding handlers to the bot
+    application.add_handlers([startHandler, supportHandler, messageHandler, inlineVideoLinkHandler])
     
     # Run bot
     application.run_polling()
