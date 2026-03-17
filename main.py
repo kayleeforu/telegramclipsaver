@@ -1,12 +1,11 @@
 import logging
 from telegram.ext import ApplicationBuilder, CommandHandler, filters, MessageHandler, InlineQueryHandler
 import os
-from inlineProcessing import processInline
-from linkProcessing import processLink
-from instagramProcessing import processInstagramPost
-from otherMessageHandling import otherMessage
-from start import start
-from support import support
+from handlers.inlineProcessing import processInline
+from handlers.linkProcessing import processLink
+from handlers.instagramProcessing import processInstagramPost
+from handlers.otherMessageHandling import otherMessage
+from commands.commands import start, support
 
 logging.basicConfig(
    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
