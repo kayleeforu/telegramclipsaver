@@ -4,7 +4,7 @@ async def getVideoInfo(filepath):
 
     framepath = filepath.replace(".mp4", "_frame.jpg")
     vid = cv2.VideoCapture(filepath)
-    for i in range(60):
+    for i in range(20):
         success, image = vid.read()
     if success:
         cv2.imwrite(framepath, image)

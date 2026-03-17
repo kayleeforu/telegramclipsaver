@@ -4,12 +4,16 @@ from utilities.savevid import downloadVideo
 import subprocess
 import db
 import os
+import logging
+logger = logging.getLogger(__name__)
 
 clearVids = ["rm", "-f", "/home/kaylee/telegramclipsaver/downloadedVideos/*"]
 database = db.database()
 
 async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
+    logger.info(f"Processing link: {link}")
     (filepath, hasAudio, thumbnailpath, height, width) = await downloadVideo(link)
+    logger.info(f"filepath: {filepath}, hasAudio: {hasAudio}")
 
     if filepath is None:
         subprocess.run(clearVids)
