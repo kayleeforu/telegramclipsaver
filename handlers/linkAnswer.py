@@ -115,7 +115,7 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
         await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
         return
     else:
-        context.bot.send_message(
+        await context.bot.send_message(
             chat_id = update.effective_chat.id,
             text = "Something went wrong :("
         )
