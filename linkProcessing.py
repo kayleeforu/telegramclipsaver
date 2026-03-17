@@ -91,8 +91,7 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE):
                      animation = file[0],
                      caption = caption
                 )
-        os.remove(filepath)
-        os.remove(thumbnailpath)
+        subprocess.run(["ls", "downloadedVideos/"])
         await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
 
     finally:
