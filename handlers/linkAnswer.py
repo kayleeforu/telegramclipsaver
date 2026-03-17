@@ -95,7 +95,7 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
     caption = f"Here is your video.\nRequested by: {requestedBy}\n\n@clip_saverbot"if isGroupChat \
                 else "Here is your video.\n\n@clip_saverbot"
     
-    repliesTo = update.effective_message.reply_to_message.id
+    repliesTo = update.effective_message.reply_to_message.id if update.effective_message.reply_to_message else None
 
     if linkType == "video":
         if await databaseCheck(update, context, link, caption, repliesTo):
