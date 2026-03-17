@@ -91,7 +91,11 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE):
                      animation = file[0],
                      caption = caption
                 )
-            subprocess.run(["ls", "downloadedVideos/"])
+        try:
+            os.remove(filepath)
+            os.remove(thumbnailpath)
+        except:
+             print(f"{filepath} or {thumbnailpath} doesn't exist")
         await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
 
     finally:
