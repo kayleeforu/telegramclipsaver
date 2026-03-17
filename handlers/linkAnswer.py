@@ -7,6 +7,8 @@ from handlers.instagramProcessing import processInstagramPost
 from utilities.deleteOriginalMessage import deleteOriginalMessage
 from utilities.count import countAdd
 import db
+import logging
+logger = logging.getLogger(__name__)
 
 videoPost = [
     r"((https://)?v.\.tiktok\.com/\S*)",
@@ -27,8 +29,13 @@ database = db.database()
 
 async def processMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.effective_message.text
+    logger.info(f"message: {message}")
     videoPostLink = re.search(combinedVideos, message)
     instagramPostLink = re.search(instagramPost, message)
+    logger.info(f"videoPostLink: {videoPostLink}")
+    logger.info(f"instagramPostLink: {instagramPostLink}")
+    logger.info(f"group 0: {videoPostLink.group(0)}")
+    logger.info(f"group 1: {videoPostLink.group(1)}")
     if videoPostLink:
         link = videoPostLink.group(1)
         linkType = "video"
