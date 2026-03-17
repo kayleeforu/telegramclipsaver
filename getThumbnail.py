@@ -1,6 +1,7 @@
 import cv2
 
 async def getThumbnail(filepath):
+    print("\n\nTHUMBNAIL\n\n")
     framepath = filepath.replace(".mp4", "_frame.jpg")
     vid = cv2.VideoCapture("downloadedVideos/video222.mp4")
     success, image = vid.read()
