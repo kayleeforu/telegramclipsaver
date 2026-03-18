@@ -52,7 +52,6 @@ async def downloadVideo(url):
     except DownloadError as e:
         if "too long" in str(e).lower():
             return "too_long", None, None, None, None
-        
         print(f"Error: {e}")
         return None, None, None, None, None
     except Exception as e:
