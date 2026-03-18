@@ -91,7 +91,8 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
     isGroupChat = update.effective_chat.type in ["group", "supergroup"]
     requestedBy = "@" + update.effective_sender.username if isGroupChat else None
     requestedMessage = update.effective_message.id if isGroupChat else None
-    isRussian = update.effective_user.language_code == "ru"
+    user = update.effective_user
+    isRussian = user and user.language_code == "ru"
     if isRussian:
         caption = f"Ваш пост.\nЗапрошено пользователем: {requestedBy}\n\n@clip_saverbot" if isGroupChat \
         else "Ваш пост.\n\n@clip_saverbot"
