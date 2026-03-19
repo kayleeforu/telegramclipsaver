@@ -26,7 +26,6 @@ async def downloadVideo(url):
         "remote_components": ["ejs:github"],
         "concurrent_fragment_downloads": 2,
         "buffersize": 8192,
-        "merge_output_format": "mp4",
         "postprocessor_args": {
             "ffmpeg": ["-movflags", "+faststart"]
         },
@@ -34,18 +33,18 @@ async def downloadVideo(url):
     try:
         with YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
-            filepath = ydl.prepare_filename(info)
-            if filepath.endswith(".webm") or filepath.endswith(".mkv") or filepath.endswith(".gif"):
-                filepath = filepath.rsplit(".", 1)[0] + ".mp4"
-            
-            thumbnailpath, height, width = await getVideoInfo(str(filepath))
 
+            # prepare_filename gives the pre-merge name, so we force .mp4
+            filepath = ydl.prepare_filename(info)
+            filepath = filepath.rsplit(".", 1)[0] + ".mp4"
+
+            thumbnailpath, height, width = await getVideoInfo(str(filepath))
             probe = ffmpeg.probe(filepath)
-            audio_streams = [s for s in probe['streams'] if s['codec_type'] == 'audio']
+            audio_streams = [s for s in probe["streams"] if s["codec_type"] == "audio"]
             if audio_streams == []:
                 return filepath, False, thumbnailpath, height, width
-
             return str(filepath), True, thumbnailpath, height, width
+
     except DownloadError as e:
         if "too long" in str(e).lower():
             return "too_long", None, None, None, None
