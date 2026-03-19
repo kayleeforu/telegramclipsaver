@@ -5,8 +5,8 @@ from utilities.getVideoInfo import getVideoInfo
 
 def duration_filter(info):
     duration = info.get("duration")
-    if duration and duration > 1080:
-        return "Video is too long (max 18 minutes)"
+    if duration and duration > 1800:
+        return "Video is too long (max 1800 minutes)"
 
 async def downloadVideo(url):
     ydl_opts = {
