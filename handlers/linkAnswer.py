@@ -129,6 +129,7 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
     else:
         await context.bot.send_message(
             chat_id = update.effective_chat.id,
-            text = "Something went wrong :("
+            text = "Something went wrong :(\n" \
+            "Make sure your video is 20 min long or less"
         )
         return
