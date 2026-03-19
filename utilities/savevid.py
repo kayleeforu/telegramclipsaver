@@ -26,10 +26,7 @@ async def downloadVideo(url):
         "remote_components": ["ejs:github"],
         "concurrent_fragment_downloads": 2,
         "buffersize": 8192,
-        "postprocessors": [{
-            "key": "FFmpegVideoConvertor",
-            "preferedformat": "mp4",
-        }],
+        "merge_output_format": "mp4",
         "postprocessor_args": {
             "ffmpeg": ["-movflags", "+faststart"]
         },
