@@ -5,8 +5,8 @@ from utilities.getVideoInfo import getVideoInfo
 
 def duration_filter(info):
     duration = info.get("duration")
-    if duration and duration > 1200:
-        return "Video is too long (max 1200 seconds)"
+    if duration and duration > 960:
+        return "Video is too long (max 960 seconds)"
 
 async def downloadVideo(url):
     ydl_opts = {
@@ -26,6 +26,10 @@ async def downloadVideo(url):
         "remote_components": ["ejs:github"],
         "concurrent_fragment_downloads": 2,
         "buffersize": 8192,
+             "postprocessors": [{
+            "key": "FFmpegVideoConvertor",
+            "preferedformat": "mp4",
+        }],
         "postprocessor_args": {
             "ffmpeg": ["-movflags", "+faststart"]
         },
