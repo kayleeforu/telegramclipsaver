@@ -6,7 +6,7 @@ import subprocess
 from utilities.count import countAdd
 import db
 
-clearVids = ["rm", "-f", "/home/kaylee/telegramclipsaver/downloadedVideos/*"]
+clearVids = ["rm", "-f", "downloadedVideos/*"]
 database = db.database()
 
 async def processInline(update: Update, context: ContextTypes.DEFAULT_TYPE):

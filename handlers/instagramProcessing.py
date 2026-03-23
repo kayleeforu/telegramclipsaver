@@ -10,7 +10,7 @@ import db
 database = db.database()
 
 async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
-    for file in glob("/home/kaylee/telegramclipsaver/downloadedVideos/*"):
+    for file in glob("downloadedVideos/*"):
         os.remove(file)
 
     shortcode = (re.search(r"(https://(www\.))?instagram\.com/p/(.{11})/.*", link)).group(3)
