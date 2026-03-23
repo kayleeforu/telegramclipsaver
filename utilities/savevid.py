@@ -29,7 +29,6 @@ async def downloadVideo(url):
             "merge_output_format": "mp4",
 
             "cookiefile": "cookies.txt",
-            "js_runtimes": {"node": {}},
             "extractor_args": {
                 "youtube": {
                     "player_client": ["web", "web_safari"],
