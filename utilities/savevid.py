@@ -15,7 +15,7 @@ async def downloadVideo(url):
         "match_filter": duration_filter,
         "format": "bestvideo[vcodec^=avc][height<=1080]+bestaudio/bestvideo[height<=1080]+bestaudio/best",
         "merge_output_format": "mp4",
-        "cookiefile": "/home/kaylee/telegramclipsaver/cookies.txt",
+        "cookiefile": "cookies.txt",
         "js_runtimes": {"node": {}},
         "extractor_args": {
             "youtube": {

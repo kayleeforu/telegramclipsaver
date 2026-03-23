@@ -5,7 +5,7 @@ import subprocess
 import db
 import os
 
-clearVids = ["rm", "-f", "/home/kaylee/telegramclipsaver/downloadedVideos/*"]
+clearVids = ["rm", "-f", "downloadedVideos/*"]
 database = db.database()
 
 async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
