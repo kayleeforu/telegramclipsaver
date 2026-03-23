@@ -5,8 +5,8 @@ from utilities.getVideoInfo import getVideoInfo
 
 def duration_filter(info):
     duration = info.get("duration")
-    if duration and duration > 39600:
-        return "Video is too long (max 39600 seconds)"
+    if duration and duration > 3600:
+        return "Video is too long (max 3600 seconds)"
 
 async def downloadVideo(url):
     
@@ -14,7 +14,7 @@ async def downloadVideo(url):
         "quiet": False,
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
         "match_filter": duration_filter,
-        "format": "bestvideo[vcodec^=avc][height<=1080]+bestaudio/bestvideo[height<=1080]+bestaudio/best",
+        "format": "bestvideo[vcodec^=avc][height<=720]+bestaudio/bestvideo[height<=720]+bestaudio/best",
         "merge_output_format": "mp4",
         "cookiefile": "cookies.txt",
         "js_runtimes": {"node": {}},

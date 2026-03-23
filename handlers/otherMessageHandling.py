@@ -23,7 +23,7 @@ async def otherMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "• ТикТок видео\n" \
                 "• Инстаграм пост/рилс. Поддерживаются посты до 10 вложений.\n" \
                 "• YouTube шортс\n" \
-                "• YouTube видео до 40 минут\n\n" \
+                "• YouTube видео до 60 минут\n\n" \
                 "Помните, вы можете использовать @clip_saverbot {ссылка} в любом другом чате, чтобы отправить пост через команду @\n\n" \
                 "Спасибо за использование этого бота."
         else:
@@ -32,7 +32,7 @@ async def otherMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "• TikTok video\n" \
                 "• Instagram Post/Reels. Only posts up to 10 attachments are supported\n" \
                 "• YouTube Shorts\n" \
-                "• YouTube video up to 40 minutes\n\n" \
+                "• YouTube video up to 60 minutes\n\n" \
                 "Remember, you can use @clip_saverbot {link} in any other chat to send the post via the @ command.\n" \
                 "Thank you for using this bot."
     else:

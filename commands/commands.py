@@ -15,7 +15,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "• ТикТок видео\n" \
             "• Инстаграм пост/рилс. Поддерживаются посты до 10 вложений.\n" \
             "• YouTube шортс\n" \
-            "• YouTube видео до 40 минут\n\n" \
+            "• YouTube видео до 60 минут\n\n" \
             "Чтобы скачать видео просто пришлите мне ссылку на него." \
             "Вы так же можете использовать @clip_saverbot {ссылка} в любом другом чате, чтобы отправить пост через команду @\n\n" \
             "Спасибо за использование этого бота. Если хотите поддержать меня, напишите /support"
@@ -24,7 +24,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "• TikTok video\n" \
             "• Instagram Post/Reels. Only posts up to 10 attachments are supported\n" \
             "• YouTube Shorts\n" \
-            "• YouTube video up to 40 minutes\n\n" \
+            "• YouTube video up to 60 minutes\n\n" \
             "To download a post just send me a link to it." \
             "You can also use @clip_saverbot {link} in any other chat to send the post via the @ command.\n" \
             "Thank you for using this bot. If you want to support me, write /support"
