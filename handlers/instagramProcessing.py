@@ -19,6 +19,7 @@ instance.context._session.proxies = {
     "http": proxy,
     "https": proxy,
 }
+print(f"Proxy set: {proxy}")
 instance.login(instagram_user, instagram_pass)
 
 async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
