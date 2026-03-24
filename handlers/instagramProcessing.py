@@ -14,12 +14,15 @@ if proxy:
     config.set(("extractor",), "proxy", proxy)
 
 async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
-    for file in glob("downloadedVideos/*"):
-        os.remove(file)
+    for file in glob("gallery-dl/**/*", recursive=True):
+        if os.path.isfile(file):
+            os.remove(file)
 
     try:
-        config.set(("extractor",), "directory", ["downloadedVideos"])
-        config.set(("extractor",), "filename", "{id}.{extension}")
+        config.load()
+        config.set(("extractor",), "cookies", "cookies.txt")
+        if proxy:
+            config.set(("extractor",), "proxy", proxy)
         job.DownloadJob(link).run()
     except Exception as e:
         print(f"Instagram error: {e}")
@@ -27,7 +30,9 @@ async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYP
         return False
 
     media = []
-    for file in sorted(glob("downloadedVideos/*")):
+    for file in sorted(glob("gallery-dl/**/*", recursive=True)):
+        if not os.path.isfile(file):
+            continue
         if file.endswith(".mp4"):
             media.append(InputMediaVideo(open(file, "rb"), supports_streaming=True))
         elif file.endswith((".jpg", ".jpeg", ".webp", ".png")):
@@ -46,8 +51,9 @@ async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYP
         else:
             files.append((entry.photo[-1].file_id, False))
 
-    for file in glob("downloadedVideos/*"):
-        os.remove(file)
+    for file in glob("gallery-dl/**/*", recursive=True):
+        if os.path.isfile(file):
+            os.remove(file)
 
     await database.insert(link, files)
     return True
