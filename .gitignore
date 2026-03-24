@@ -1,7 +1,9 @@
 cookies.txt
 downloadedVideos/
 test.py
-__pycache__
+__pycache__/
 .DS_Store
 savesession.py
 sessions/
+.env
+*.pyc

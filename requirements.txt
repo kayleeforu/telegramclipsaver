@@ -1,0 +1,7 @@
+python-telegram-bot==21.*
+supabase
+yt-dlp
+ffmpeg-python
+opencv-python-headless
+instaloader
+numpy
