@@ -9,7 +9,11 @@ import db
 database = db.database()
 instagram_user = os.environ.get("INSTAGRAM_USER")
 instagram_pass = os.environ.get("INSTAGRAM_PASS")
-instance = Instaloader()
+instance = Instaloader(
+    sleep=True,   
+    quiet=False,
+    request_timeout=30,
+)
 instance.login(instagram_user, instagram_pass)
 
 async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
