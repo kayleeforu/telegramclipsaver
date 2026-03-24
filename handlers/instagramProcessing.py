@@ -10,10 +10,14 @@ database = db.database()
 instagram_user = os.environ.get("INSTAGRAM_USER")
 instagram_pass = os.environ.get("INSTAGRAM_PASS")
 instance = Instaloader(
-    sleep=True,   
+    sleep=True,
     quiet=False,
     request_timeout=30,
 )
+instance.context._session.proxies = {
+    "http": "socks5://username:password@ip:port",
+    "https": "socks5://username:password@ip:port",
+}
 instance.login(instagram_user, instagram_pass)
 
 async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
