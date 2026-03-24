@@ -8,13 +8,9 @@ import db
 
 database = db.database()
 instagram_user = os.environ.get("INSTAGRAM_USER")
-
+instagram_pass = os.environ.get("INSTAGRAM_PASS")
 instance = Instaloader()
-session_file = f"sessions/session-{instagram_user}"
-if os.path.exists(session_file):
-    instance.load_session_from_file(instagram_user, session_file)
-else:
-    raise RuntimeError("No session file")
+instance.login(instagram_user, instagram_pass)
 
 async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
     for file in glob("downloadedVideos/*"):
