@@ -3,3 +3,4 @@ downloadedVideos/
 test.py
 __pycache__
 .DS_Store
+savesession.py
