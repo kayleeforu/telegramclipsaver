@@ -1,7 +1,8 @@
 import logging
 from telegram.ext import ApplicationBuilder, CommandHandler, filters, MessageHandler, InlineQueryHandler
 import os
-from handlers.inlineProcessing import processInline
+from handlers.inlineVideoProcessing import processInline
+from handlers.inlineInstagramPostProcessing import processInstagramPostInline
 from handlers.linkAnswer import processMessage
 from commands.commands import start, support
 
@@ -22,6 +23,8 @@ videoPost = [
     r"((https://(www\.)?)?pinterest\.com/pin/\S*)",
 ]
 combinedVideos = "|".join(f"({p})" for p in videoPost)
+
+instagramPost = r"((https://(www\.))?instagram\.com/p/(.{11})/\S*)"
 
 if __name__ == '__main__':
     TOKEN = os.environ.get("BOT_TOKEN")
@@ -45,9 +48,10 @@ if __name__ == '__main__':
     messageHandler = MessageHandler(filters.TEXT, processMessage)
     # Link, which is not instagram post, handler
     inlineVideoLinkHandler = InlineQueryHandler(processInline, pattern = combinedVideos, block = True)
+    inlineInstagramPostLinkHandler = InlineQueryHandler(processInstagramPostInline, pattern = instagramPost, block = True)
 
     # Adding handlers to the bot
-    application.add_handlers([startHandler, supportHandler, messageHandler, inlineVideoLinkHandler])
+    application.add_handlers([startHandler, supportHandler, messageHandler, inlineVideoLinkHandler], inlineInstagramPostLinkHandler)
     
     # Run bot
     application.run_polling()
