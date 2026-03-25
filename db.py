@@ -7,7 +7,6 @@ key = os.environ.get("SUPABASE_KEY")
 class database:
     def __init__(self):
         self.supabase = create_client(url, key)
-
     def getClient(self):
         return self.supabase
 
@@ -19,16 +18,21 @@ class database:
         if isinstance(file, list):
             await self.insertMediaGroup(link, file)
             return
+        
+        row = [link, file[0], file[1]]
         db = self.getClient()
-        db.table("savedVideos").upsert({
-            "link": link,
-            "file_ids": [file[0]],
+
+        db.table("savedVideos").insert({
+            "link": row[0],
+            "file_ids": [row[1]],
             "has_audio": [file[1]]
         }).execute()
-
+        return
+    
     async def insertMediaGroup(self, link, fileArray):
         db = self.getClient()
-        db.table("savedVideos").upsert({
+
+        db.table("savedVideos").insert({
             "link": link,
             "file_ids": [file[0] for file in fileArray],
             "has_audio": [file[1] for file in fileArray]
