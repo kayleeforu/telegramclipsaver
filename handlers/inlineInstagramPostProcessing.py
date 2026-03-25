@@ -1,5 +1,3 @@
-# inlineInstagramPostProcessing.py
-
 import os
 from glob import glob
 from telegram import Update, InputMediaPhoto, InputMediaVideo, InlineQueryResultCachedVideo, InlineQueryResultCachedMpeg4Gif
