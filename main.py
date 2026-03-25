@@ -51,7 +51,7 @@ if __name__ == '__main__':
     inlineInstagramPostLinkHandler = InlineQueryHandler(inlineInstagramPostProcessing, pattern = instagramPost, block = True)
 
     # Adding handlers to the bot
-    application.add_handlers([startHandler, supportHandler, messageHandler, inlineVideoLinkHandler], inlineInstagramPostLinkHandler)
+    application.add_handlers([startHandler, supportHandler, messageHandler, inlineVideoLinkHandler, inlineInstagramPostLinkHandler])
     
     # Run bot
     application.run_polling()
