@@ -13,10 +13,13 @@ config.set(("extractor",), "cookies", "cookies.txt")
 if proxy:
     config.set(("extractor",), "proxy", proxy)
 
-async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
+def clear_gallery_dl_folder():
     for file in glob("gallery-dl/**/*", recursive=True):
         if os.path.isfile(file):
             os.remove(file)
+
+async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
+    clear_gallery_dl_folder()
 
     try:
         config.load()

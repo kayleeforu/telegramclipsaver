@@ -23,8 +23,8 @@ def clear_gallery_dl_folder():
             os.remove(file)
 
 # Main function to process Instagram posts inline
-async def inlineInstagramPostProcessing(update: Update, context: ContextTypes.DEFAULT_TYPE, link: str):
-    # Clear previous downloads
+async def processInstagramPostInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    link = update.inline_query.query
     clear_gallery_dl_folder()
 
     # Try downloading the Instagram post
