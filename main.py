@@ -2,7 +2,7 @@ import logging
 from telegram.ext import ApplicationBuilder, CommandHandler, filters, MessageHandler, InlineQueryHandler
 import os
 from handlers.inlineVideoProcessing import processInline
-from handlers.inlineInstagramPostProcessing import inlineInstagramPostProcessing
+from handlers.inlineInstagramPostProcessing import processInstagramPostInline
 from handlers.linkAnswer import processMessage
 from commands.commands import start, support
 
@@ -48,7 +48,7 @@ if __name__ == '__main__':
     messageHandler = MessageHandler(filters.TEXT, processMessage)
     # Link, which is not instagram post, handler
     inlineVideoLinkHandler = InlineQueryHandler(processInline, pattern = combinedVideos, block = True)
-    inlineInstagramPostLinkHandler = InlineQueryHandler(inlineInstagramPostProcessing, pattern = instagramPost, block = True)
+    inlineInstagramPostLinkHandler = InlineQueryHandler(processInstagramPostInline, pattern = instagramPost, block = True)
 
     # Adding handlers to the bot
     application.add_handlers([startHandler, supportHandler, messageHandler, inlineVideoLinkHandler, inlineInstagramPostLinkHandler])
