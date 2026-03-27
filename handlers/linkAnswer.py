@@ -51,14 +51,16 @@ async def databaseCheck(update: Update, context: ContextTypes.DEFAULT_TYPE, link
                     chat_id = update.effective_chat.id,
                     video = file[0],
                     caption = caption,
-                    reply_to_message_id = repliesTo
+                    reply_to_message_id = repliesTo,
+                    parse_mode = "MarkdownV2"
                 )
         else:
                 await context.bot.send_animation(
                     chat_id = update.effective_chat.id, 
                     animation = file[0],
                     caption = caption,
-                    reply_to_message_id = repliesTo
+                    reply_to_message_id = repliesTo,
+                    parse_mode = "MarkdownV2"
                 )
         await countAdd() # Downloaded Count + 1
     
@@ -80,7 +82,8 @@ async def databaseCheckMediaGroup(update: Update, context: ContextTypes.DEFAULT_
             chat_id = update.effective_chat.id,
             media = media,
             caption = caption,
-            reply_to_message_id = repliesTo
+            reply_to_message_id = repliesTo,
+            parse_mode = "MarkdownV2"
         )
         await countAdd() # Downloaded Count + 1
 
