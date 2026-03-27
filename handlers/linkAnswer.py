@@ -103,10 +103,10 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
     user = update.effective_user
     isRussian = user and user.language_code == "ru"
     if isRussian:
-        caption = f"Ваш пост.\nЗапрошено пользователем: {requestedBy}\n\n@clip_saverbot" if isGroupChat \
+        caption = f"Ваш пост\.\nЗапрошено пользователем: {requestedBy}\n\n@clip_saverbot" if isGroupChat \
         else "Ваш пост.\n\n@clip_saverbot"
     else:
-        caption = f"Here is your post.\nRequested by: {requestedBy}\n\n@clip_saverbot"if isGroupChat \
+        caption = f"Here is your post\.\nRequested by: {requestedBy}\n\n@clip_saverbot"if isGroupChat \
         else "Here is your post.\n\n@clip_saverbot"
     
     repliesTo = update.effective_message.reply_to_message.id if update.effective_message.reply_to_message else None
