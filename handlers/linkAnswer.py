@@ -93,7 +93,7 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
         if (update.effective_sender.username):
             requestedBy = "@" + update.effective_sender.username
         else:
-            requestedBy = "@" + update.effective_sender.first_name
+            requestedBy = f"`{update.effective_sender.first_name}`"
     else: 
         requestedBy = None
     requestedMessage = update.effective_message.id if isGroupChat else None
