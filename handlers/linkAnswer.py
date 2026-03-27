@@ -96,21 +96,33 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
     if (isGroupChat):
         if (update.effective_sender.username):
             requestedBy = "@" + update.effective_sender.username
+            hasUserName = True
         else:
-            requestedBy = f"`{update.effective_sender.first_name}`"
+            requestedBy = f"{update.effective_sender.first_name}"
+            hasUserName = False
     else: 
         requestedBy = None
     requestedMessage = update.effective_message.id if isGroupChat else None
     user = update.effective_user
     isRussian = user and user.language_code == "ru"
-    safe_requestedBy = escape_markdown(requestedBy, version=2)
+    escapedRequestedBy = escape_markdown(requestedBy, version=2)
 
     if isRussian:
-        caption = f"Ваш пост\.\nЗапрошено пользователем: {safe_requestedBy}\n\n@clip\_saverbot" if isGroupChat \
-        else "Ваш пост.\n\n@clip\_saverbot"
+        if isGroupChat:
+            if hasUserName:
+                caption = f"Ваш пост\.\nЗапрошено пользователем: {escapedRequestedBy}\n\n@clip\_saverbot"
+            else:
+                caption = f"Ваш пост\.\nЗапрошено пользователем: `{escapedRequestedBy}`\n\n@clip\_saverbot"
+        else:
+            caption = f"Ваш пост\.\n\n@clip\_saverbot"
     else:
-        caption = f"Here is your post\.\nRequested by: {safe_requestedBy}\n\n@clip\_saverbot" if isGroupChat \
-        else "Here is your post.\n\n@clip\_saverbot"
+        if isGroupChat:
+            if hasUserName:
+                caption = f"Here is your post\.\nRequested by: {escapedRequestedBy}\n\n@clip\_saverbot"
+            else:
+                caption = f"Here is your post\.\nRequested by: `{escapedRequestedBy}`\n\n@clip\_saverbot"
+        else:
+            caption = "Here is your post\.\n\n@clip\_saverbot"
     
     repliesTo = update.effective_message.reply_to_message.id if update.effective_message.reply_to_message else None
 
