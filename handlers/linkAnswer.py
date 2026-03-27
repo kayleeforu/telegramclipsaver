@@ -93,6 +93,10 @@ async def databaseCheckMediaGroup(update: Update, context: ContextTypes.DEFAULT_
 
 async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link, linkType):
     isGroupChat = update.effective_chat.type in ["group", "supergroup"]
+    
+    escapedRequestedBy = ""
+    hasUserName = False
+    
     if (isGroupChat):
         if (update.effective_sender.username):
             requestedBy = "@" + update.effective_sender.username
@@ -100,29 +104,30 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
         else:
             requestedBy = f"{update.effective_sender.first_name}"
             hasUserName = False
+
+        escapedRequestedBy = escape_markdown(requestedBy, version=2)
     else: 
         requestedBy = None
     requestedMessage = update.effective_message.id if isGroupChat else None
     user = update.effective_user
     isRussian = user and user.language_code == "ru"
-    escapedRequestedBy = escape_markdown(requestedBy, version=2)
 
     if isRussian:
         if isGroupChat:
             if hasUserName:
-                caption = rf"Ваш пост\.\nЗапрошено пользователем: {escapedRequestedBy}\n\n@clip\_saverbot"
+                caption = rf"Ваш пост\.\\nЗапрошено пользователем: {escapedRequestedBy}\\n\\n@clip\_saverbot"
             else:
-                caption = rf"Ваш пост\.\nЗапрошено пользователем: `{escapedRequestedBy}`\n\n@clip\_saverbot"
+                caption = rf"Ваш пост\.\\nЗапрошено пользователем: `{escapedRequestedBy}`\\n\\n@clip\_saverbot"
         else:
             caption = rf"Ваш пост\.\n\n@clip\_saverbot"
     else:
         if isGroupChat:
             if hasUserName:
-                caption = rf"Here is your post\.\nRequested by: {escapedRequestedBy}\n\n@clip\_saverbot"
+                caption = rf"Here is your post\.\\nRequested by: {escapedRequestedBy}\\n\\n@clip\_saverbot"
             else:
-                caption = rf"Here is your post\.\nRequested by: `{escapedRequestedBy}`\n\n@clip\_saverbot"
+                caption = rf"Here is your post\.\\nRequested by: `{escapedRequestedBy}`\\n\\n@clip\_saverbot"
         else:
-            caption = r"Here is your post\.\n\n@clip\_saverbot"
+            caption = r"Here is your post\.\\n\\n@clip\_saverbot"
     
     repliesTo = update.effective_message.reply_to_message.id if update.effective_message.reply_to_message else None
 
