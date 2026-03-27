@@ -89,7 +89,13 @@ async def databaseCheckMediaGroup(update: Update, context: ContextTypes.DEFAULT_
 
 async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link, linkType):
     isGroupChat = update.effective_chat.type in ["group", "supergroup"]
-    requestedBy = "@" + update.effective_sender.username if isGroupChat else None
+    if (isGroupChat):
+        if (update.effective_sender.username):
+            requestedBy = "@" + update.effective_sender.username
+        else:
+            requestedBy = "@" + update.effective_sender.first_name
+    else: 
+        requestedBy = None
     requestedMessage = update.effective_message.id if isGroupChat else None
     user = update.effective_user
     isRussian = user and user.language_code == "ru"
