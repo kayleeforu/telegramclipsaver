@@ -1,5 +1,6 @@
 from telegram import Update, InputMediaVideo, InputMediaPhoto
 from telegram.ext import ContextTypes
+from telegram.helpers import escape_markdown
 import re
 from handlers.otherMessageHandling import otherMessage
 from handlers.linkProcessing import processLink
@@ -102,12 +103,14 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
     requestedMessage = update.effective_message.id if isGroupChat else None
     user = update.effective_user
     isRussian = user and user.language_code == "ru"
+    safe_requestedBy = escape_markdown(requestedBy, version=2)
+
     if isRussian:
-        caption = f"Ваш пост\.\nЗапрошено пользователем: {requestedBy}\n\n@clip_saverbot" if isGroupChat \
-        else "Ваш пост.\n\n@clip_saverbot"
+        caption = f"Ваш пост.\nЗапрошено пользователем: {safe_requestedBy}\n\n@clip\_saverbot" if isGroupChat \
+        else "Ваш пост.\n\n@clip\_saverbot"
     else:
-        caption = f"Here is your post\.\nRequested by: {requestedBy}\n\n@clip_saverbot"if isGroupChat \
-        else "Here is your post.\n\n@clip_saverbot"
+        caption = f"Here is your post.\nRequested by: {safe_requestedBy}\n\n@clip\_saverbot" if isGroupChat \
+        else "Here is your post.\n\n@clip\_saverbot"
     
     repliesTo = update.effective_message.reply_to_message.id if update.effective_message.reply_to_message else None
 
