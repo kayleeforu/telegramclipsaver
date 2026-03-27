@@ -110,19 +110,19 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
     if isRussian:
         if isGroupChat:
             if hasUserName:
-                caption = f"Ваш пост\.\nЗапрошено пользователем: {escapedRequestedBy}\n\n@clip\_saverbot"
+                caption = rf"Ваш пост\.\nЗапрошено пользователем: {escapedRequestedBy}\n\n@clip\_saverbot"
             else:
-                caption = f"Ваш пост\.\nЗапрошено пользователем: `{escapedRequestedBy}`\n\n@clip\_saverbot"
+                caption = rf"Ваш пост\.\nЗапрошено пользователем: `{escapedRequestedBy}`\n\n@clip\_saverbot"
         else:
-            caption = f"Ваш пост\.\n\n@clip\_saverbot"
+            caption = rf"Ваш пост\.\n\n@clip\_saverbot"
     else:
         if isGroupChat:
             if hasUserName:
-                caption = f"Here is your post\.\nRequested by: {escapedRequestedBy}\n\n@clip\_saverbot"
+                caption = rf"Here is your post\.\nRequested by: {escapedRequestedBy}\n\n@clip\_saverbot"
             else:
-                caption = f"Here is your post\.\nRequested by: `{escapedRequestedBy}`\n\n@clip\_saverbot"
+                caption = rf"Here is your post\.\nRequested by: `{escapedRequestedBy}`\n\n@clip\_saverbot"
         else:
-            caption = "Here is your post\.\n\n@clip\_saverbot"
+            caption = r"Here is your post\.\n\n@clip\_saverbot"
     
     repliesTo = update.effective_message.reply_to_message.id if update.effective_message.reply_to_message else None
 
