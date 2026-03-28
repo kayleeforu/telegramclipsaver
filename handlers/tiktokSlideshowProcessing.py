@@ -43,10 +43,15 @@ async def processTikTokSlideshow(update: Update, context: ContextTypes.DEFAULT_T
         await context.bot.send_message(chat_id=update.effective_chat.id, text="Could not download slideshow.")
         return False
 
-    msg = await context.bot.send_media_group(chat_id=-1003794009076, media=media)
+    # отправляем в кеш-канал чанками по 10 — лимит Telegram на медиагруппу
+    msgs = []
+    for i in range(0, len(media), 10):
+        chunk = media[i:i+10]
+        chunk_msgs = await context.bot.send_media_group(chat_id=-1003794009076, media=chunk)
+        msgs.extend(chunk_msgs)
 
     files = []
-    for entry in msg:
+    for entry in msgs:
         if entry.video:
             files.append((entry.video.file_id, True))
         else:

@@ -72,23 +72,29 @@ async def databaseCheck(update: Update, context: ContextTypes.DEFAULT_TYPE, link
 async def databaseCheckMediaGroup(update: Update, context: ContextTypes.DEFAULT_TYPE, link, caption, repliesTo):
     response = await database.lookup(link)
     if response.data:
-        media = []
         row = response.data[0]
+        media = []
         for file_id, has_audio in zip(row["file_ids"], row["has_audio"]):
             if has_audio:
                 media.append(InputMediaVideo(file_id))
             else:
                 media.append(InputMediaPhoto(file_id))
 
-        await context.bot.send_media_group(
-            chat_id = update.effective_chat.id,
-            media = media,
-            caption = caption,
-            reply_to_message_id = repliesTo,
-            parse_mode = "MarkdownV2"
-        )
-        await countAdd() # Downloaded Count + 1
+        for i in range(0, len(media), 10):
+            chunk = media[i:i+10]
+            await context.bot.send_media_group(
+                chat_id=update.effective_chat.id,
+                media=chunk,
+                reply_to_message_id=repliesTo if i == 0 else None,
+            )
 
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=caption,
+            parse_mode="MarkdownV2"
+        )
+
+        await countAdd()
         return True
     return False
 

@@ -8,11 +8,6 @@ import db
 database = db.database()
 proxy = os.environ.get("INSTAGRAM_PROXY")
 
-config.load()
-config.set(("extractor",), "cookies", "cookies.txt")
-if proxy:
-    config.set(("extractor",), "proxy", proxy)
-
 def clear_gallery_dl_folder():
     for file in glob("gallery-dl/**/*", recursive=True):
         if os.path.isfile(file):
@@ -20,7 +15,6 @@ def clear_gallery_dl_folder():
 
 async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
     clear_gallery_dl_folder()
-
     try:
         config.load()
         config.set(("extractor",), "cookies", "cookies.txt")
@@ -45,18 +39,19 @@ async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYP
         await context.bot.send_message(chat_id=update.effective_chat.id, text="Could not download post.")
         return False
 
-    msg = await context.bot.send_media_group(chat_id=-1003794009076, media=media)
+    msgs = []
+    for i in range(0, len(media), 10):
+        chunk = media[i:i+10]
+        chunk_msgs = await context.bot.send_media_group(chat_id=-1003794009076, media=chunk)
+        msgs.extend(chunk_msgs)
 
     files = []
-    for entry in msg:
+    for entry in msgs:
         if entry.video:
             files.append((entry.video.file_id, True))
         else:
             files.append((entry.photo[-1].file_id, False))
 
-    for file in glob("gallery-dl/**/*", recursive=True):
-        if os.path.isfile(file):
-            os.remove(file)
-
+    clear_gallery_dl_folder()
     await database.insert(link, files)
     return True
