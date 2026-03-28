@@ -135,6 +135,9 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
         if await databaseCheck(update, context, link, caption, repliesTo):
             await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
             return
+        if await databaseCheckMediaGroup(update, context, link, caption, repliesTo):
+            await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
+            return
     elif linkType == "instagrampost":
         if await databaseCheckMediaGroup(update, context, link, caption, repliesTo):
             await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
@@ -147,11 +150,15 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
         result = await processInstagramPost(update, context, link)
         isMediaGroup = True
          
-    if result and not isMediaGroup:
+    if result == "slideshow":
+        await databaseCheckMediaGroup(update, context, link, caption, repliesTo)
+        await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
+        return
+    elif result and not isMediaGroup:
         await databaseCheck(update, context, link, caption, repliesTo)
         await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
         return
-    if result and isMediaGroup:
+    elif result and isMediaGroup:
         await databaseCheckMediaGroup(update, context, link, caption, repliesTo)
         await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
         return

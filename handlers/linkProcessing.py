@@ -5,7 +5,6 @@ from handlers.tiktokSlideshowProcessing import processTikTokSlideshow
 import subprocess
 import db
 import logging
-import re
 
 clearVids = "rm -f downloadedVideos/*"
 database = db.database()
@@ -13,15 +12,15 @@ database = db.database()
 async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
     isTiktok = "tiktok" in link
     (filepath, hasAudio, thumbnailpath, height, width) = await downloadVideo(link)
-    
+
     if filepath is None:
         subprocess.run(clearVids, shell=True)
         if isTiktok:
-            await processTikTokSlideshow(update, context, link)
-            return True
+            result = await processTikTokSlideshow(update, context, link)
+            return "slideshow" if result else False
         else:
             return False
-        
+
     elif filepath == "too_long":
         subprocess.run(clearVids, shell=True)
         return False
