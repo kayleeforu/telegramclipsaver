@@ -1,19 +1,26 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 from utilities.savevid import downloadVideo
+from handlers.tiktokSlideshowProcessing import processTikTokSlideshow
 import subprocess
 import db
 import logging
+import re
 
 clearVids = "rm -f downloadedVideos/*"
 database = db.database()
 
 async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
+    isTiktok = "tiktok" in link
     (filepath, hasAudio, thumbnailpath, height, width) = await downloadVideo(link)
     
     if filepath is None:
         subprocess.run(clearVids, shell=True)
-        return False
+        if isTiktok:
+            await processTikTokSlideshow(update, context, link)
+        else:
+            return False
+        
     elif filepath == "too_long":
         subprocess.run(clearVids, shell=True)
         return False
