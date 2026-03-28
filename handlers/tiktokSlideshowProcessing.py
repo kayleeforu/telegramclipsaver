@@ -1,7 +1,9 @@
 from gallery_dl import config, job
 import os
+import asyncio
 from glob import glob
 from telegram import Update, InputMediaPhoto, InputMediaVideo
+from telegram.error import RetryAfter
 from telegram.ext import ContextTypes
 import db
 
@@ -43,12 +45,16 @@ async def processTikTokSlideshow(update: Update, context: ContextTypes.DEFAULT_T
         await context.bot.send_message(chat_id=update.effective_chat.id, text="Could not download slideshow.")
         return False
 
-    # отправляем в кеш-канал чанками по 10 — лимит Telegram на медиагруппу
     msgs = []
     for i in range(0, len(media), 10):
         chunk = media[i:i+10]
-        chunk_msgs = await context.bot.send_media_group(chat_id=-1003794009076, media=chunk)
-        msgs.extend(chunk_msgs)
+        try:
+            chunk_msgs = await context.bot.send_media_group(chat_id=-1003794009076, media=chunk)
+            msgs.extend(chunk_msgs)
+        except RetryAfter as e:
+            await asyncio.sleep(e.retry_after)
+            chunk_msgs = await context.bot.send_media_group(chat_id=-1003794009076, media=chunk)
+            msgs.extend(chunk_msgs)
 
     files = []
     for entry in msgs:
