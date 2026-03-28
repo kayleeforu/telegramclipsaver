@@ -11,15 +11,14 @@ def duration_filter(info):
 
 def convertThumbnail(filepath):
     base = filepath.rsplit(".", 1)[0]
-    for ext in ["webp", "jpg", "jpeg", "png"]:
+    for ext in ["webp", "jpg", "jpeg", "png", "image"]:
         path = f"{base}.{ext}"
         if os.path.exists(path):
+            jpg_path = base + ".jpg"
+            Image.open(path).convert("RGB").save(jpg_path)
             if ext != "jpg":
-                jpg_path = base + ".jpg"
-                Image.open(path).convert("RGB").save(jpg_path)
                 os.remove(path)
-                return jpg_path
-            return path
+            return jpg_path
     return None
 
 async def downloadVideo(url):
@@ -27,7 +26,7 @@ async def downloadVideo(url):
         "quiet": False,
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
         "match_filter": duration_filter,
-        "format": "bestvideo[vcodec^=avc][height<=720]+bestaudio/bestvideo[height<=720]+bestaudio/best[height<=720]/best",
+        "format": "bestvideo[vcodec^=avc][height<=720]+bestaudio/bestvideo[height<=720]+bestaudio/best[height<=720]/bestvideo[height<=1080]+bestaudio/best",
         "merge_output_format": "mp4",
         "cookiefile": "cookies.txt",
         "writethumbnail": True,
@@ -48,12 +47,12 @@ async def downloadVideo(url):
             info = ydl.extract_info(url, download=True)
             filepath = ydl.prepare_filename(info)
             filepath = filepath.rsplit(".", 1)[0] + ".mp4"
-            
+
             thumbnailpath = convertThumbnail(filepath)
-            
+
             height = info.get("height", 0)
             width = info.get("width", 0)
-            
+
             probe = ffmpeg.probe(filepath)
             audio_streams = [s for s in probe["streams"] if s["codec_type"] == "audio"]
             if audio_streams == []:
