@@ -8,11 +8,6 @@ import db
 database = db.database()
 
 proxy = os.environ.get("INSTAGRAM_PROXY")
-config.load()
-config.set(("extractor",), "cookies", "cookies.txt")
-if proxy:
-    config.set(("extractor",), "proxy", proxy)
-
 SLIDESHOW_DIR = "tiktok-slideshow"
 os.makedirs(SLIDESHOW_DIR, exist_ok=True)
 
@@ -26,6 +21,7 @@ async def processTikTokSlideshow(update: Update, context: ContextTypes.DEFAULT_T
     try:
         config.load()
         config.set(("extractor",), "cookies", "cookies.txt")
+        config.set(("extractor",), "base-directory", SLIDESHOW_DIR)
         if proxy:
             config.set(("extractor",), "proxy", proxy)
         job.DownloadJob(link).run()

@@ -18,6 +18,7 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
         subprocess.run(clearVids, shell=True)
         if isTiktok:
             await processTikTokSlideshow(update, context, link)
+            return True
         else:
             return False
         
