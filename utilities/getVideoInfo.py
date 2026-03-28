@@ -6,9 +6,15 @@ import logging
 async def getVideoInfo(filepath):
     framepath = filepath.replace(".mp4", "_frame.jpg")
     
-    for _ in range(10):
-        if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
-            break
+    prev_size = -1
+    stable_count = 0
+    while stable_count < 3:
+        current_size = os.path.getsize(filepath)
+        if current_size == prev_size:
+            stable_count += 1
+        else:
+            stable_count = 0
+            prev_size = current_size
         time.sleep(0.5)
     
     vid = cv2.VideoCapture(filepath)
@@ -19,7 +25,8 @@ async def getVideoInfo(filepath):
     
     total_frames = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))
     
-    target_frame = min(60, max(0, total_frames - 1))
+    target_frame = int(total_frames * 0.1)
+    target_frame = max(1, min(target_frame, total_frames - 1))
     vid.set(cv2.CAP_PROP_POS_FRAMES, target_frame)
     
     success, image = vid.read()
