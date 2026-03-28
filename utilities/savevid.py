@@ -3,6 +3,9 @@ from yt_dlp.utils import DownloadError
 import ffmpeg
 from utilities.getVideoInfo import getVideoInfo
 
+import shutil
+import os
+
 def duration_filter(info):
     duration = info.get("duration")
     if duration and duration > 3600:
@@ -37,6 +40,8 @@ async def downloadVideo(url):
             filepath = filepath.rsplit(".", 1)[0] + ".mp4"
 
             thumbnailpath, height, width = await getVideoInfo(filepath)
+            shutil.copy(thumbnailpath, f"debug_frame_{os.path.basename(thumbnailpath)}")
+
             probe = ffmpeg.probe(filepath)
             audio_streams = [s for s in probe["streams"] if s["codec_type"] == "audio"]
             if audio_streams == []:
