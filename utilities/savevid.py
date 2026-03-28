@@ -24,18 +24,19 @@ async def downloadVideo(url):
             }
         },
         "remote_components": ["ejs:github"],
-        "concurrent_fragment_downloads": 5,
-        "buffersize": 8192,
+        "concurrent_fragment_downloads": 6,
+        'http_chunk_size': 1024 * 1024 * 10,
+        "buffersize": 1024 * 64,
+        "noplaylist": True,
     }
     try:
         with YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
+            info = ydl.extract_info(url, download = True)
 
-            # prepare_filename gives the pre-merge name, so we force .mp4
             filepath = ydl.prepare_filename(info)
             filepath = filepath.rsplit(".", 1)[0] + ".mp4"
 
-            thumbnailpath, height, width = await getVideoInfo(str(filepath))
+            thumbnailpath, height, width = await getVideoInfo(filepath)
             probe = ffmpeg.probe(filepath)
             audio_streams = [s for s in probe["streams"] if s["codec_type"] == "audio"]
             if audio_streams == []:

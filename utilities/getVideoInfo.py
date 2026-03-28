@@ -1,6 +1,7 @@
 import cv2
 import os
 import time
+import logging 
 
 async def getVideoInfo(filepath):
     framepath = filepath.replace(".mp4", "_frame.jpg")
@@ -29,8 +30,9 @@ async def getVideoInfo(filepath):
     
     if success:
         cv2.imwrite(framepath, image)
+        logging.info(f"[getVideoInfo] Frame path created: {framepath}")
     else:
-        print(f"[getVideoInfo] Could not read any frame from: {filepath}")
+        logging.info(f"[getVideoInfo] Could not read any frame from: {filepath}")
     
     height = int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
     width = int(vid.get(cv2.CAP_PROP_FRAME_WIDTH))
