@@ -46,25 +46,26 @@ async def databaseCheck(update: Update, context: ContextTypes.DEFAULT_TYPE, link
     response = await database.lookup(link)
     if response.data:
         row = response.data[0]
+        if len(row["file_ids"]) > 1:
+            return False
         file = (row["file_ids"][0], row["has_audio"][0])
         if file[1]:
-                await context.bot.send_video(
-                    chat_id = update.effective_chat.id,
-                    video = file[0],
-                    caption = caption,
-                    reply_to_message_id = repliesTo,
-                    parse_mode = "MarkdownV2"
-                )
+            await context.bot.send_video(
+                chat_id=update.effective_chat.id,
+                video=file[0],
+                caption=caption,
+                reply_to_message_id=repliesTo,
+                parse_mode="MarkdownV2"
+            )
         else:
-                await context.bot.send_animation(
-                    chat_id = update.effective_chat.id, 
-                    animation = file[0],
-                    caption = caption,
-                    reply_to_message_id = repliesTo,
-                    parse_mode = "MarkdownV2"
-                )
-        await countAdd() # Downloaded Count + 1
-    
+            await context.bot.send_animation(
+                chat_id=update.effective_chat.id,
+                animation=file[0],
+                caption=caption,
+                reply_to_message_id=repliesTo,
+                parse_mode="MarkdownV2"
+            )
+        await countAdd()
         return True
     return False
 
