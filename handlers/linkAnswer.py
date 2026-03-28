@@ -1,6 +1,8 @@
 from telegram import Update, InputMediaVideo, InputMediaPhoto
 from telegram.ext import ContextTypes
 from telegram.helpers import escape_markdown
+from telegram.error import RetryAfter
+import asyncio
 import re
 from handlers.otherMessageHandling import otherMessage
 from handlers.linkProcessing import processLink
@@ -82,17 +84,24 @@ async def databaseCheckMediaGroup(update: Update, context: ContextTypes.DEFAULT_
 
         for i in range(0, len(media), 10):
             chunk = media[i:i+10]
-            await context.bot.send_media_group(
-                chat_id=update.effective_chat.id,
-                media=chunk,
-                reply_to_message_id=repliesTo if i == 0 else None,
-            )
-
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text=caption,
-            parse_mode="MarkdownV2"
-        )
+            is_last = i + 10 >= len(media)
+            try:
+                await context.bot.send_media_group(
+                    chat_id=update.effective_chat.id,
+                    media=chunk,
+                    reply_to_message_id=repliesTo if i == 0 else None,
+                    caption=caption if is_last else None,
+                    parse_mode="MarkdownV2" if is_last else None
+                )
+            except RetryAfter as e:
+                await asyncio.sleep(e.retry_after)
+                await context.bot.send_media_group(
+                    chat_id=update.effective_chat.id,
+                    media=chunk,
+                    reply_to_message_id=repliesTo if i == 0 else None,
+                    caption=caption if is_last else None,
+                    parse_mode="MarkdownV2" if is_last else None
+                )
 
         await countAdd()
         return True
@@ -100,21 +109,21 @@ async def databaseCheckMediaGroup(update: Update, context: ContextTypes.DEFAULT_
 
 async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link, linkType):
     isGroupChat = update.effective_chat.type in ["group", "supergroup"]
-    
+
     escapedRequestedBy = ""
     hasUserName = False
-    
-    if (isGroupChat):
-        if (update.effective_sender.username):
+
+    if isGroupChat:
+        if update.effective_sender.username:
             requestedBy = "@" + update.effective_sender.username
             hasUserName = True
         else:
             requestedBy = f"{update.effective_sender.first_name}"
             hasUserName = False
-
         escapedRequestedBy = escape_markdown(requestedBy, version=2)
-    else: 
+    else:
         requestedBy = None
+
     requestedMessage = update.effective_message.id if isGroupChat else None
     user = update.effective_user
     isRussian = user and user.language_code == "ru"
@@ -135,7 +144,7 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
                 caption = f"Here is your post\\.\nRequested by: `{escapedRequestedBy}`\n\n@clip\\_saverbot"
         else:
             caption = f"Here is your post\\.\n\n@clip\\_saverbot"
-    
+
     repliesTo = update.effective_message.reply_to_message.id if update.effective_message.reply_to_message else None
 
     if linkType == "video":
@@ -149,14 +158,14 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
         if await databaseCheckMediaGroup(update, context, link, caption, repliesTo):
             await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
             return
-    
+
     isMediaGroup = False
     if linkType == "video":
         result = await processLink(update, context, link)
     elif linkType == "instagrampost":
         result = await processInstagramPost(update, context, link)
         isMediaGroup = True
-         
+
     if result == "slideshow":
         await databaseCheckMediaGroup(update, context, link, caption, repliesTo)
         await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
@@ -171,8 +180,8 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
         return
     else:
         await context.bot.send_message(
-            chat_id = update.effective_chat.id,
-            text = "Something went wrong :(\n" \
-            "Make sure your video is 60 min long or less"
+            chat_id=update.effective_chat.id,
+            text="Something went wrong :(\n"
+                 "Make sure your video is 60 min long or less"
         )
         return
