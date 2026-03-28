@@ -22,19 +22,7 @@ def clear_slideshow_folder():
             os.remove(file)
 
 async def processTikTokSlideshow(update: Update, context: ContextTypes.DEFAULT_TYPE, link: str):
-    cached = await database.get(link)
-    if cached:
-        media = []
-        for file_id, is_video in cached:
-            if is_video:
-                media.append(InputMediaVideo(file_id, supports_streaming=True))
-            else:
-                media.append(InputMediaPhoto(file_id))
-        await context.bot.send_media_group(chat_id=update.effective_chat.id, media=media)
-        return True
-
     clear_slideshow_folder()
-
     try:
         config.load()
         config.set(("extractor",), "cookies", "cookies.txt")
