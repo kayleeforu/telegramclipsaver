@@ -10,7 +10,7 @@ class database:
     def getClient(self):
         return self.supabase
 
-    async def lookup(self, link):
+    async def lookUpLink(self, link):
         db = self.getClient()
         return db.table("savedVideos").select("*").eq("link", link).execute()
 
@@ -36,4 +36,17 @@ class database:
             "link": link,
             "file_ids": [file[0] for file in fileArray],
             "has_audio": [file[1] for file in fileArray]
+        }).execute()
+
+    async def lookUpUser(self, userID):
+        db = self.getClient()
+
+        return db.table("users").select("*").eq("id", int(userID)).execute()
+
+    async def insertUser(self, userID, username):
+        db = self.getClient()
+
+        db.table("users").insert({
+            "id": int(userID),
+            "username": username
         }).execute()

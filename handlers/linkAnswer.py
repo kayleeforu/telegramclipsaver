@@ -29,6 +29,14 @@ instagramPost = r"((https://(www\.))?instagram\.com/p/(.{11})/\S*)"
 database = db.database()
 
 async def processMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = update.effective_user
+    userID = user.id
+
+    response = await database.lookUpUser(userID)
+    if not response.data:
+        username = user.username or "NULL"
+        await database.insertUser(userID, username)
+
     message = update.effective_message.text
     videoPostLink = re.search(combinedVideos, message)
     instagramPostLink = re.search(instagramPost, message)
@@ -45,7 +53,7 @@ async def processMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await getLinkAnswer(update, context, link, linkType)
 
 async def databaseCheck(update: Update, context: ContextTypes.DEFAULT_TYPE, link, caption, repliesTo):
-    response = await database.lookup(link)
+    response = await database.lookUpLink(link)
     if response.data:
         row = response.data[0]
         if len(row["file_ids"]) > 1:
@@ -72,7 +80,7 @@ async def databaseCheck(update: Update, context: ContextTypes.DEFAULT_TYPE, link
     return False
 
 async def databaseCheckMediaGroup(update: Update, context: ContextTypes.DEFAULT_TYPE, link, caption, repliesTo):
-    response = await database.lookup(link)
+    response = await database.lookUpLink(link)
     if response.data:
         row = response.data[0]
         media = []

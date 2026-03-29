@@ -36,7 +36,14 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
                     height=height,
                     width=width
                 )
-                file = (msg.video.file_id, True)
+                logging.info(f"[processLink] video={msg.video}, document={msg.document}, animation={msg.animation}")
+                if msg.video:
+                    file = (msg.video.file_id, True)
+                elif msg.document:
+                    file = (msg.document.file_id, True)
+                else:
+                    logging.error("[processLink] Telegram returned message with no video/document")
+                    return False
             else:
                 msg = await context.bot.send_animation(
                     chat_id=-1003794009076,
@@ -45,7 +52,14 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
                     height=height,
                     width=width
                 )
-                file = (msg.animation.file_id, False)
+                logging.info(f"[processLink] video={msg.video}, document={msg.document}, animation={msg.animation}")
+                if msg.animation:
+                    file = (msg.animation.file_id, False)
+                elif msg.document:
+                    file = (msg.document.file_id, False)
+                else:
+                    logging.error("[processLink] Telegram returned message with no animation/document")
+                    return False
     except Exception as e:
         logging.error(f"[processLink] Error sending video: {e}")
         return False

@@ -12,7 +12,7 @@ database = db.database()
 async def processInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
     link = update.inline_query.query
 
-    response = await database.lookup(link)
+    response = await database.lookUpLink(link)
     if response.data:
         file = (response.data[0]["file_ids"][0], response.data[0]["has_audio"][0])
         if file[1]:
