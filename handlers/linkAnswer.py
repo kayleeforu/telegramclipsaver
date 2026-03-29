@@ -107,11 +107,10 @@ async def databaseCheckMediaGroup(update: Update, context: ContextTypes.DEFAULT_
         return True
     return False
 
-async def sendTypingWhileWorking(context, chat_id, stop_event):
+async def sendTypingWhileWorking(context, chat_id, stop_event, linkType):
+    action = "upload_photo" if linkType == "instagrampost" else "upload_video"
     while not stop_event.is_set():
-        await context.bot.send_chat_action(
-            chat_id = chat_id,
-            action = "upload_video")
+        await context.bot.send_chat_action(chat_id=chat_id, action=action)
         await asyncio.sleep(4)
 
 async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link, linkType):
@@ -132,7 +131,7 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
     # Set bot to typing to let user know that bot is working on their request
     stop_event = asyncio.Event()
     typing_task = asyncio.create_task(
-        sendTypingWhileWorking(context, update.effective_chat.id, stop_event)
+        sendTypingWhileWorking(context, update.effective_chat.id, stop_event, linkType)
     )
     await asyncio.sleep(0)
 
