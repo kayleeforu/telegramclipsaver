@@ -108,6 +108,13 @@ async def databaseCheckMediaGroup(update: Update, context: ContextTypes.DEFAULT_
     return False
 
 async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link, linkType):
+    # Set bot to typing to let user know that bot is working on their request
+    await context.bot.send_chat_action(
+        chat_id = update.effective_chat.id,
+        action = "upload_video"
+    )
+
+    # Add user to DB to see how many users use the bot
     user = update.effective_user
     userID = user.id
 
@@ -116,6 +123,7 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
         username = user.username or "NULL"
         await database.insertUser(userID, username)
     
+    # Check if the message was requested in a group
     isGroupChat = update.effective_chat.type in ["group", "supergroup"]
 
     escapedRequestedBy = ""
@@ -131,11 +139,11 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
         escapedRequestedBy = escape_markdown(requestedBy, version=2)
     else:
         requestedBy = None
-
+    # Get user who requested the message and check their interface language
     requestedMessage = update.effective_message.id if isGroupChat else None
-    user = update.effective_user
     isRussian = user and user.language_code == "ru"
 
+    # Prepare caption depending on whether the chat is a group and if the interface language is Russian or not
     if isRussian:
         if isGroupChat:
             if hasUserName:
