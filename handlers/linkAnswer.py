@@ -233,6 +233,3 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
     finally:
         stop_event.set()
         await typing_task
-        check = await database.lookUpLink(link)
-        if check.data and check.data[0]["file_ids"][0] == "processing":
-            await database.removeLink(link)

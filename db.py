@@ -22,17 +22,15 @@ class database:
         row = [link, file[0], file[1]]
         db = self.getClient()
 
-        db.table("savedVideos").insert({
+        db.table("savedVideos").upsert({
             "link": row[0],
             "file_ids": [row[1]],
             "has_audio": [file[1]]
         }).execute()
-        return
     
     async def insertMediaGroup(self, link, fileArray):
         db = self.getClient()
-
-        db.table("savedVideos").insert({
+        db.table("savedVideos").upsert({
             "link": link,
             "file_ids": [file[0] for file in fileArray],
             "has_audio": [file[1] for file in fileArray]
@@ -50,8 +48,3 @@ class database:
             "id": int(userID),
             "username": username
         }).execute()
-
-    async def removeLink(self, link):
-        db = self.getClient()
-
-        db.table("savedVideos").delete().eq("link", link).execute()

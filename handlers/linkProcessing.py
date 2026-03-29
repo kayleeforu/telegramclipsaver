@@ -69,6 +69,5 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
     finally:
         subprocess.run(clearVids, shell=True)
 
-    await database.removeLink(link)
     await database.insert(link, file)
     return True

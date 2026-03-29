@@ -3,6 +3,7 @@ from telegram.ext import ContextTypes
 from utilities.savevid import downloadVideo
 import uuid
 import subprocess
+import asyncio
 import logging
 from utilities.count import countAdd
 import db
@@ -43,10 +44,13 @@ async def processInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await database.insert(link, ("processing", False))
 
-    (filepath, hasAudio, thumbnailpath, height, width) = await downloadVideo(link)
+    loop = asyncio.get_event_loop()
+    (filepath, hasAudio, thumbnailpath, height, width) = await loop.run_in_executor(
+        None, lambda: downloadVideo(link)
+    )
+
     if filepath is None:
         subprocess.run(clearVids)
-        await database.removeLink(link)
         return
 
     try:
@@ -67,7 +71,6 @@ async def processInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     file_id = msg.document.file_id
                 else:
                     logging.error("[processInline] Telegram returned message with no video/document")
-                    await database.removeLink(link)
                     return
                 file = (file_id, True)
                 inlineID = InlineQueryResultCachedVideo(
@@ -90,7 +93,6 @@ async def processInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     file_id = msg.document.file_id
                 else:
                     logging.error("[processInline] Telegram returned message with no animation/document")
-                    await database.removeLink(link)
                     return
                 file = (file_id, False)
                 inlineID = InlineQueryResultCachedMpeg4Gif(
@@ -100,12 +102,10 @@ async def processInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
     except Exception as e:
         logging.error(f"[processInline] Error sending to Telegram: {e}")
-        await database.removeLink(link)
         return
     finally:
         subprocess.run(clearVids)
 
-    await database.removeLink(link)
     await database.insert(link, file)
     await context.bot.answer_inline_query(inline_query_id=update.inline_query.id, results=[inlineID])
     await countAdd()
