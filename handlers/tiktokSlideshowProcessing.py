@@ -3,7 +3,6 @@ import os
 import asyncio
 from glob import glob
 from telegram import Update, InputMediaPhoto, InputMediaVideo
-from telegram.error import RetryAfter
 from telegram.ext import ContextTypes
 import db
 
