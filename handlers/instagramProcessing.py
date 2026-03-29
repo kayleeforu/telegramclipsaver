@@ -44,13 +44,10 @@ async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYP
     msgs = []
     for i in range(0, len(media), 10):
         chunk = media[i:i+10]
-        try:
-            chunk_msgs = await context.bot.send_media_group(chat_id=-1003794009076, media=chunk)
-            msgs.extend(chunk_msgs)
-        except RetryAfter as e:
-            await asyncio.sleep(e.retry_after)
-            chunk_msgs = await context.bot.send_media_group(chat_id=-1003794009076, media=chunk)
-            msgs.extend(chunk_msgs)
+        chunk_msgs = await context.bot.send_media_group(chat_id=-1003794009076, media=chunk)
+        msgs.extend(chunk_msgs)
+        if i + 10 < len(media):
+            await asyncio.sleep(5)
 
     files = []
     for entry in msgs:
