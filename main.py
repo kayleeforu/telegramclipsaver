@@ -45,11 +45,15 @@ if __name__ == '__main__':
     supportHandler = CommandHandler("support", support)
     # Message Handler
     messageHandler = MessageHandler(filters.TEXT, processMessage)
-    # Link, which is not instagram post, handler
-    inlineVideoLinkHandler = InlineQueryHandler(processInline, pattern = combinedVideos, block = True)
+    
+    try:
+        # Link, which is not instagram post, handler
+        inlineVideoLinkHandler = InlineQueryHandler(processInline, pattern = combinedVideos, block = True)
 
-    # Adding handlers to the bot
-    application.add_handlers([startHandler, supportHandler, messageHandler, inlineVideoLinkHandler])
+        # Adding handlers to the bot
+        application.add_handlers([startHandler, supportHandler, messageHandler, inlineVideoLinkHandler])
+    except Exception as e:
+        logging.error(f"Error: {e}")
     
     # Run bot
     application.run_polling()

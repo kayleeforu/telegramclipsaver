@@ -3,6 +3,7 @@ from telegram.ext import ContextTypes
 from utilities.savevid import downloadVideo
 from handlers.tiktokSlideshowProcessing import processTikTokSlideshow
 import subprocess
+import asyncio
 import db
 import logging
 
@@ -11,7 +12,12 @@ database = db.database()
 
 async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
     isTiktok = "tiktok" in link
-    (filepath, hasAudio, thumbnailpath, height, width) = await downloadVideo(link)
+
+    def runDownload():
+        return downloadVideo(link)
+
+    loop = asyncio.get_event_loop()
+    (filepath, hasAudio, thumbnailpath, height, width) = await loop.run_in_executor(None, runDownload)
 
     if filepath is None:
         subprocess.run(clearVids, shell=True)
@@ -20,7 +26,6 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
             return "slideshow" if result else False
         else:
             return False
-
     elif filepath == "too_long":
         subprocess.run(clearVids, shell=True)
         return False

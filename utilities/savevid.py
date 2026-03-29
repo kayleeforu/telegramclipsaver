@@ -21,7 +21,7 @@ def convertThumbnail(filepath):
             return jpg_path
     return None
 
-async def downloadVideo(url):
+def downloadVideo(url):
     ydl_opts = {
         "quiet": False,
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
