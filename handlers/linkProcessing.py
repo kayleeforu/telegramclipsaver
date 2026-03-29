@@ -36,7 +36,6 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
                     height=height,
                     width=width
                 )
-                logging.info(f"[processLink] video={msg.video}, document={msg.document}, animation={msg.animation}")
                 if msg.video:
                     file = (msg.video.file_id, True)
                 elif msg.document:
@@ -52,7 +51,6 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
                     height=height,
                     width=width
                 )
-                logging.info(f"[processLink] video={msg.video}, document={msg.document}, animation={msg.animation}")
                 if msg.animation:
                     file = (msg.animation.file_id, False)
                 elif msg.document:
@@ -66,5 +64,6 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
     finally:
         subprocess.run(clearVids, shell=True)
 
+    await database.removeLink(link)
     await database.insert(link, file)
     return True

@@ -115,11 +115,26 @@ async def sendTypingWhileWorking(context, chat_id, stop_event):
         await asyncio.sleep(4)
 
 async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link, linkType):
+    # Check if the link is already being processed
+    response = await database.lookUpLink(link)
+    if response.data and response.data[0]["file_ids"][0] == "processing":
+        processing_msg = await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="The link is already being processed."
+        )
+        await asyncio.sleep(3)
+        await context.bot.delete_message(
+            chat_id=update.effective_chat.id,
+            message_id=processing_msg.message_id
+        )
+        return
+
     # Set bot to typing to let user know that bot is working on their request
     stop_event = asyncio.Event()
     typing_task = asyncio.create_task(
         sendTypingWhileWorking(context, update.effective_chat.id, stop_event)
     )
+    await asyncio.sleep(0)
 
     # Add user to DB to see how many users use the bot
     user = update.effective_user
@@ -182,6 +197,8 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
             if await databaseCheckMediaGroup(update, context, link, caption, repliesTo):
                 await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
                 return
+            
+        await database.insert(link, ("processing", False))
 
         isMediaGroup = False
         if linkType == "video":
@@ -212,3 +229,6 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
     finally:
         stop_event.set()
         await typing_task
+        check = await database.lookUpLink(link)
+        if check.data and check.data[0]["file_ids"][0] == "processing":
+            await database.removeLink(link)
