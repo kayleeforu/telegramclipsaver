@@ -138,6 +138,10 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
 
     # Add user to DB to see how many users use the bot
     user = update.effective_user
+    if user is None:
+        stop_event.set()
+        await typing_task
+        return
     userID = user.id
 
     response = await database.lookUpUser(userID)
