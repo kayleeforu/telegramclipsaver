@@ -107,11 +107,18 @@ async def databaseCheckMediaGroup(update: Update, context: ContextTypes.DEFAULT_
         return True
     return False
 
+async def sendTypingWhileWorking(context, chat_id, stop_event):
+    while not stop_event.is_set():
+        await context.bot.send_chat_action(
+            chat_id = chat_id,
+            action = "upload_video")
+        await asyncio.sleep(4)
+
 async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link, linkType):
     # Set bot to typing to let user know that bot is working on their request
-    await context.bot.send_chat_action(
-        chat_id = update.effective_chat.id,
-        action = "upload_video"
+    stop_event = asyncio.Event()
+    typing_task = asyncio.create_task(
+        sendTypingWhileWorking(context, update.effective_chat.id, stop_event)
     )
 
     # Add user to DB to see how many users use the bot
@@ -163,41 +170,45 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
 
     repliesTo = update.effective_message.reply_to_message.id if update.effective_message.reply_to_message else None
 
-    if linkType == "video":
-        if await databaseCheck(update, context, link, caption, repliesTo):
-            await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
-            return
-        if await databaseCheckMediaGroup(update, context, link, caption, repliesTo):
-            await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
-            return
-    elif linkType == "instagrampost":
-        if await databaseCheckMediaGroup(update, context, link, caption, repliesTo):
-            await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
-            return
+    try: 
+        if linkType == "video":
+            if await databaseCheck(update, context, link, caption, repliesTo):
+                await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
+                return
+            if await databaseCheckMediaGroup(update, context, link, caption, repliesTo):
+                await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
+                return
+        elif linkType == "instagrampost":
+            if await databaseCheckMediaGroup(update, context, link, caption, repliesTo):
+                await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
+                return
 
-    isMediaGroup = False
-    if linkType == "video":
-        result = await processLink(update, context, link)
-    elif linkType == "instagrampost":
-        result = await processInstagramPost(update, context, link)
-        isMediaGroup = True
+        isMediaGroup = False
+        if linkType == "video":
+            result = await processLink(update, context, link)
+        elif linkType == "instagrampost":
+            result = await processInstagramPost(update, context, link)
+            isMediaGroup = True
 
-    if result == "slideshow":
-        await databaseCheckMediaGroup(update, context, link, caption, repliesTo)
-        await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
-        return
-    elif result and not isMediaGroup:
-        await databaseCheck(update, context, link, caption, repliesTo)
-        await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
-        return
-    elif result and isMediaGroup:
-        await databaseCheckMediaGroup(update, context, link, caption, repliesTo)
-        await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
-        return
-    else:
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text="Something went wrong :(\n"
-                 "Make sure your video is 60 min long or less"
-        )
-        return
+        if result == "slideshow":
+            await databaseCheckMediaGroup(update, context, link, caption, repliesTo)
+            await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
+            return
+        elif result and not isMediaGroup:
+            await databaseCheck(update, context, link, caption, repliesTo)
+            await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
+            return
+        elif result and isMediaGroup:
+            await databaseCheckMediaGroup(update, context, link, caption, repliesTo)
+            await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
+            return
+        else:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text="Something went wrong :(\n"
+                    "Make sure your video is 60 min long or less"
+            )
+            return
+    finally:
+        stop_event.set()
+        await typing_task
