@@ -29,14 +29,6 @@ instagramPost = r"((https://(www\.))?instagram\.com/p/(.{11})/\S*)"
 database = db.database()
 
 async def processMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user = update.effective_user
-    userID = user.id
-
-    response = await database.lookUpUser(userID)
-    if not response.data:
-        username = user.username or "NULL"
-        await database.insertUser(userID, username)
-
     message = update.effective_message.text
     videoPostLink = re.search(combinedVideos, message)
     instagramPostLink = re.search(instagramPost, message)
@@ -116,6 +108,14 @@ async def databaseCheckMediaGroup(update: Update, context: ContextTypes.DEFAULT_
     return False
 
 async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link, linkType):
+    user = update.effective_user
+    userID = user.id
+
+    response = await database.lookUpUser(userID)
+    if not response.data:
+        username = user.username or "NULL"
+        await database.insertUser(userID, username)
+    
     isGroupChat = update.effective_chat.type in ["group", "supergroup"]
 
     escapedRequestedBy = ""
