@@ -6,7 +6,7 @@ import asyncio
 import re
 from handlers.otherMessageHandling import otherMessage
 from handlers.linkProcessing import processLink
-from handlers.instagramProcessing import processInstagramPost
+from handlers.photosProcessing import processInstagramPost
 from utilities.deleteOriginalMessage import deleteOriginalMessage
 from utilities.count import countAdd
 import db

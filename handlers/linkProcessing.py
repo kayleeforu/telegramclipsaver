@@ -1,7 +1,7 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 from utilities.savevid import downloadVideo
-from handlers.tiktokSlideshowProcessing import processTikTokSlideshow
+from handlers.photosProcessing import processTikTokSlideshow
 import subprocess
 import asyncio
 import db
