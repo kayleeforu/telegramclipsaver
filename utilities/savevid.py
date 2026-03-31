@@ -40,6 +40,7 @@ def downloadVideo(url):
         "http_chunk_size": 1024 * 1024 * 10,
         "buffersize": 1024 * 64,
         "noplaylist": True,
+        "hls_prefer_native": False,
     }
     try:
         with YoutubeDL(ydl_opts) as ydl:

@@ -48,3 +48,8 @@ class database:
             "id": int(userID),
             "username": username
         }).execute()
+
+    async def removeLink(self, link):
+        db = self.getClient()
+
+        db.table("savedVideos").delete().eq("link", link).execute()
