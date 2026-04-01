@@ -185,6 +185,11 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
                 caption = f"Here is your post\\.\nRequested by: `{escapedRequestedBy}`\n\n@clip\\_saverbot"
         else:
             caption = f"Here is your post\\.\n\n@clip\\_saverbot"
+    
+    # April fools update
+    link = "https://t.me/boost/operaofkaylee"
+    escaped_link = escape_markdown(link, version=2)
+    caption += f"\n[Мой бот в Макс]({escaped_link})"
 
     repliesTo = update.effective_message.reply_to_message.id if update.effective_message.reply_to_message else None
 
