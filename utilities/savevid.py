@@ -37,7 +37,7 @@ def downloadVideo(url):
             "bestvideo[height<=720][ext=mp4]+bestaudio/"
             "best[height<=720]/best"
         ),
-    "merge_output_format": "mp4",
+        "merge_output_format": "mp4",
         "cookiefile": "cookies.txt",
         "writethumbnail": True,
         "js_runtimes": {"node": {}},
@@ -53,27 +53,57 @@ def downloadVideo(url):
         "noplaylist": True,
         "hls_prefer_native": False,
     }
+
     try:
         with YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
-            filepath = ydl.prepare_filename(info)
-            filepath = filepath.rsplit(".", 1)[0] + ".mp4"
+            info = ydl.extract_info(url, download=False)
 
-            thumbnailpath = convertThumbnail(filepath)
+            is_live = info.get("is_live")
 
-            height = info.get("height", 0)
-            width = info.get("width", 0)
+            if is_live:
+                print("Live stream detected, recording 30 seconds...")
 
-            probe = ffmpeg.probe(filepath)
-            audio_streams = [s for s in probe["streams"] if s["codec_type"] == "audio"]
-            if audio_streams == []:
-                return filepath, False, thumbnailpath, height, width
-            return str(filepath), True, thumbnailpath, height, width
+                stream_url = info.get("url")
+                video_id = info.get("id")
+
+                output_path = f"downloadedVideos/video{video_id}.mp4"
+
+                (
+                    ffmpeg
+                    .input(stream_url)
+                    .output(output_path, t=30, c="copy")  # ⏱️ RECORD 30s
+                    .run(overwrite_output=True)
+                )
+
+                thumbnailpath = None
+
+                return output_path, True, thumbnailpath, None, None
+
+            else:
+                info = ydl.extract_info(url, download=True)
+
+                filepath = ydl.prepare_filename(info)
+                filepath = filepath.rsplit(".", 1)[0] + ".mp4"
+
+                thumbnailpath = convertThumbnail(filepath)
+
+                height = info.get("height", 0)
+                width = info.get("width", 0)
+
+                probe = ffmpeg.probe(filepath)
+                audio_streams = [s for s in probe["streams"] if s["codec_type"] == "audio"]
+
+                if audio_streams == []:
+                    return filepath, False, thumbnailpath, height, width
+
+                return filepath, True, thumbnailpath, height, width
+
     except DownloadError as e:
         if "too long" in str(e).lower():
             return "too_long", None, None, None, None
         print(f"Error: {e}")
         return None, None, None, None, None
+
     except Exception as e:
         print(f"Error: {e}")
         return None, None, None, None, None
