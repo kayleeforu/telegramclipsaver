@@ -187,9 +187,9 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
             caption = f"Here is your post\\.\n\n@clip\\_saverbot"
     
     # April fools update
-    linkMeme = "https://t.me/boost/operaofkaylee"
-    escapedLinkMeme = escape_markdown(linkMeme, version=2)
-    caption += f"\n\n[Мой бот в Макс]({escapedLinkMeme})"
+    # linkMeme = "https://t.me/boost/operaofkaylee"
+    # escapedLinkMeme = escape_markdown(linkMeme, version=2)
+    # caption += f"\n\n[Мой бот в Макс]({escapedLinkMeme})"
 
     repliesTo = update.effective_message.reply_to_message.id if update.effective_message.reply_to_message else None
 
