@@ -26,7 +26,18 @@ def downloadVideo(url):
         "quiet": False,
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
         "match_filter": duration_filter,
-        "format": "bestvideo[vcodec^=avc][height<=720]+bestaudio/bestvideo[vcodec^=h264][height<=720]+bestaudio/bestvideo[height<=720][ext=mp4]+bestaudio/best[height<=720]/best",        "merge_output_format": "mp4",
+        "format": (
+            "bestvideo[vcodec^=avc][height<=1080]+bestaudio/"
+            "bestvideo[vcodec^=h264][height<=1080]+bestaudio/"
+            "bestvideo[height<=1080][ext=mp4]+bestaudio/"
+            "best[height<=1080]/"
+
+            "bestvideo[vcodec^=avc][height<=720]+bestaudio/"
+            "bestvideo[vcodec^=h264][height<=720]+bestaudio/"
+            "bestvideo[height<=720][ext=mp4]+bestaudio/"
+            "best[height<=720]/best"
+        ),
+    "merge_output_format": "mp4",
         "cookiefile": "cookies.txt",
         "writethumbnail": True,
         "js_runtimes": {"node": {}},
