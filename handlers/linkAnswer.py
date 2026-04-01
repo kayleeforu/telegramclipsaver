@@ -233,6 +233,7 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
                 text="Something went wrong :(\n"
                     "Make sure your video is 60 min long or less"
             )
+            await database.removeLink(link)
             return
     finally:
         stop_event.set()

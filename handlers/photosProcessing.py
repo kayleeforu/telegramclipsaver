@@ -31,6 +31,7 @@ async def downloadMediaGroup(update: Update, context: ContextTypes.DEFAULT_TYPE,
         await loop.run_in_executor(None, lambda: job.DownloadJob(link).run())
     except Exception as e:
         print(f"Download error: {e}")
+        await database.removeLink(link)
         await context.bot.send_message(chat_id=update.effective_chat.id, text="Invalid Link.")
         return False
 
@@ -44,6 +45,7 @@ async def downloadMediaGroup(update: Update, context: ContextTypes.DEFAULT_TYPE,
             media.append(InputMediaPhoto(open(file, "rb")))
 
     if not media:
+        await database.removeLink(link)
         await context.bot.send_message(chat_id=update.effective_chat.id, text=errorText)
         return False
 

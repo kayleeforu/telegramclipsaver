@@ -105,6 +105,7 @@ async def processInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     finally:
         subprocess.run(clearVids)
+        await database.removeLink(link)
 
     await database.insert(link, file)
     await context.bot.answer_inline_query(inline_query_id=update.inline_query.id, results=[inlineID])
