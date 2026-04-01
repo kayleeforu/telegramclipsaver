@@ -23,7 +23,7 @@ def convertThumbnail(filepath):
 
 def downloadVideo(url):
     ydl_opts = {
-        "quiet": True,
+        "quiet": False,
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
         "match_filter": duration_filter,
         "format": (
