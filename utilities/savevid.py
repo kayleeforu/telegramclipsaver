@@ -61,8 +61,6 @@ def downloadVideo(url):
             is_live = info.get("is_live")
 
             if is_live:
-                print("Live stream detected, recording 30 seconds...")
-
                 stream_url = info.get("url")
                 video_id = info.get("id")
 
@@ -71,7 +69,7 @@ def downloadVideo(url):
                 (
                     ffmpeg
                     .input(stream_url)
-                    .output(output_path, t=30, c="copy")  # ⏱️ RECORD 30s
+                    .output(output_path, t=30, c="copy")
                     .run(overwrite_output=True)
                 )
 

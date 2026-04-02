@@ -8,7 +8,6 @@ from handlers.otherMessageHandling import otherMessage
 from handlers.linkProcessing import processLink
 from handlers.photosProcessing import processInstagramPost
 from utilities.deleteOriginalMessage import deleteOriginalMessage
-from utilities.count import countAdd
 import db
 
 videoPost = [
@@ -67,7 +66,6 @@ async def databaseCheck(update: Update, context: ContextTypes.DEFAULT_TYPE, link
                 reply_to_message_id=repliesTo,
                 parse_mode="MarkdownV2"
             )
-        await countAdd()
         return True
     return False
 
@@ -103,7 +101,6 @@ async def databaseCheckMediaGroup(update: Update, context: ContextTypes.DEFAULT_
                     parse_mode="MarkdownV2" if is_last else None
                 )
 
-        await countAdd()
         return True
     return False
 

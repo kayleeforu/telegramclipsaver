@@ -2,7 +2,7 @@ from gallery_dl import config, job
 import os
 import asyncio
 from glob import glob
-from telegram import Update, InputMediaPhoto, InputMediaVideo
+from telegram import InputMediaPhoto, InputMediaVideo
 from telegram.ext import ContextTypes
 import db
 
@@ -19,7 +19,7 @@ def clearFolder(directory):
         if os.path.isfile(file):
             os.remove(file)
 
-async def downloadMediaGroup(update: Update, context: ContextTypes.DEFAULT_TYPE, link: str, directory: str, errorText: str):
+async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str, directory: str):
     clearFolder(directory)
     try:
         config.load()
@@ -32,7 +32,6 @@ async def downloadMediaGroup(update: Update, context: ContextTypes.DEFAULT_TYPE,
     except Exception as e:
         print(f"Download error: {e}")
         await database.removeLink(link)
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="Invalid Link.")
         return False
 
     media = []
@@ -46,7 +45,6 @@ async def downloadMediaGroup(update: Update, context: ContextTypes.DEFAULT_TYPE,
 
     if not media:
         await database.removeLink(link)
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=errorText)
         return False
 
     msgs = []
@@ -68,8 +66,8 @@ async def downloadMediaGroup(update: Update, context: ContextTypes.DEFAULT_TYPE,
     await database.insert(link, files)
     return True
 
-async def processTikTokSlideshow(update: Update, context: ContextTypes.DEFAULT_TYPE, link: str):
-    return await downloadMediaGroup(update, context, link, SLIDESHOW_DIR, "Could not download slideshow.")
+async def processTikTokSlideshow(context: ContextTypes.DEFAULT_TYPE, link: str):
+    return await downloadMediaGroup(context, link, SLIDESHOW_DIR)
 
-async def processInstagramPost(update: Update, context: ContextTypes.DEFAULT_TYPE, link: str):
-    return await downloadMediaGroup(update, context, link, INSTAGRAM_DIR, "Could not download post.")
+async def processInstagramPost(context: ContextTypes.DEFAULT_TYPE, link: str):
+    return await downloadMediaGroup(context, link, INSTAGRAM_DIR)

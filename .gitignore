@@ -7,4 +7,3 @@ savesession.py
 sessions/
 .env
 *.pyc
-inlinePostProcessing.py

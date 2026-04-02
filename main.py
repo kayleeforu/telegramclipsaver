@@ -1,7 +1,8 @@
 import logging
-from telegram.ext import ApplicationBuilder, CommandHandler, filters, MessageHandler, InlineQueryHandler
+from telegram.ext import ApplicationBuilder, CommandHandler, filters, MessageHandler, InlineQueryHandler, ChosenInlineResultHandler
+from telegram import Update
 import os
-from handlers.inlineVideoProcessing import processInline
+from handlers.inlinePostProcessing import processPostInline, chosenInlineResult
 from handlers.linkAnswer import processMessage
 from commands.commands import start, support
 
@@ -45,15 +46,17 @@ if __name__ == '__main__':
     supportHandler = CommandHandler("support", support)
     # Message Handler
     messageHandler = MessageHandler(filters.TEXT, processMessage)
+    chosenInlineResultHandler = ChosenInlineResultHandler(chosenInlineResult)
     
     try:
         # Link, which is not instagram post, handler
-        inlineVideoLinkHandler = InlineQueryHandler(processInline, pattern = combinedVideos, block = True)
+        inlineVideoLinkHandler = InlineQueryHandler(processPostInline, pattern = combinedVideos, block = True)
+        inlineInstagramPostLinkHandler = InlineQueryHandler(processPostInline, pattern = instagramPost, block = True)
 
         # Adding handlers to the bot
-        application.add_handlers([startHandler, supportHandler, messageHandler, inlineVideoLinkHandler])
+        application.add_handlers([startHandler, supportHandler, messageHandler, chosenInlineResultHandler, inlineVideoLinkHandler, inlineInstagramPostLinkHandler])
     except Exception as e:
         logging.error(f"Error: {e}")
     
     # Run bot
-    application.run_polling()
+    application.run_polling(allowed_updates=Update.ALL_TYPES)
