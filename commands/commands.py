@@ -2,8 +2,10 @@ from telegram import Update
 from telegram.ext import ContextTypes
 from handlers.linkAnswer import getLinkAnswer
 import urllib
+import logging
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logging.info(f"[start] args={context.args}")
     isGroupChat = update.effective_chat.type in ["group", "supergroup"]
     if isGroupChat:
         return
