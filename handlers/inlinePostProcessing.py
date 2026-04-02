@@ -1,4 +1,4 @@
-from telegram import Update, InlineQueryResultCachedVideo, InlineQueryResultCachedMpeg4Gif, InlineQueryResultArticle, InputTextMessageContent, InputMediaVideo, InputMediaAnimation, InputMediaPhoto, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram import Update, InlineQueryResultCachedVideo, InlineQueryResultCachedMpeg4Gif, InlineQueryResultArticle, InputTextMessageContent, InputMediaVideo, InputMediaAnimation, InputMediaPhoto, InlineKeyboardMarkup, InlineKeyboardButton, InlineQueryResultCachedPhoto
 from telegram.ext import ContextTypes
 from utilities.savevid import downloadVideo
 from utilities.patterns import getLinkType
@@ -9,6 +9,7 @@ import subprocess
 import db
 import asyncio
 import logging
+import urllib.parse
 
 clearVids = "rm -f downloadedVideos/*"
 database = db.database()
@@ -31,17 +32,30 @@ async def checkDatabase(update: Update, context: ContextTypes.DEFAULT_TYPE, link
             )
             return False
         elif file[1]:
+            payload = urllib.parse.quote(link)
+            deepLink = f"https://t.me/clip_saverbot?download={payload}"
             inlineID = InlineQueryResultCachedVideo(
                 id=str(uuid.uuid4()),
                 video_file_id=file[0],
-                title="Video"
+                title="Video",
+                caption = f'🌅 Here is one photo:\n<a href="{deepLink}">Click to view the full post</a>\n\n@clip_saverbot',
+                parse_mode = "HTML"
             )
         else:
-            inlineID = InlineQueryResultCachedMpeg4Gif(
-                id=str(uuid.uuid4()),
-                mpeg4_file_id=file[0],
-                title="GIF"
-            )
+            if file[0].startswith("AgAC"):
+                inlineID = InlineQueryResultCachedPhoto(
+                    id=str(uuid.uuid4()),
+                    photo_file_id=file[0],
+                    title="Photo",
+                    caption="🎬 Downloaded via @clip_saverbot"
+                )
+            else:
+                inlineID = InlineQueryResultCachedMpeg4Gif(
+                    id=str(uuid.uuid4()),
+                    mpeg4_file_id=file[0],
+                    title="GIF",
+                    caption="🎬 Downloaded via @clip_saverbot"
+                )
         await context.bot.answer_inline_query(
             inline_query_id=update.inline_query.id,
             results=[inlineID],
@@ -66,7 +80,7 @@ async def processPostInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     inlineID = InlineQueryResultArticle(
         id=resultID,
-        title="⬇️ Click to download a post",
+        title="Click to download a post",
         input_message_content=InputTextMessageContent(message_text="⏳ Downloading the post..."),
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("⏳ Processing...", callback_data="processing")]
@@ -103,7 +117,8 @@ async def chosenInlineResult(update: Update, context: ContextTypes.DEFAULT_TYPE)
 async def processAndEdit(context, inlineMessageID, link):
     try:
         linkType, isTiktok = getLinkType(link)
-
+        payload = urllib.parse.quote(link)
+        deepLink = f"https://t.me/clip_saverbot?download={payload}"
         loop = asyncio.get_running_loop()
 
         if linkType == "video":
@@ -118,7 +133,11 @@ async def processAndEdit(context, inlineMessageID, link):
                         file_id = response[0]["file_ids"][0]
                         await context.bot.edit_message_media(
                             inline_message_id=inlineMessageID,
-                            media=InputMediaPhoto(file_id, caption=f"🌅Here is one photo:\n{link}\n\n@clip_saverbot")
+                            media=InputMediaPhoto(
+                                file_id,
+                                caption = f'🌅 Here is one photo:\n<a href="{deepLink}">Click to view the full post</a>\n\n@clip_saverbot',
+                                parse_mode = "HTML"
+                            )
                         )
                     else:
                         await context.bot.edit_message_text(
@@ -150,8 +169,8 @@ async def processAndEdit(context, inlineMessageID, link):
 
             await context.bot.edit_message_media(
                 inline_message_id=inlineMessageID,
-                media=InputMediaVideo(result[0], caption="🎬Downloaded via @clip_saverbot") if result[1] 
-                else InputMediaAnimation(result[0], caption="🎬Downloaded via @clip_saverbot")
+                media=InputMediaVideo(result[0], caption="🎬 Downloaded via @clip_saverbot") if result[1] 
+                else InputMediaAnimation(result[0], caption="🎬 Downloaded via @clip_saverbot")
             )
 
         elif linkType == "instagrampost":
@@ -161,7 +180,11 @@ async def processAndEdit(context, inlineMessageID, link):
                 file_id = response[0]["file_ids"][0]
                 await context.bot.edit_message_media(
                     inline_message_id=inlineMessageID,
-                    media=InputMediaPhoto(file_id, caption=f"🌅Here is one photo:\n{link}\n\n@clip_saverbot")
+                    media=InputMediaPhoto(
+                        file_id,
+                        caption= f'🌅 Here is one photo:\n<a href="{deepLink}">Click to view the full post</a>\n\n@clip_saverbot',
+                        parse_mode = "HTML"
+                    )
                 )
             else:
                 await context.bot.edit_message_text(
