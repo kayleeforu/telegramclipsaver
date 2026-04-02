@@ -118,7 +118,7 @@ async def processAndEdit(context, inlineMessageID, link):
                         file_id = response[0]["file_ids"][0]
                         await context.bot.edit_message_media(
                             inline_message_id=inlineMessageID,
-                            media=InputMediaPhoto(file_id, caption=f"Here is one photo:\n{link}\n\n@clip_saverbot")
+                            media=InputMediaPhoto(file_id, caption=f"🌅Here is one photo:\n{link}\n\n@clip_saverbot")
                         )
                     else:
                         await context.bot.edit_message_text(
@@ -150,7 +150,8 @@ async def processAndEdit(context, inlineMessageID, link):
 
             await context.bot.edit_message_media(
                 inline_message_id=inlineMessageID,
-                media=InputMediaVideo(result[0]) if result[1] else InputMediaAnimation(result[0])
+                media=InputMediaVideo(result[0], caption="🎬Downloaded via @clip_saverbot") if result[1] 
+                else InputMediaAnimation(result[0], caption="🎬Downloaded via @clip_saverbot")
             )
 
         elif linkType == "instagrampost":
@@ -160,7 +161,7 @@ async def processAndEdit(context, inlineMessageID, link):
                 file_id = response[0]["file_ids"][0]
                 await context.bot.edit_message_media(
                     inline_message_id=inlineMessageID,
-                    media=InputMediaPhoto(file_id, caption=f"Here is one photo:\n{link}\n\n@clip_saverbot")
+                    media=InputMediaPhoto(file_id, caption=f"🌅Here is one photo:\n{link}\n\n@clip_saverbot")
                 )
             else:
                 await context.bot.edit_message_text(
