@@ -83,6 +83,11 @@ async def chosenInlineResult(update: Update, context: ContextTypes.DEFAULT_TYPE)
     resultID = update.chosen_inline_result.result_id
     inlineMessageID = update.chosen_inline_result.inline_message_id
     link = update.chosen_inline_result.query
+
+    if not inlineMessageID:
+        logging.warning(f"[chosenInlineResult] No inline_message_id for result {resultID}")
+        await database.removeLink(link)  # clean up the processing entry
+        return
     
     if not pending.get(resultID):
         return
