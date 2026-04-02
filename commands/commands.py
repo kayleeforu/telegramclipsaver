@@ -1,10 +1,19 @@
 from telegram import Update
 from telegram.ext import ContextTypes
+from handlers.linkAnswer import getLinkAnswer
+import urllib
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     isGroupChat = update.effective_chat.type in ["group", "supergroup"]
     if isGroupChat:
         return
+    
+    if context.args:
+        parameter = context.args[0]
+        if parameter.startswith("download="):
+            link = urllib.parse.unquote(parameter[len("download="):])
+            await getLinkAnswer(update, context, link, "instagrampost")
+            return
 
     user = update.effective_user
     russian = user and user.language_code == "ru"

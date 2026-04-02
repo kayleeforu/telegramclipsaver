@@ -32,22 +32,22 @@ async def checkDatabase(update: Update, context: ContextTypes.DEFAULT_TYPE, link
             )
             return False
         elif file[1]:
-            payload = urllib.parse.quote(link)
-            deepLink = f"https://t.me/clip_saverbot?download={payload}"
             inlineID = InlineQueryResultCachedVideo(
                 id=str(uuid.uuid4()),
                 video_file_id=file[0],
                 title="Video",
-                caption = f'🌅 Here is one photo:\n<a href="{deepLink}">Click to view the full post</a>\n\n@clip_saverbot',
-                parse_mode = "HTML"
+                caption = "🎬 Downloaded via @clip_saverbot"
             )
         else:
             if file[0].startswith("AgAC"):
+                payload = urllib.parse.quote(link)
+                deepLink = f"https://t.me/clip_saverbot?download={payload}"
                 inlineID = InlineQueryResultCachedPhoto(
                     id=str(uuid.uuid4()),
                     photo_file_id=file[0],
                     title="Photo",
-                    caption="🎬 Downloaded via @clip_saverbot"
+                    caption=f'🌅 Here is one photo:\n<a href="{deepLink}">Click to view the full post</a>\n\n@clip_saverbot',
+                    parse_mode = "HTML"
                 )
             else:
                 inlineID = InlineQueryResultCachedMpeg4Gif(
