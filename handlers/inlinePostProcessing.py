@@ -1,4 +1,4 @@
-from telegram import Update, InlineQueryResultCachedVideo, InlineQueryResultCachedMpeg4Gif, InlineQueryResultArticle, InputTextMessageContent, InputMediaVideo, InputMediaAnimation, InputMediaPhoto
+from telegram import Update, InlineQueryResultCachedVideo, InlineQueryResultCachedMpeg4Gif, InlineQueryResultArticle, InputTextMessageContent, InputMediaVideo, InputMediaAnimation, InputMediaPhoto, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
 from utilities.savevid import downloadVideo
 from utilities.patterns import getLinkType
@@ -43,13 +43,13 @@ async def checkDatabase(update: Update, context: ContextTypes.DEFAULT_TYPE, link
                 title="GIF"
             )
         await context.bot.answer_inline_query(
-            inline_query_id = update.inline_query.id,
+            inline_query_id=update.inline_query.id,
             results=[inlineID],
-            cache_time = 0
-            )
+            cache_time=0
+        )
         return True
     return False
-    
+
 
 async def processPostInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
     link = update.inline_query.query
@@ -59,24 +59,24 @@ async def processPostInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Check cache
     if (await checkDatabase(update, context, link)):
         return
-    
-    # Add processing status to the link
-    await database.insert(link, ("processing", False))
 
     # Create the id for the inline result
     resultID = str(uuid.uuid4())
     pending[resultID] = link
 
     inlineID = InlineQueryResultArticle(
-        id = resultID,
-        title = "Click to download a post",
-        input_message_content = InputTextMessageContent(message_text = "⏳ Downloading the post...")
+        id=resultID,
+        title="⬇️ Click to download a post",
+        input_message_content=InputTextMessageContent(message_text="⏳ Downloading the post..."),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("⏳ Processing...", callback_data="processing")]
+        ])
     )
 
     await context.bot.answer_inline_query(
-        inline_query_id = update.inline_query.id,
-        results = [inlineID],
-        cache_time = 0
+        inline_query_id=update.inline_query.id,
+        results=[inlineID],
+        cache_time=0
     )
 
 async def chosenInlineResult(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -86,14 +86,16 @@ async def chosenInlineResult(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
     if not inlineMessageID:
         logging.warning(f"[chosenInlineResult] No inline_message_id for result {resultID}")
-        await database.removeLink(link)  # clean up the processing entry
         return
-    
+
     if not pending.get(resultID):
         return
     else:
         pending.pop(resultID)
-    
+
+    # Add processing status to the link
+    await database.insert(link, ("processing", False))
+
     asyncio.create_task(
         processAndEdit(context, inlineMessageID, link)
     )
@@ -108,7 +110,7 @@ async def processAndEdit(context, inlineMessageID, link):
             filepath, hasAudio, thumbnailpath, height, width = await loop.run_in_executor(None, lambda: downloadVideo(link))
             if filepath is None:
                 subprocess.run(clearVids, shell=True)
-                
+
                 if isTiktok:
                     await processTikTokSlideshow(context, link)
                     response = (await database.lookUpLink(link)).data
@@ -122,10 +124,10 @@ async def processAndEdit(context, inlineMessageID, link):
                         await context.bot.edit_message_text(
                             inline_message_id=inlineMessageID,
                             text="❌ Failed to download the post.\n\n@clip_saverbot"
-                        )    
+                        )
                         await database.removeLink(link)
                     return
-                
+
                 else:
                     await context.bot.edit_message_text(
                         inline_message_id=inlineMessageID,
@@ -133,7 +135,7 @@ async def processAndEdit(context, inlineMessageID, link):
                     )
                     await database.removeLink(link)
                     return
-            
+
             result = await uploadToChannel(context, filepath, hasAudio, thumbnailpath, height, width)
             if result is None:
                 await context.bot.edit_message_text(
@@ -145,12 +147,11 @@ async def processAndEdit(context, inlineMessageID, link):
                 return
             else:
                 await database.insert(link, result)
-            
+
             await context.bot.edit_message_media(
                 inline_message_id=inlineMessageID,
                 media=InputMediaVideo(result[0]) if result[1] else InputMediaAnimation(result[0])
             )
-
 
         elif linkType == "instagrampost":
             await processInstagramPost(context, link)
