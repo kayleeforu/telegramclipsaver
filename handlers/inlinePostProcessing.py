@@ -9,11 +9,11 @@ import subprocess
 import db
 import asyncio
 import logging
-import urllib.parse
 
 clearVids = "rm -f downloadedVideos/*"
 database = db.database()
 pending = {}
+
 
 async def checkDatabase(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
     response = (await database.lookUpLink(link)).data
@@ -36,18 +36,20 @@ async def checkDatabase(update: Update, context: ContextTypes.DEFAULT_TYPE, link
                 id=str(uuid.uuid4()),
                 video_file_id=file[0],
                 title="Video",
-                caption = "🎬 Downloaded via @clip_saverbot"
+                caption="🎬 Downloaded via @clip_saverbot"
             )
         else:
             if file[0].startswith("AgAC"):
-                payload = urllib.parse.quote(link)
-                deepLink = f"https://t.me/clip_saverbot?start=download_{payload}"
+                key = str(uuid.uuid4())[:8]
+                pending[key] = link
+                deepLink = f"https://t.me/clip_saverbot?start=download_{key}"
+
                 inlineID = InlineQueryResultCachedPhoto(
                     id=str(uuid.uuid4()),
                     photo_file_id=file[0],
                     title="Photo",
                     caption=f'🌅 Here is one photo:\n<a href="{deepLink}">Click to view the full post</a>\n\n@clip_saverbot',
-                    parse_mode = "HTML"
+                    parse_mode="HTML"
                 )
             else:
                 inlineID = InlineQueryResultCachedMpeg4Gif(
@@ -56,6 +58,7 @@ async def checkDatabase(update: Update, context: ContextTypes.DEFAULT_TYPE, link
                     title="GIF",
                     caption="🎬 Downloaded via @clip_saverbot"
                 )
+
         await context.bot.answer_inline_query(
             inline_query_id=update.inline_query.id,
             results=[inlineID],
@@ -70,11 +73,9 @@ async def processPostInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not link:
         return
 
-    # Check cache
     if (await checkDatabase(update, context, link)):
         return
 
-    # Create the id for the inline result
     resultID = str(uuid.uuid4())
     pending[resultID] = link
 
@@ -93,6 +94,7 @@ async def processPostInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
         cache_time=0
     )
 
+
 async def chosenInlineResult(update: Update, context: ContextTypes.DEFAULT_TYPE):
     resultID = update.chosen_inline_result.result_id
     inlineMessageID = update.chosen_inline_result.inline_message_id
@@ -107,22 +109,28 @@ async def chosenInlineResult(update: Update, context: ContextTypes.DEFAULT_TYPE)
     else:
         pending.pop(resultID)
 
-    # Add processing status to the link
     await database.insert(link, ("processing", False))
 
     asyncio.create_task(
         processAndEdit(context, inlineMessageID, link)
     )
 
+
 async def processAndEdit(context, inlineMessageID, link):
     try:
         linkType, isTiktok = getLinkType(link)
-        payload = urllib.parse.quote(link)
-        deepLink = f"https://t.me/clip_saverbot?start=download_{payload}"
+
+        key = str(uuid.uuid4())[:8]
+        pending[key] = link
+        deepLink = f"https://t.me/clip_saverbot?start=download_{key}"
+
         loop = asyncio.get_running_loop()
 
         if linkType == "video":
-            filepath, hasAudio, thumbnailpath, height, width = await loop.run_in_executor(None, lambda: downloadVideo(link))
+            filepath, hasAudio, thumbnailpath, height, width = await loop.run_in_executor(
+                None, lambda: downloadVideo(link)
+            )
+
             if filepath is None:
                 subprocess.run(clearVids, shell=True)
 
@@ -135,8 +143,8 @@ async def processAndEdit(context, inlineMessageID, link):
                             inline_message_id=inlineMessageID,
                             media=InputMediaPhoto(
                                 file_id,
-                                caption = f'🌅 Here is one photo:\n<a href="{deepLink}">Click to view the full post</a>\n\n@clip_saverbot',
-                                parse_mode = "HTML"
+                                caption=f'🌅 Here is one photo:\n<a href="{deepLink}">Click to view the full post</a>\n\n@clip_saverbot',
+                                parse_mode="HTML"
                             )
                         )
                     else:
@@ -146,7 +154,6 @@ async def processAndEdit(context, inlineMessageID, link):
                         )
                         await database.removeLink(link)
                     return
-
                 else:
                     await context.bot.edit_message_text(
                         inline_message_id=inlineMessageID,
@@ -156,6 +163,7 @@ async def processAndEdit(context, inlineMessageID, link):
                     return
 
             result = await uploadToChannel(context, filepath, hasAudio, thumbnailpath, height, width)
+
             if result is None:
                 await context.bot.edit_message_text(
                     inline_message_id=inlineMessageID,
@@ -169,7 +177,8 @@ async def processAndEdit(context, inlineMessageID, link):
 
             await context.bot.edit_message_media(
                 inline_message_id=inlineMessageID,
-                media=InputMediaVideo(result[0], caption="🎬 Downloaded via @clip_saverbot") if result[1] 
+                media=InputMediaVideo(result[0], caption="🎬 Downloaded via @clip_saverbot")
+                if result[1]
                 else InputMediaAnimation(result[0], caption="🎬 Downloaded via @clip_saverbot")
             )
 
@@ -182,8 +191,8 @@ async def processAndEdit(context, inlineMessageID, link):
                     inline_message_id=inlineMessageID,
                     media=InputMediaPhoto(
                         file_id,
-                        caption= f'🌅 Here is one photo:\n<a href="{deepLink}">Click to view the full post</a>\n\n@clip_saverbot',
-                        parse_mode = "HTML"
+                        caption=f'🌅 Here is one photo:\n<a href="{deepLink}">Click to view the full post</a>\n\n@clip_saverbot',
+                        parse_mode="HTML"
                     )
                 )
             else:
@@ -193,6 +202,7 @@ async def processAndEdit(context, inlineMessageID, link):
                 )
                 await database.removeLink(link)
             return
+
     except Exception as e:
         logging.error(f"[processAndEdit] Unexpected error: {e}")
         try:

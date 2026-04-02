@@ -1,8 +1,9 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 from handlers.linkAnswer import getLinkAnswer
-import urllib
+from handlers.inlinePostProcessing import pending  
 import logging
+
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info(f"[start] args={context.args}")
@@ -14,8 +15,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         parameter = context.args[0]
 
         if parameter.startswith("download_"):
-            encoded = parameter[len("download_"):]
-            link = urllib.parse.unquote(encoded)
+            key = parameter[len("download_"):]
+            
+            link = pending.pop(key, None)
+
+            if not link:
+                await update.message.reply_text("❌ This link expired or is invalid.")
+                return
 
             await getLinkAnswer(update, context, link, "instagrampost")
             return
@@ -47,6 +53,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         chat_id = update.effective_chat.id,
         text = text
     )
+
 
 async def support(update: Update, context: ContextTypes.DEFAULT_TYPE):
     isGroupChat = update.effective_chat.type in ["group", "supergroup"]
