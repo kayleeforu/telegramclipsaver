@@ -41,7 +41,7 @@ async def checkDatabase(update: Update, context: ContextTypes.DEFAULT_TYPE, link
         else:
             if file[0].startswith("AgAC"):
                 payload = urllib.parse.quote(link)
-                deepLink = f"https://t.me/clip_saverbot?download={payload}"
+                deepLink = f"https://t.me/clip_saverbot?start=download_{payload}"
                 inlineID = InlineQueryResultCachedPhoto(
                     id=str(uuid.uuid4()),
                     photo_file_id=file[0],
@@ -118,7 +118,7 @@ async def processAndEdit(context, inlineMessageID, link):
     try:
         linkType, isTiktok = getLinkType(link)
         payload = urllib.parse.quote(link)
-        deepLink = f"https://t.me/clip_saverbot?download={payload}"
+        deepLink = f"https://t.me/clip_saverbot?start=download_{payload}"
         loop = asyncio.get_running_loop()
 
         if linkType == "video":

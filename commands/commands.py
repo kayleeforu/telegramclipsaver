@@ -12,8 +12,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     if context.args:
         parameter = context.args[0]
-        if parameter.startswith("download="):
-            link = urllib.parse.unquote(parameter[len("download="):])
+
+        if parameter.startswith("download_"):
+            encoded = parameter[len("download_"):]
+            link = urllib.parse.unquote(encoded)
+
             await getLinkAnswer(update, context, link, "instagrampost")
             return
 
