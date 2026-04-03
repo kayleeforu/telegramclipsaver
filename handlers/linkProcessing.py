@@ -27,19 +27,8 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
         else:
             return False
     elif filepath == "too_long":
-        return False
-    elif filepath == "too_long_rr":
-        with open(thumbnailpath, "rb") as thmb:
-            await context.bot.send_video(
-                chat_id = update.effective_chat.id,
-                height = height,
-                width = width,
-                video = "BAACAgQAAyEGAATiI_v0AAIE-GnPCL_LfpmGiSYeRlCEwOagV-SvAALqGgACKtx5UgOyaDA3mOiuOgQ",
-                thumbnail = thmb,
-                caption = "🎬 Downloaded via @clip_saverbot"
-            )
         subprocess.run(clearVids, shell=True)
-        return None
+        return False
 
     try:
         with open(filepath, "rb") as f:

@@ -82,9 +82,7 @@ def downloadVideo(url):
             thumbnailpath = downloadThumbnail(info)
 
             if duration:
-                if duration > 18000:
-                    return "too_long_rr", None, thumbnailpath, height, width
-                elif duration > 3600:
+                if duration > 3600:
                     return "too_long", None, None, None, None
 
             is_live = info.get("is_live")
