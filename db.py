@@ -56,18 +56,18 @@ class database:
 
     async def insertDeepLink(self, key, link):
         db = self.getClient()
-        db.table("deepLinks").upsert({
+        db.table("deeplinks").upsert({
             "key": key,
             "link": link
         }).execute()
 
     async def getLinkByDeepKey(self, key):
         db = self.getClient()
-        result = db.table("deepLinks").select("*").eq("key", key).execute()
+        result = db.table("deeplinks").select("*").eq("key", key).execute()
         if result.data:
             return result.data[0]["link"]
         return None
 
     async def removeDeepLink(self, key):
         db = self.getClient()
-        db.table("deepLinks").delete().eq("key", key).execute()
+        db.table("deeplinks").delete().eq("key", key).execute()
