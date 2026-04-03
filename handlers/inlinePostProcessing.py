@@ -81,7 +81,7 @@ async def processPostInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     inlineID = InlineQueryResultArticle(
         id=resultID,
-        title="Click to download a post",
+        title="🏷 Click to download a post",
         input_message_content=InputTextMessageContent(message_text="⏳ Downloading the post..."),
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("⏳ Processing...", callback_data="processing")]
