@@ -87,7 +87,7 @@ async def processPostInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("⏳ Processing...", callback_data="processing")]
         ]),
         thumbnail_url = "https://cdn-icons-png.flaticon.com/512/9131/9131812.png",
-        description = "Click this button to download your post, it will take a little more time for YouTube video to download."
+        description = "Download the post, it will take a little more time for YouTube video to download."
     )
 
     await context.bot.answer_inline_query(
