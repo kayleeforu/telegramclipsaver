@@ -208,6 +208,11 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
         isMediaGroup = False
         if linkType == "video":
             result = await processLink(update, context, link)
+
+            # RickRoll for too long videos
+            if result is None:
+                return
+
         elif linkType == "instagrampost":
             result = await processInstagramPost(context, link)
             isMediaGroup = True

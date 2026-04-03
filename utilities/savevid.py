@@ -3,11 +3,8 @@ from yt_dlp.utils import DownloadError
 import ffmpeg
 import os
 from PIL import Image
+import requests
 
-def duration_filter(info):
-    duration = info.get("duration")
-    if duration and duration > 3600:
-        return "Video is too long (max 3600 seconds)"
 
 def convertThumbnail(filepath):
     base = filepath.rsplit(".", 1)[0]
@@ -21,11 +18,31 @@ def convertThumbnail(filepath):
             return jpg_path
     return None
 
+
+def downloadThumbnail(info):
+    try:
+        thumbnails = info.get("thumbnails")
+        video_id = info.get("id")
+
+        if not thumbnails or not video_id:
+            return None
+
+        thumb_url = thumbnails[-1]["url"]
+        thumb_path = f"downloadedVideos/video{video_id}_thumb.jpg"
+
+        r = requests.get(thumb_url, timeout=10)
+        with open(thumb_path, "wb") as f:
+            f.write(r.content)
+
+        return thumb_path
+    except Exception:
+        return None
+
+
 def downloadVideo(url):
     ydl_opts = {
         "quiet": False,
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
-        "match_filter": duration_filter,
         "format": (
             "bestvideo[vcodec^=avc][height<=1080]+bestaudio/"
             "bestvideo[vcodec^=h264][height<=1080]+bestaudio/"
@@ -58,12 +75,23 @@ def downloadVideo(url):
         with YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
 
+            duration = info.get("duration")
+            height = info.get("height", 0)
+            width = info.get("width", 0)
+
+            thumbnailpath = downloadThumbnail(info)
+
+            if duration:
+                if duration > 18000:
+                    return "too_long_rr", None, thumbnailpath, height, width
+                elif duration > 3600:
+                    return "too_long", None, None, None, None
+
             is_live = info.get("is_live")
+            video_id = info.get("id")
 
             if is_live:
                 stream_url = info.get("url")
-                video_id = info.get("id")
-
                 output_path = f"downloadedVideos/video{video_id}.mp4"
 
                 (
@@ -73,33 +101,31 @@ def downloadVideo(url):
                     .run(overwrite_output=True)
                 )
 
-                thumbnailpath = None
-
                 return output_path, True, thumbnailpath, None, None
 
-            else:
-                info = ydl.extract_info(url, download=True)
+            info = ydl.extract_info(url, download=True)
 
-                filepath = ydl.prepare_filename(info)
-                filepath = filepath.rsplit(".", 1)[0] + ".mp4"
+            filepath = ydl.prepare_filename(info)
+            filepath = filepath.rsplit(".", 1)[0] + ".mp4"
 
-                thumbnailpath = convertThumbnail(filepath)
+            converted_thumb = convertThumbnail(filepath)
+            if converted_thumb:
+                thumbnailpath = converted_thumb
 
-                height = info.get("height", 0)
-                width = info.get("width", 0)
+            height = info.get("height", height)
+            width = info.get("width", width)
 
-                probe = ffmpeg.probe(filepath)
-                audio_streams = [s for s in probe["streams"] if s["codec_type"] == "audio"]
+            probe = ffmpeg.probe(filepath)
+            audio_streams = [
+                s for s in probe["streams"] if s["codec_type"] == "audio"
+            ]
 
-                if audio_streams == []:
-                    return filepath, False, thumbnailpath, height, width
+            hasAudio = len(audio_streams) > 0
 
-                return filepath, True, thumbnailpath, height, width
+            return filepath, hasAudio, thumbnailpath, height, width
 
     except DownloadError as e:
-        if "too long" in str(e).lower():
-            return "too_long", None, None, None, None
-        print(f"Error: {e}")
+        print(f"DownloadError: {e}")
         return None, None, None, None, None
 
     except Exception as e:
