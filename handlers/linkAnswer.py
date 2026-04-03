@@ -211,6 +211,7 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
 
             # RickRoll for too long videos
             if result is None:
+                await database.removeLink(link)
                 return
 
         elif linkType == "instagrampost":
