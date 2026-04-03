@@ -209,7 +209,7 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
         if linkType == "video":
             result = await processLink(update, context, link)
         elif linkType == "instagrampost":
-            result = await processInstagramPost(update, context, link)
+            result = await processInstagramPost(context, link)
             isMediaGroup = True
 
         if result == "slideshow":
