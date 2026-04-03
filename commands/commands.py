@@ -1,9 +1,10 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 from handlers.linkAnswer import getLinkAnswer
-from handlers.inlinePostProcessing import pending  
+import db
 import logging
 
+database = db.database()
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info(f"[start] args={context.args}")
@@ -17,8 +18,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if parameter.startswith("download_"):
             key = parameter[len("download_"):]
             
-            link = pending.pop(key, None)
-
+            link = await database.getLinkByDeepKey(key)
             if not link:
                 await update.message.reply_text("❌ This link expired or is invalid.")
                 return

@@ -53,3 +53,21 @@ class database:
         db = self.getClient()
 
         db.table("savedVideos").delete().eq("link", link).execute()
+
+    async def insertDeepLink(self, key, link):
+        db = self.getClient()
+        db.table("deepLinks").upsert({
+            "key": key,
+            "link": link
+        }).execute()
+
+    async def getLinkByDeepKey(self, key):
+        db = self.getClient()
+        result = db.table("deepLinks").select("*").eq("key", key).execute()
+        if result.data:
+            return result.data[0]["link"]
+        return None
+
+    async def removeDeepLink(self, key):
+        db = self.getClient()
+        db.table("deepLinks").delete().eq("key", key).execute()

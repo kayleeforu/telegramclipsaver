@@ -41,7 +41,7 @@ async def checkDatabase(update: Update, context: ContextTypes.DEFAULT_TYPE, link
         else:
             if file[0].startswith("AgAC"):
                 key = str(uuid.uuid4())[:8]
-                pending[key] = link
+                await database.insertDeepLink(key, link)
                 deepLink = f"https://t.me/clip_saverbot?start=download_{key}"
 
                 inlineID = InlineQueryResultCachedPhoto(
@@ -121,7 +121,7 @@ async def processAndEdit(context, inlineMessageID, link):
         linkType, isTiktok = getLinkType(link)
 
         key = str(uuid.uuid4())[:8]
-        pending[key] = link
+        await database.insertDeepLink(key, link)
         deepLink = f"https://t.me/clip_saverbot?start=download_{key}"
 
         loop = asyncio.get_running_loop()
