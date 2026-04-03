@@ -32,6 +32,8 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
 
     try:
         with open(filepath, "rb") as f:
+            if "instagram" in link:
+                hasAudio = True
             if hasAudio:
                 msg = await context.bot.send_video(
                     chat_id=-1003794009076,
