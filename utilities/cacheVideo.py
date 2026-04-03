@@ -7,9 +7,11 @@ import db
 clearVids = "rm -f downloadedVideos/*"
 database = db.database()
 
-async def uploadToChannel(context: ContextTypes.DEFAULT_TYPE, filepath, hasAudio, thumbnailpath, height, width):
+async def uploadToChannel(context: ContextTypes.DEFAULT_TYPE, filepath, hasAudio, thumbnailpath, height, width, link):
     try:
         with open(filepath, "rb") as file:
+            if "instagram" in link:
+                hasAudio = True
             if hasAudio:
                 message = await context.bot.send_video(
                     chat_id = -1003794009076,

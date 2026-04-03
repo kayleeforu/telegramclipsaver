@@ -162,7 +162,7 @@ async def processAndEdit(context, inlineMessageID, link):
                     await database.removeLink(link)
                     return
 
-            result = await uploadToChannel(context, filepath, hasAudio, thumbnailpath, height, width)
+            result = await uploadToChannel(context, filepath, hasAudio, thumbnailpath, height, width, link)
 
             if result is None:
                 await context.bot.edit_message_text(
