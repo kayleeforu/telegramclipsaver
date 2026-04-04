@@ -44,11 +44,6 @@ def downloadVideo(url):
         "quiet": False,
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
         "format": (
-            "bestvideo[vcodec^=avc][height<=1080]+bestaudio/"
-            "bestvideo[vcodec^=h264][height<=1080]+bestaudio/"
-            "bestvideo[height<=1080][ext=mp4]+bestaudio/"
-            "best[height<=1080]/"
-
             "bestvideo[vcodec^=avc][height<=720]+bestaudio/"
             "bestvideo[vcodec^=h264][height<=720]+bestaudio/"
             "bestvideo[height<=720][ext=mp4]+bestaudio/"

@@ -23,7 +23,7 @@ async def checkDatabase(update: Update, context: ContextTypes.DEFAULT_TYPE, link
             inlineID = InlineQueryResultArticle(
                 id=str(uuid.uuid4()),
                 title="⏳ Already processing...",
-                input_message_content=InputTextMessageContent("⏳ Downloading the post...")
+                input_message_content=InputTextMessageContent("<tg-emoji emoji-id='5447389837076231920'>⏳</tg-emoji> The post is already being processed, resend the message...", parse_mode="HTML")
             )
             await context.bot.answer_inline_query(
                 inline_query_id=update.inline_query.id,
@@ -36,7 +36,8 @@ async def checkDatabase(update: Update, context: ContextTypes.DEFAULT_TYPE, link
                 id=str(uuid.uuid4()),
                 video_file_id=file[0],
                 title="Video",
-                caption="🎬 Downloaded via @clip_saverbot"
+                caption="<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot",
+                parse_mode="HTML"
             )
         else:
             if file[0].startswith("AgAC"):
@@ -48,7 +49,7 @@ async def checkDatabase(update: Update, context: ContextTypes.DEFAULT_TYPE, link
                     id=str(uuid.uuid4()),
                     photo_file_id=file[0],
                     title="Photo",
-                    caption=f'🌅 Here is one photo:\n<a href="{deepLink}">Click to view the full post</a>\n\n@clip_saverbot',
+                    caption=f'<tg-emoji emoji-id="5447637214307579793">🌅</tg-emoji> Here is one photo:\n<a href="{deepLink}">Click to view the full post</a>\n\n@clip_saverbot',
                     parse_mode="HTML"
                 )
             else:
@@ -56,7 +57,8 @@ async def checkDatabase(update: Update, context: ContextTypes.DEFAULT_TYPE, link
                     id=str(uuid.uuid4()),
                     mpeg4_file_id=file[0],
                     title="GIF",
-                    caption="🎬 Downloaded via @clip_saverbot"
+                    caption="<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot",
+                    parse_mode="HTML"
                 )
 
         await context.bot.answer_inline_query(
@@ -82,7 +84,7 @@ async def processPostInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
     inlineID = InlineQueryResultArticle(
         id=resultID,
         title="🏷 Click to download a post",
-        input_message_content=InputTextMessageContent(message_text="⏳ Downloading the post..."),
+        input_message_content=InputTextMessageContent(message_text='<tg-emoji emoji-id="5447389837076231920">⏳</tg-emoji> Downloading the post...', parse_mode = "HTML"),
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("⏳ Processing...", callback_data="processing")]
         ]),
@@ -145,21 +147,23 @@ async def processAndEdit(context, inlineMessageID, link):
                             inline_message_id=inlineMessageID,
                             media=InputMediaPhoto(
                                 file_id,
-                                caption=f'🌅 Here is one photo:\n<a href="{deepLink}">Click to view the full post</a>\n\n@clip_saverbot',
+                                caption=f'<tg-emoji emoji-id="5447637214307579793">🌅</tg-emoji> Here is one photo:\n<a href="{deepLink}">Click to view the full post</a>\n\n@clip_saverbot',
                                 parse_mode="HTML"
                             )
                         )
                     else:
                         await context.bot.edit_message_text(
                             inline_message_id=inlineMessageID,
-                            text="❌ Failed to download the post.\n\n@clip_saverbot"
+                            text="<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Failed to download the post.\n\n@clip_saverbot",
+                            parse_mode = "HTML"
                         )
                         await database.removeLink(link)
                     return
                 else:
                     await context.bot.edit_message_text(
                         inline_message_id=inlineMessageID,
-                        text="❌ Failed to download the video.\n\n@clip_saverbot"
+                        text="<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Failed to download the video.\n\n@clip_saverbot",
+                        parse_mode = "HTML"
                     )
                     await database.removeLink(link)
                     return
@@ -169,7 +173,8 @@ async def processAndEdit(context, inlineMessageID, link):
             if result is None:
                 await context.bot.edit_message_text(
                     inline_message_id=inlineMessageID,
-                    text="❌ Failed to download the video.\n\n@clip_saverbot"
+                    text="<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Failed to download the video.\n\n@clip_saverbot",
+                    parse_mode = "HTML"
                 )
                 subprocess.run(clearVids, shell=True)
                 await database.removeLink(link)
@@ -179,9 +184,9 @@ async def processAndEdit(context, inlineMessageID, link):
 
             await context.bot.edit_message_media(
                 inline_message_id=inlineMessageID,
-                media=InputMediaVideo(result[0], caption="🎬 Downloaded via @clip_saverbot")
+                media=InputMediaVideo(result[0], caption="<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot", parse_mode="HTML")
                 if result[1]
-                else InputMediaAnimation(result[0], caption="🎬 Downloaded via @clip_saverbot")
+                else InputMediaAnimation(result[0], caption="<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot", parse_mode="HTML")
             )
 
         elif linkType == "instagrampost":
@@ -193,14 +198,15 @@ async def processAndEdit(context, inlineMessageID, link):
                     inline_message_id=inlineMessageID,
                     media=InputMediaPhoto(
                         file_id,
-                        caption=f'🌅 Here is one photo:\n<a href="{deepLink}">Click to view the full post</a>\n\n@clip_saverbot',
+                        caption=f'<tg-emoji emoji-id="5447637214307579793">🌅</tg-emoji> Here is one photo:\n<a href="{deepLink}">Click to view the full post</a>\n\n@clip_saverbot',
                         parse_mode="HTML"
                     )
                 )
             else:
                 await context.bot.edit_message_text(
                     inline_message_id=inlineMessageID,
-                    text="❌ Failed to download the video.\n\n@clip_saverbot"
+                    text="<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Failed to download the video.\n\n@clip_saverbot",
+                    parse_mode = "HTML"
                 )
                 await database.removeLink(link)
             return
@@ -210,7 +216,8 @@ async def processAndEdit(context, inlineMessageID, link):
         try:
             await context.bot.edit_message_text(
                 inline_message_id=inlineMessageID,
-                text="❌ Something went wrong.\n\n@clip_saverbot"
+                text="<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Something went wrong.\n\n@clip_saverbot",
+                parse_mode = "HTML"
             )
         except Exception:
             pass

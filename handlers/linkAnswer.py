@@ -1,6 +1,5 @@
 from telegram import Update, InputMediaVideo, InputMediaPhoto
 from telegram.ext import ContextTypes
-from telegram.helpers import escape_markdown
 from telegram.error import RetryAfter
 import asyncio
 import re
@@ -56,7 +55,7 @@ async def databaseCheck(update: Update, context: ContextTypes.DEFAULT_TYPE, link
                 video=file[0],
                 caption=caption,
                 reply_to_message_id=repliesTo,
-                parse_mode="MarkdownV2"
+                parse_mode="HTML"
             )
         else:
             await context.bot.send_animation(
@@ -64,7 +63,7 @@ async def databaseCheck(update: Update, context: ContextTypes.DEFAULT_TYPE, link
                 animation=file[0],
                 caption=caption,
                 reply_to_message_id=repliesTo,
-                parse_mode="MarkdownV2"
+                parse_mode="HTML"
             )
         return True
     return False
@@ -89,7 +88,7 @@ async def databaseCheckMediaGroup(update: Update, context: ContextTypes.DEFAULT_
                     media=chunk,
                     reply_to_message_id=repliesTo if i == 0 else None,
                     caption=caption if is_last else None,
-                    parse_mode="MarkdownV2" if is_last else None
+                    parse_mode="HTML" if is_last else None
                 )
             except RetryAfter as e:
                 await asyncio.sleep(e.retry_after)
@@ -98,7 +97,7 @@ async def databaseCheckMediaGroup(update: Update, context: ContextTypes.DEFAULT_
                     media=chunk,
                     reply_to_message_id=repliesTo if i == 0 else None,
                     caption=caption if is_last else None,
-                    parse_mode="MarkdownV2" if is_last else None
+                    parse_mode="HTML" if is_last else None
                 )
 
         return True
@@ -116,9 +115,10 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
     if response.data and response.data[0]["file_ids"][0] == "processing":
         processing_msg = await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text="The link is already being processed."
+            text="<tg-emoji emoji-id='5447389837076231920'>⏳</tg-emoji> The link is already being processed.",
+            parse_mode="HTML",
         )
-        await asyncio.sleep(3)
+        await asyncio.sleep(5)
         await context.bot.delete_message(
             chat_id=update.effective_chat.id,
             message_id=processing_msg.message_id
@@ -144,11 +144,10 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
     if not response.data:
         username = user.username or "NULL"
         await database.insertUser(userID, username)
-    
+
     # Check if the message was requested in a group
     isGroupChat = update.effective_chat.type in ["group", "supergroup"]
 
-    escapedRequestedBy = ""
     hasUserName = False
 
     if isGroupChat:
@@ -156,41 +155,41 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
             requestedBy = "@" + update.effective_sender.username
             hasUserName = True
         else:
-            requestedBy = f"{update.effective_sender.first_name}"
+            requestedBy = update.effective_sender.first_name
             hasUserName = False
-        escapedRequestedBy = escape_markdown(requestedBy, version=2)
     else:
         requestedBy = None
+
     # Get user who requested the message and check their interface language
     requestedMessage = update.effective_message.id if isGroupChat else None
     isRussian = user and user.language_code == "ru"
 
     # Prepare caption depending on whether the chat is a group and if the interface language is Russian or not
+    caption = f"<tg-emoji emoji-id='5447471097857473538'>📎</tg-emoji> "
     if isRussian:
         if isGroupChat:
             if hasUserName:
-                caption = f"Ваш пост\\.\nЗапрошено пользователем: {escapedRequestedBy}\n\n@clip\\_saverbot"
+                caption += f"Ваш пост.\nЗапрошено пользователем: {requestedBy}"
             else:
-                caption = f"Ваш пост\\.\nЗапрошено пользователем: `{escapedRequestedBy}`\n\n@clip\\_saverbot"
+                caption += f"Ваш пост.\nЗапрошено пользователем: <code>{requestedBy}</code>"
         else:
-            caption = f"Ваш пост\\.\n\n@clip\\_saverbot"
+            caption += "Ваш пост."
     else:
         if isGroupChat:
             if hasUserName:
-                caption = f"Here is your post\\.\nRequested by: {escapedRequestedBy}\n\n@clip\\_saverbot"
+                caption += f"Here is your post.\nRequested by: {requestedBy}"
             else:
-                caption = f"Here is your post\\.\nRequested by: `{escapedRequestedBy}`\n\n@clip\\_saverbot"
+                caption += f"Here is your post.\nRequested by: <code>{requestedBy}</code>"
         else:
-            caption = f"Here is your post\\.\n\n@clip\\_saverbot"
-    
+            caption += "Here is your post."
+    caption += f"\n\n@clip_saverbot"
+
     # April fools update
-    # linkMeme = "https://t.me/boost/operaofkaylee"
-    # escapedLinkMeme = escape_markdown(linkMeme, version=2)
-    # caption += f"\n\n[Мой бот в Макс]({escapedLinkMeme})"
+    # caption += f'\n\n<a href="https://t.me/boost/operaofkaylee">Мой бот в Макс</a>'
 
     repliesTo = update.effective_message.reply_to_message.id if update.effective_message.reply_to_message else None
 
-    try: 
+    try:
         if linkType == "video":
             if await databaseCheck(update, context, link, caption, repliesTo):
                 await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
@@ -202,7 +201,7 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
             if await databaseCheckMediaGroup(update, context, link, caption, repliesTo):
                 await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
                 return
-            
+
         await database.insert(link, ("processing", False))
 
         isMediaGroup = False
@@ -233,8 +232,8 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
         else:
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
-                text="Something went wrong :(\n"
-                    "Make sure your video is 60 min long or less"
+                text="<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Something went wrong :(\nMake sure your video is 60 min long or less",
+                parse_mode="HTML"
             )
             await database.removeLink(link)
             return
