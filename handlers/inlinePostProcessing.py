@@ -84,7 +84,7 @@ async def processPostInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
     inlineID = InlineQueryResultArticle(
         id=resultID,
         title="🏷 Click to download a post",
-        input_message_content=InputTextMessageContent(message_text='<tg-emoji emoji-id="5447389837076231920">⏳</tg-emoji> Downloading the post...', parse_mode = "HTML"),
+        input_message_content=InputTextMessageContent(message_text='<tg-emoji emoji-id="5447282724886839705">⏳</tg-emoji> Downloading the post...', parse_mode = "HTML"),
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("⏳ Processing...", callback_data="processing")]
         ]),
