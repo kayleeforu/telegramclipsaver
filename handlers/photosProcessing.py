@@ -20,6 +20,7 @@ os.makedirs(INSTAGRAM_DIR, exist_ok=True)
 cl = Client()
 instagramReady = False
 
+
 def initInstagram():
     global instagramReady
     username = os.environ.get("INSTAGRAM_USERNAME")
@@ -45,8 +46,6 @@ def initInstagram():
         logging.error(f"[Instagram] Login failed: {e}")
         instagramReady = False
 
-initInstagram()
-
 
 def clearFolder(directory):
     for file in glob(f"{directory}/**/*", recursive=True):
@@ -55,6 +54,11 @@ def clearFolder(directory):
 
 
 async def downloadInstagramPost(context: ContextTypes.DEFAULT_TYPE, link: str):
+    global instagramReady
+
+    if not instagramReady:
+        initInstagram()
+
     if not instagramReady:
         logging.error("[Instagram] Client not initialized, skipping download")
         await database.removeLink(link)
