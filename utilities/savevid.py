@@ -50,7 +50,7 @@ def downloadVideo(url):
         "http_chunk_size": 1024 * 1024 * 20,
         "extractor_args": {
             "youtube": {
-                "player_client": ["ios", "web"],
+                "player_client": ["web", "android"], 
             }
         },
     }
