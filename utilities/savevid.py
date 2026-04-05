@@ -44,7 +44,7 @@ def download_thumbnail(info):
         return None
 
 
-def download_video(url):
+def downloadVideo(url):
     ydl_opts = {
         "outtmpl": f"{DOWNLOAD_DIR}/video%(id)s.%(ext)s",
         "quiet": False,
