@@ -14,4 +14,4 @@ COPY . .
 
 RUN mkdir -p downloadedVideos
 
-CMD ["python3", "main.py"]
+CMD ["python3", "-u", "main.py"]

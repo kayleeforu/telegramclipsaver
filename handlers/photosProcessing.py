@@ -18,28 +18,34 @@ os.makedirs(SLIDESHOW_DIR, exist_ok=True)
 os.makedirs(INSTAGRAM_DIR, exist_ok=True)
 
 cl = Client()
+instagramReady = False
 
 def initInstagram():
+    global instagramReady
     username = os.environ.get("INSTAGRAM_USERNAME")
     password = os.environ.get("INSTAGRAM_PASSWORD")
+    logging.info(f"[Instagram] Initializing for user: {username}")
 
     if os.path.exists(SESSION_FILE):
         try:
             cl.load_settings(SESSION_FILE)
             cl.login(username, password)
             logging.info("[Instagram] Session loaded successfully")
+            instagramReady = True
             return
         except Exception as e:
             logging.warning(f"[Instagram] Session load failed, logging in fresh: {e}")
 
-    cl.login(username, password)
-    cl.dump_settings(SESSION_FILE)
-    logging.info("[Instagram] Fresh login successful, session saved")
+    try:
+        cl.login(username, password)
+        cl.dump_settings(SESSION_FILE)
+        logging.info("[Instagram] Fresh login successful, session saved")
+        instagramReady = True
+    except Exception as e:
+        logging.error(f"[Instagram] Login failed: {e}")
+        instagramReady = False
 
-try:
-    initInstagram()
-except Exception as e:
-    logging.error(f"[Instagram] Failed to initialize: {e}")
+initInstagram()
 
 
 def clearFolder(directory):
@@ -49,6 +55,11 @@ def clearFolder(directory):
 
 
 async def downloadInstagramPost(context: ContextTypes.DEFAULT_TYPE, link: str):
+    if not instagramReady:
+        logging.error("[Instagram] Client not initialized, skipping download")
+        await database.removeLink(link)
+        return False
+
     clearFolder(INSTAGRAM_DIR)
 
     def download():
