@@ -57,7 +57,7 @@ def downloadVideo(url):
         },
         "extractor_args": {
             "youtube": {
-                "player_client": ["ios", "android", "web", "web_safari"],
+                "player_client": ["web_safari", "web"],
             },
             "tiktok": {
                 "app_version": "36.1.3",
