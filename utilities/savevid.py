@@ -52,13 +52,19 @@ def downloadVideo(url):
         "merge_output_format": "mp4",
         "cookiefile": "cookies.txt",
         "writethumbnail": True,
-        "js_runtimes": {"node": {}},
+        "impersonate": "safari17_0",
+        "http_headers": {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+        },
         "extractor_args": {
             "youtube": {
-                "player_client": ["web", "web_safari"],
+                "player_client": ["ios", "android", "web", "web_safari"],
+            },
+            "tiktok": {
+                "app_version": "36.1.3",
+                "manifest_app_version": "2023601030",
             }
         },
-        "remote_components": ["ejs:github"],
         "concurrent_fragment_downloads": 6,
         "http_chunk_size": 1024 * 1024 * 10,
         "buffersize": 1024 * 64,

@@ -7,3 +7,5 @@ instaloader
 numpy
 gallery-dl
 Pillow
+instagrapi
+curl-cffi
