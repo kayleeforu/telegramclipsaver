@@ -9,3 +9,4 @@ gallery-dl
 Pillow
 instagrapi
 curl-cffi
+yt-dlp[curl-cffi]
