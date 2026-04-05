@@ -40,7 +40,8 @@ def downloadVideo(url):
     ydl_opts = {
         "quiet": True,
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
-        "format": "best[ext=mp4][height<=720]/bestvideo[vcodec^=avc1][height<=720]+bestaudio[ext=m4a]/best[height<=720]/best",
+        # Updated format string to be more resilient
+        "format": "best[ext=mp4][height<=720]/bestvideo[height<=720]+bestaudio/best[height<=720]/best",
         "merge_output_format": "mp4",
         "noplaylist": True,
         "cookiefile": "cookies.txt",
@@ -50,7 +51,7 @@ def downloadVideo(url):
         "http_chunk_size": 1024 * 1024 * 20,
         "extractor_args": {
             "youtube": {
-                "player_client": ["web", "android"], 
+                "player_client": ["web", "web_safari"], 
             }
         },
     }
