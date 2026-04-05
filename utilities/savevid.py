@@ -40,7 +40,12 @@ def downloadVideo(url):
     ydl_opts = {
         "quiet": True,
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
-        "format": "bestvideo[vcodec^=avc][height<=720]+bestaudio/bestvideo[height<=720][ext=mp4]+bestaudio/best[height<=720]/best",
+        "format": (
+            "bestvideo[vcodec^=avc][height<=720]+bestaudio/"
+            "bestvideo[vcodec^=h264][height<=720]+bestaudio/"
+            "bestvideo[height<=720][ext=mp4]+bestaudio/"
+            "best[height<=720]/best"
+        ),
         "merge_output_format": "mp4",
         "cookiefile": "cookies.txt",
         "writethumbnail": True,
