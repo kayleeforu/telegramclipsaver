@@ -19,7 +19,10 @@ class database:
             await self.insertMediaGroup(link, file)
             return
         
-        row = [link, file[0], file[1], file[2]]
+        videoID = file[0]
+        hasAudio = file[1]
+        audioID = file[2] if len(file) > 2 else None
+        row = [link, videoID, hasAudio, audioID]
         db = self.getClient()
 
         db.table("savedVideos").upsert({
