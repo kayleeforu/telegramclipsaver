@@ -75,7 +75,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 tempAudioPath = None
                 search_root = "/var/lib/telegram-bot-api"
                 
-                for root, files in os.walk(search_root):
+                for root, dirs, files in os.walk(search_root):
                     if file_name in files:
                         tempAudioPath = os.path.join(root, file_name)
                         break
