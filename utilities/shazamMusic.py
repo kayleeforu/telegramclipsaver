@@ -6,7 +6,17 @@ shazam = Shazam()
 
 async def recognizeSong(filename: str) -> dict:
     if filename.endswith((".mp3", ".ogg", ".m4a")):
-        return await shazam.recognize(filename)
+        try:
+            with open(filename, "rb") as f:
+                audio_bytes = f.read()
+                
+            if hasattr(shazam, 'recognize'):
+                return await shazam.recognize(audio_bytes)
+            else:
+                return await shazam.recognize_song(audio_bytes)
+        except Exception as e:
+            print(f"Direct recognize error: {e}")
+            return {}
 
     audioPath = f"temp_fast_{os.path.basename(filename)}.mp3"
     
@@ -22,11 +32,18 @@ async def recognizeSong(filename: str) -> dict:
         await process.wait()
 
         if os.path.exists(audioPath):
-            return await shazam.recognize(audioPath)
+            with open(audioPath, "rb") as f:
+                audio_bytes = f.read()
+                
+            if hasattr(shazam, 'recognize'):
+                return await shazam.recognize(audio_bytes)
+            else:
+                return await shazam.recognize_song(audio_bytes)
+                
         return {}
 
     except Exception as e:
-        print(f"Error in recognizeSong: {e}")
+        print(f"Error in recognizeSong (ffmpeg fallback): {e}")
         return {}
 
     finally:
