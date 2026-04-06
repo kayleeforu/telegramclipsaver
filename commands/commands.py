@@ -5,6 +5,7 @@ from utilities.shazamMusic import recognizeSong
 import db
 import logging
 import os
+import re
 
 database = db.database()
 
@@ -69,14 +70,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             try:
                 audioFile = await context.bot.get_file(audio_id)
-                
                 raw_path = audioFile.file_path
                 
                 if "http" in raw_path:
-                    import re
                     match = re.search(r'/file/bot[^/]+/(.+)', raw_path)
                     if match:
-                        tempAudioPath = os.path.join("/app", match.group(1))
+                        tempAudioPath = os.path.join("/var/lib/telegram-bot-api", match.group(1))
                     else:
                         tempAudioPath = raw_path
                 else:
@@ -129,7 +128,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "• Инстаграм пост/рилс. Поддерживаются посты до 10 вложений.\n" \
             "• YouTube шортс\n" \
             "• YouTube видео до 60 минут\n\n" \
-            "Чтобы скачать видео просто пришлите мне ссылку на него." \
+            "Чтобы скачать видео просто пришлите мне ссылку на него.\n" \
             "Вы так же можете использовать @clip_saverbot {ссылка} в любом другом чате, чтобы отправить пост через команду @\n\n" \
             "Спасибо за использование этого бота. Если хотите поддержать меня, напишите /support"
     else:
