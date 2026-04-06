@@ -61,7 +61,7 @@ async def databaseCheck(update: Update, context: ContextTypes.DEFAULT_TYPE, link
                 reply_to_message_id=repliesTo,
                 parse_mode="HTML",
                 reply_markup = InlineKeyboardMarkup([
-                    [InlineKeyboardButton(text="🎧 Get Song", link=deepLinkSong)]
+                    [InlineKeyboardButton(text="🎧 Get Song", url=deepLinkSong)]
                 ])
             )
         else:
