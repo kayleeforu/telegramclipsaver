@@ -14,29 +14,26 @@ clearVids = "rm -f downloadedVideos/*"
 database = db.database()
 pending = {}
 
-async def checkDatabase(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
+
+async def checkDatabase(context: ContextTypes.DEFAULT_TYPE, link, inlineMessageID):
     response = (await database.lookUpLink(link)).data
     if response:
         file = (response[0]["file_ids"][0], response[0]["has_audio"][0])
         if file[0] == "processing":
-            inlineID = InlineQueryResultArticle(
-                id=str(uuid.uuid4()),
-                title="⏳ Already processing...",
-                input_message_content=InputTextMessageContent("<tg-emoji emoji-id='5447389837076231920'>⏳</tg-emoji> The post is already being processed, resend the message...", parse_mode = "HTML")
-            )
-            await context.bot.answer_inline_query(
-                inline_query_id=update.inline_query.id,
-                results=[inlineID],
-                cache_time=0
-            )
-            return False
-        elif file[1]:
-            inlineID = InlineQueryResultCachedVideo(
-                id=str(uuid.uuid4()),
-                video_file_id=file[0],
-                title="Video",
-                caption="<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot",
+            await context.bot.edit_message_text(
+                inline_message_id = inlineMessageID,
+                text = "<tg-emoji emoji-id='5447389837076231920'>⏳</tg-emoji> The post is already being processed, resend the message...",
                 parse_mode = "HTML"
+            )
+            return True
+        elif file[1]:
+            await context.bot.edit_message_media(
+                inline_message_id = inlineMessageID,
+                media = InputMediaVideo(
+                    file[0], 
+                    caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot", 
+                    parse_mode = "HTML"
+                )
             )
         else:
             if file[0].startswith("AgAC"):
@@ -44,27 +41,23 @@ async def checkDatabase(update: Update, context: ContextTypes.DEFAULT_TYPE, link
                 await database.insertDeepLink(key, link)
                 deepLink = f"https://t.me/clip_saverbot?start=download_{key}"
 
-                inlineID = InlineQueryResultCachedPhoto(
-                    id=str(uuid.uuid4()),
-                    photo_file_id=file[0],
-                    title="Photo",
-                    caption=f'<tg-emoji emoji-id="5447637214307579793">🌅</tg-emoji> Here is one photo:\n<a href="{deepLink}">Click to view the full post</a>\n\n@clip_saverbot',
-                    parse_mode = "HTML"
+                await context.bot.edit_message_media(
+                    inline_message_id=inlineMessageID,
+                    media=InputMediaPhoto(
+                        file[0],
+                        caption=f'<tg-emoji emoji-id="5447637214307579793">🌅</tg-emoji> Here is one photo:\n<a href="{deepLink}">Click to view the full post</a>\n\n@clip_saverbot',
+                        parse_mode="HTML"
+                    )
                 )
             else:
-                inlineID = InlineQueryResultCachedMpeg4Gif(
-                    id=str(uuid.uuid4()),
-                    mpeg4_file_id=file[0],
-                    title="GIF",
-                    caption="<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot",
-                    parse_mode = "HTML"
+                await context.bot.edit_message_media(
+                    inline_message_id=inlineMessageID,
+                    media=InputMediaAnimation(
+                        file[0], 
+                        caption="<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot", 
+                        parse_mode="HTML"
+                    )
                 )
-
-        await context.bot.answer_inline_query(
-            inline_query_id=update.inline_query.id,
-            results=[inlineID],
-            cache_time=0
-        )
         return True
     return False
 
@@ -78,14 +71,14 @@ async def processPostInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
     pending[resultID] = link
 
     inlineID = InlineQueryResultArticle(
-        id=resultID,
-        title="⏳ Downloading your post...",
-        input_message_content=InputTextMessageContent(message_text='<tg-emoji emoji-id="5447282724886839705">⏳</tg-emoji> Downloading your post...', parse_mode = "HTML"),
-        reply_markup=InlineKeyboardMarkup([
+        id = resultID,
+        title = "🏷 Click to download a post",
+        input_message_content = InputTextMessageContent(message_text='<tg-emoji emoji-id="5447282724886839705">⏳</tg-emoji> Downloading the post...', parse_mode = "HTML"),
+        reply_markup = InlineKeyboardMarkup([
             [InlineKeyboardButton("⏳ Processing...", callback_data="processing")]
         ]),
         thumbnail_url = "https://cdn-icons-png.flaticon.com/512/9131/9131812.png",
-        description = "Fetching your post, please wait..."
+        description = "Download the post, it will take a little more time for YouTube video to download."
     )
 
     await context.bot.answer_inline_query(
@@ -93,27 +86,6 @@ async def processPostInline(update: Update, context: ContextTypes.DEFAULT_TYPE):
         results=[inlineID],
         cache_time=0
     )
-
-    response = (await database.lookUpLink(link)).data
-    if response:
-        file = (response[0]["file_ids"][0], response[0]["has_audio"][0])
-        inlineMessageID = update.inline_query.id
-
-        if file[0] == "processing":
-            return
-
-        if file[1]:
-            media = InputMediaVideo(file[0], caption="<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot", parse_mode = "HTML")
-        elif file[0].startswith("AgAC"):
-            key = str(uuid.uuid4())[:8]
-            await database.insertDeepLink(key, link)
-            deepLink = f"https://t.me/clip_saverbot?start=download_{key}"
-            media = InputMediaPhoto(file[0], caption=f'<tg-emoji emoji-id="5447637214307579793">🌅</tg-emoji> Here is one photo:\n<a href="{deepLink}">Click to view the full post</a>\n\n@clip_saverbot', parse_mode = "HTML")
-        else:
-            media = InputMediaAnimation(file[0], caption="<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot", parse_mode = "HTML")
-
-        await context.bot.edit_message_media(inline_message_id=inlineMessageID, media=media)
-        return
 
 
 async def chosenInlineResult(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -130,6 +102,9 @@ async def chosenInlineResult(update: Update, context: ContextTypes.DEFAULT_TYPE)
     else:
         pending.pop(resultID)
 
+    if await checkDatabase(context, link, inlineMessageID):
+        return
+
     await database.insert(link, ("processing", False))
 
     asyncio.create_task(
@@ -140,6 +115,7 @@ async def chosenInlineResult(update: Update, context: ContextTypes.DEFAULT_TYPE)
 async def processAndEdit(context, inlineMessageID, link):
     try:
         linkType, isTiktok = getLinkType(link)
+
         key = str(uuid.uuid4())[:8]
         await database.insertDeepLink(key, link)
         deepLink = f"https://t.me/clip_saverbot?start=download_{key}"
