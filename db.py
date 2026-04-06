@@ -27,9 +27,9 @@ class database:
 
         db.table("savedVideos").upsert({
             "link": link,
-            "file_ids": videoID,
-            "has_audio": hasAudio,
-            "audioFile_ids": audioID
+            "file_ids": [videoID],
+            "has_audio": [hasAudio],
+            "audioFile_ids": [audioID]
         }).execute()
     
     async def insertMediaGroup(self, link, fileArray):
