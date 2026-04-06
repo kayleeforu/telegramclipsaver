@@ -67,11 +67,21 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 parse_mode="HTML"
             )
 
-            tempAudioPath = f"temp_{key}.mp3"
+            tempAudioPath = os.path.abspath(f"temp_{key}.mp3")
             try:
                 audioFile = await context.bot.get_file(audio_id)
-                await audioFile.download_to_drive(tempAudioPath)
                 
+                logging.info(f"Downloading file to: {tempAudioPath}")
+                
+                await audioFile.download_to_drive(tempAudioPath)
+
+                if not os.path.exists(tempAudioPath) or os.path.getsize(tempAudioPath) == 0:
+                    await statusMessage.edit_text(
+                        "<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Failed to download audio properly.",
+                        parse_mode="HTML"
+                        )
+                    return
+
                 await statusMessage.edit_text(
                     text="<tg-emoji emoji-id='5444883062234053429'>▶️</tg-emoji> Recognizing...",
                     parse_mode="HTML"
