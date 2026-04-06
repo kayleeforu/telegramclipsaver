@@ -121,7 +121,7 @@ async def processAndEdit(context, inlineMessageID, link):
         loop = asyncio.get_running_loop()
 
         if linkType == "video":
-            filepath, hasAudio, thumbnailpath, height, width = await loop.run_in_executor(
+            filepath, hasAudio, audioPath, thumbnailpath, height, width = await loop.run_in_executor(
                 None, lambda: downloadVideo(link)
             )
 
@@ -160,7 +160,7 @@ async def processAndEdit(context, inlineMessageID, link):
                     await database.removeLink(link)
                     return
 
-            result = await uploadToChannel(context, filepath, hasAudio, thumbnailpath, height, width, link)
+            result = await uploadToChannel(context, filepath, hasAudio, audioPath, thumbnailpath, height, width, link)
             if result is None:
                 await context.bot.edit_message_text(
                     inline_message_id = inlineMessageID,

@@ -19,13 +19,14 @@ class database:
             await self.insertMediaGroup(link, file)
             return
         
-        row = [link, file[0], file[1]]
+        row = [link, file[0], file[1], file[2]]
         db = self.getClient()
 
         db.table("savedVideos").upsert({
             "link": row[0],
             "file_ids": [row[1]],
-            "has_audio": [file[1]]
+            "has_audio": [file[1]],
+            "audioFile_ids": [row[2]]
         }).execute()
     
     async def insertMediaGroup(self, link, fileArray):

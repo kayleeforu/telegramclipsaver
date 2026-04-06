@@ -2,6 +2,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 from utilities.savevid import downloadVideo
 from handlers.photosProcessing import processTikTokSlideshow
+from utilities.cacheVideo import uploadToChannel
 import subprocess
 import asyncio
 import db
@@ -17,7 +18,7 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
         return downloadVideo(link)
 
     loop = asyncio.get_event_loop()
-    (filepath, hasAudio, thumbnailpath, height, width) = await loop.run_in_executor(None, runDownload)
+    filepath, hasAudio, audioPath, thumbnailpath, height, width = await loop.run_in_executor(None, runDownload)
 
     if filepath is None:
         subprocess.run(clearVids, shell=True)
@@ -31,40 +32,10 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
         return False
 
     try:
-        with open(filepath, "rb") as f:
-            if "instagram" in link:
-                hasAudio = True
-            if hasAudio:
-                msg = await context.bot.send_video(
-                    chat_id=-1003794009076,
-                    video=f,
-                    supports_streaming=True,
-                    thumbnail=thumbnailpath,
-                    height=height,
-                    width=width
-                )
-                if msg.video:
-                    file = (msg.video.file_id, True)
-                elif msg.document:
-                    file = (msg.document.file_id, True)
-                else:
-                    logging.error("[processLink] Telegram returned message with no video/document")
-                    return False
-            else:
-                msg = await context.bot.send_animation(
-                    chat_id=-1003794009076,
-                    animation=f,
-                    thumbnail=thumbnailpath,
-                    height=height,
-                    width=width
-                )
-                if msg.animation:
-                    file = (msg.animation.file_id, False)
-                elif msg.document:
-                    file = (msg.document.file_id, False)
-                else:
-                    logging.error("[processLink] Telegram returned message with no animation/document")
-                    return False
+        file = await uploadToChannel(context, filepath, hasAudio, audioPath, thumbnailpath, height, width, link)
+        if file is None:
+            logging.error("[processLink] Failed to upload file via uploadToChannel")
+            return False
     except Exception as e:
         logging.error(f"[processLink] Error sending video: {e}")
         return False

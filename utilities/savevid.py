@@ -22,13 +22,13 @@ def convertThumbnail(filepath):
 def downloadThumbnail(info):
     try:
         thumbnails = info.get("thumbnails")
-        video_id = info.get("id")
+        videoID = info.get("id")
 
-        if not thumbnails or not video_id:
+        if not thumbnails or not videoID:
             return None
 
         thumb_url = thumbnails[-1]["url"]
-        thumb_path = f"downloadedVideos/video{video_id}_thumb.jpg"
+        thumb_path = f"downloadedVideos/video{videoID}_thumb.jpg"
 
         r = requests.get(thumb_url, timeout=10)
         with open(thumb_path, "wb") as f:
@@ -78,23 +78,11 @@ def downloadVideo(url):
 
             if duration:
                 if duration > 3600:
-                    return "too_long", None, None, None, None
+                    return "too_long", None, None, None, None, None
 
             is_live = info.get("is_live")
-            video_id = info.get("id")
-
             if is_live:
-                stream_url = info.get("url")
-                output_path = f"downloadedVideos/video{video_id}.mp4"
-
-                (
-                    ffmpeg
-                    .input(stream_url)
-                    .output(output_path, t=30, c="copy")
-                    .run(overwrite_output=True)
-                )
-
-                return output_path, True, thumbnailpath, None, None
+                return None, None, None, None, None, None
 
             info = ydl.extract_info(url, download=True)
 
@@ -115,12 +103,16 @@ def downloadVideo(url):
 
             hasAudio = len(audio_streams) > 0
 
-            return filepath, hasAudio, thumbnailpath, height, width
+            audioPath = filepath.rsplit(".", 1)[0] + ".mp3"
+            if hasAudio:
+                ffmpeg.input(filepath).output(audioPath, acodec = "copy", vn = None).run(overwrite_output=True)
+
+            return filepath, hasAudio, audioPath, thumbnailpath, height, width
 
     except DownloadError as e:
         print(f"DownloadError: {e}")
-        return None, None, None, None, None
+        return None, None, None, None, None, None
 
     except Exception as e:
         print(f"Error: {e}")
-        return None, None, None, None, None
+        return None, None, None, None, None, None
