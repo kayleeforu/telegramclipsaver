@@ -70,21 +70,20 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             try:
                 audioFile = await context.bot.get_file(audio_id)
-                raw_path = audioFile.file_path
+                file_name = os.path.basename(audioFile.file_path)
                 
-                if "http" in raw_path:
-                    match = re.search(r'/file/bot[^/]+/(.+)', raw_path)
-                    if match:
-                        tempAudioPath = os.path.join("/var/lib/telegram-bot-api", match.group(1))
-                    else:
-                        tempAudioPath = raw_path
-                else:
-                    tempAudioPath = raw_path
+                tempAudioPath = None
+                search_root = "/var/lib/telegram-bot-api"
+                
+                for root, files in os.walk(search_root):
+                    if file_name in files:
+                        tempAudioPath = os.path.join(root, file_name)
+                        break
 
-                logging.info(f"Final check for file at: {tempAudioPath}")
+                logging.info(f"Search for {file_name} in {search_root}. Result: {tempAudioPath}")
 
-                if not os.path.exists(tempAudioPath):
-                    logging.error(f"File not found at {tempAudioPath}")
+                if not tempAudioPath or not os.path.exists(tempAudioPath):
+                    logging.error(f"File {file_name} NOT FOUND in {search_root}")
                     await statusMessage.edit_text(
                         "<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> File not found on disk.",
                         parse_mode="HTML"
