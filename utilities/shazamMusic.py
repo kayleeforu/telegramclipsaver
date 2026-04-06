@@ -5,6 +5,10 @@ shazam = Shazam()
 async def recognizeSong(file_path: str):
     try:
         result = await shazam.recognize(file_path)
+        
+        if isinstance(result, tuple):
+            result = result[0]
+        
         if result and 'track' in result:
             return result
         else:
