@@ -85,7 +85,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 if not tempAudioPath or not os.path.exists(tempAudioPath):
                     logging.error(f"File {file_name} NOT FOUND in {search_root}")
                     await statusMessage.edit_text(
-                        "<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> File not found on disk.",
+                        "<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Something went wrong.",
                         parse_mode="HTML"
                     )
                     return
