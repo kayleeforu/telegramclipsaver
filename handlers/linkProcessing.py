@@ -32,7 +32,7 @@ async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
         return False
 
     try:
-        file = await uploadToChannel(context, filepath, hasAudio, audioPath, thumbnailpath, height, width, link)
+        file = await uploadToChannel(context, filepath, hasAudio, audioPath, thumbnailpath, height, width)
         if file is None:
             logging.error("[processLink] Failed to upload file via uploadToChannel")
             return False

@@ -105,7 +105,7 @@ def downloadVideo(url):
 
             audioPath = filepath.rsplit(".", 1)[0] + ".mp3"
             if hasAudio:
-                ffmpeg.input(filepath).output(audioPath, acodec = "copy", vn = None).run(overwrite_output=True)
+                ffmpeg.input(filepath).output(audioPath, acodec="mp3", vn=None).run(overwrite_output=True)
 
             return filepath, hasAudio, audioPath, thumbnailpath, height, width
 
