@@ -7,4 +7,4 @@ instaloader
 numpy
 gallery-dl
 Pillow
-pyacoustid
+shazamio==0.8.1
