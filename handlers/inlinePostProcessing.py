@@ -176,12 +176,18 @@ async def processAndEdit(context, inlineMessageID, link):
 
             await context.bot.edit_message_media(
                 inline_message_id = inlineMessageID,
+                media = InputMediaVideo(
+                    result[0],
+                    caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot",
+                    parse_mode = "HTML"
+                ) if result[1] else InputMediaAnimation(
+                    result[0],
+                    caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot",
+                    parse_mode = "HTML"
+                ),
                 reply_markup = InlineKeyboardMarkup([
-                    [InlineKeyboardButton(text="🎧 Get Song", url=deepLinkSong)]
-                ]) if result[1] else None,
-                media = InputMediaVideo(result[0], caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot", parse_mode = "HTML")
-                if result[1]
-                else InputMediaAnimation(result[0], caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot", parse_mode = "HTML")
+                    [InlineKeyboardButton('🎧 Get Song', url = deepLinkSong)]
+                ]) if result[1] else None
             )
 
         elif linkType == "instagrampost":
