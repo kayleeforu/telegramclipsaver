@@ -7,15 +7,14 @@ from telegram.ext import ContextTypes
 import db
 
 database = db.database()
-proxy = os.environ.get("INSTAGRAM_PROXY")
 
 SLIDESHOW_DIR = "tiktok-slideshow"
 INSTAGRAM_DIR = "instagram-downloads"
-os.makedirs(SLIDESHOW_DIR, exist_ok=True)
-os.makedirs(INSTAGRAM_DIR, exist_ok=True)
+os.makedirs(SLIDESHOW_DIR, exist_ok = True)
+os.makedirs(INSTAGRAM_DIR, exist_ok = True)
 
 def clearFolder(directory):
-    for file in glob(f"{directory}/**/*", recursive=True):
+    for file in glob(f"{directory}/**/*", recursive = True):
         if os.path.isfile(file):
             os.remove(file)
 
@@ -25,8 +24,7 @@ async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str, dire
         config.load()
         config.set(("extractor",), "cookies", "cookies.txt")
         config.set(("extractor",), "base-directory", directory)
-        if proxy:
-            config.set(("extractor",), "proxy", proxy)
+        
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(None, lambda: job.DownloadJob(link).run())
     except Exception as e:
@@ -35,11 +33,11 @@ async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str, dire
         return False
 
     media = []
-    for file in sorted(glob(f"{directory}/**/*", recursive=True)):
+    for file in sorted(glob(f"{directory}/**/*", recursive = True)):
         if not os.path.isfile(file):
             continue
         if file.endswith(".mp4"):
-            media.append(InputMediaVideo(open(file, "rb"), supports_streaming=True))
+            media.append(InputMediaVideo(open(file, "rb"), supports_streaming = True))
         elif file.endswith((".jpg", ".jpeg", ".png", ".webp")):
             media.append(InputMediaPhoto(open(file, "rb")))
 
@@ -49,8 +47,8 @@ async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str, dire
 
     msgs = []
     for i in range(0, len(media), 10):
-        chunk = media[i:i+10]
-        chunk_msgs = await context.bot.send_media_group(chat_id=-1003794009076, media=chunk)
+        chunk = media[i:i + 10]
+        chunk_msgs = await context.bot.send_media_group(chat_id = -1003794009076, media = chunk)
         msgs.extend(chunk_msgs)
         if i + 10 < len(media):
             await asyncio.sleep(5)
