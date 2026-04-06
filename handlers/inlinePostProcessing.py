@@ -139,7 +139,7 @@ async def processAndEdit(context, inlineMessageID, link):
                                 parse_mode = "HTML"
                             ),
                             reply_markup = InlineKeyboardMarkup([
-                                [InlineKeyboardButton("🏙 View full post", url = deepLink)]
+                                [InlineKeyboardButton('<tg-emoji emoji-id="5447637214307579793">🏙</tg-emoji> View full post', url = deepLink)]
                             ])
                         )
                     else:
@@ -192,7 +192,7 @@ async def processAndEdit(context, inlineMessageID, link):
                         parse_mode = "HTML"
                     ),
                     reply_markup = InlineKeyboardMarkup([
-                        [InlineKeyboardButton("🏙 View full post", url = deepLink)]
+                        [InlineKeyboardButton('<tg-emoji emoji-id="5447637214307579793">🏙</tg-emoji> View full post', url = deepLink)]
                     ])
                 )
             else:
