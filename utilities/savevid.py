@@ -4,7 +4,6 @@ import ffmpeg
 import os
 from PIL import Image
 import requests
-from urllib.parse import urlparse
 
 
 def convertThumbnail(filepath):
@@ -51,6 +50,7 @@ def downloadVideo(url):
             "best[height<=720]/best"
         ),
         "merge_output_format": "mp4",
+        "cookiefile": "cookies.txt",
         "writethumbnail": True,
         "js_runtimes": {"node": {}},
         "extractor_args": {
@@ -65,10 +65,6 @@ def downloadVideo(url):
         "noplaylist": True,
         "hls_prefer_native": False,
     }
-
-    domain = urlparse(url).netloc
-    if any(x in domain for x in ["youtube.com", "youtu.be", "tiktok.com"]):
-        ydl_opts["cookiefile"] = "cookies.txt"
 
     try:
         with YoutubeDL(ydl_opts) as ydl:
