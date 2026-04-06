@@ -63,21 +63,19 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 return
 
             statusMessage = await update.message.reply_text(
-                text="<tg-emoji emoji-id='5447282724886839705'>📂</tg-emoji> Downloading audio...",
+                text="<tg-emoji emoji-id='5447282724886839705'>📂</tg-emoji> Processing audio...",
                 parse_mode="HTML"
             )
 
-            tempAudioPath = os.path.abspath(f"temp_{key}.mp3")
             try:
                 audioFile = await context.bot.get_file(audio_id)
+                tempAudioPath = audioFile.file_path
                 
-                logging.info(f"Downloading file to: {tempAudioPath}")
-                
-                await audioFile.download_to_drive(tempAudioPath)
+                logging.info(f"Local file path: {tempAudioPath}")
 
-                if not os.path.exists(tempAudioPath) or os.path.getsize(tempAudioPath) == 0:
+                if not os.path.exists(tempAudioPath):
                     await statusMessage.edit_text(
-                        "<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Failed to download audio properly.",
+                        "<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Expired link.",
                         parse_mode="HTML"
                         )
                     return
@@ -87,10 +85,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     parse_mode="HTML"
                 )
 
-                song_result = await recognizeSong(tempAudioPath)
+                songResult = await recognizeSong(tempAudioPath)
 
-                if song_result and 'track' in song_result:
-                    track = song_result['track']
+                if songResult and 'track' in songResult:
+                    track = songResult['track']
                     title = track.get('title')
                     artist = track.get('subtitle')
                     url = track.get('url')
@@ -106,10 +104,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             except Exception as e:
                 logging.error(f"Shazam Error: {e}")
                 await statusMessage.edit_text("<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Something went wrong.", parse_mode="HTML")
-            
-            finally:
-                if os.path.exists(tempAudioPath):
-                    os.remove(tempAudioPath)
+
             return
 
     user = update.effective_user
