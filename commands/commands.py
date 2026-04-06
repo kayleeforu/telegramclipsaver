@@ -97,7 +97,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
                 songResult = await recognizeSong(tempAudioPath)
 
-                if songResult and 'track' in songResult:
+                if songResult:
                     track = songResult['track']
                     title = track.get('title')
                     artist = track.get('subtitle')
