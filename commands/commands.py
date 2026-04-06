@@ -33,35 +33,45 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if parameter.startswith("getSong_"):
             key = parameter[len("getSong_"):]
 
-            link = await database.getLinkByDeepKey(key)
-            if not link:
+            original_link = await database.getLinkByDeepKey(key)
+            if not original_link:
                 await update.message.reply_text(
-                    text = "<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Invalid link.",
-                    parse_mode = "HTML"
+                    text="<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Invalid link.",
+                    parse_mode="HTML"
                 )
                 return 
 
+            response = await database.lookUpLink(original_link)
+            if not response.data:
+                await update.message.reply_text(
+                    text="<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Media data not found.",
+                    parse_mode="HTML"
+                )
+                return
+            
+            link_data = response.data[0]
+
             audio_id = None
-            if link.get('audioFile_ids') and len(link['audioFile_ids']) > 0:
-                audio_id = link['audioFile_ids'][0]
+            if link_data.get('audioFile_ids') and len(link_data['audioFile_ids']) > 0:
+                audio_id = link_data['audioFile_ids'][0]
 
             if not audio_id:
                 await update.message.reply_text(
-                    text = "<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> No audio track found for this video.",
-                    parse_mode = "HTML"
-                    )
+                    text="<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> No audio track found for this video.",
+                    parse_mode="HTML"
+                )
                 return
 
             statusMessage = await update.message.reply_text(
-                text = "<tg-emoji emoji-id='5447282724886839705'>📂</tg-emoji> Downloading audio...",
+                text="<tg-emoji emoji-id='5447282724886839705'>📂</tg-emoji> Downloading audio...",
                 parse_mode="HTML"
-                )
+            )
 
+            tempAudioPath = f"temp_{key}.mp3"
             try:
                 audioFile = await context.bot.get_file(audio_id)
-                tempAudioPath = f"temp_{key}.mp3"
-                
                 await audioFile.download_to_drive(tempAudioPath)
+                
                 await statusMessage.edit_text(
                     text="<tg-emoji emoji-id='5444883062234053429'>▶️</tg-emoji> Recognizing...",
                     parse_mode="HTML"
@@ -88,7 +98,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await statusMessage.edit_text("<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Something went wrong.", parse_mode="HTML")
             
             finally:
-                if 'tempAudioPath' in locals() and os.path.exists(tempAudioPath):
+                if os.path.exists(tempAudioPath):
                     os.remove(tempAudioPath)
             return
 
