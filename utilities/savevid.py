@@ -102,11 +102,11 @@ def downloadVideo(url):
             ]
 
             hasAudio = len(audio_streams) > 0
-
-            audioPath = filepath.rsplit(".", 1)[0] + ".mp3"
+            audioPath = None
             if hasAudio:
+                audioPath = filepath.rsplit(".", 1)[0] + ".mp3"
                 ffmpeg.input(filepath).audio.output(
-                    audioPath, 
+                    audioPath,
                     acodec='libmp3lame'
                 ).run(overwrite_output=True, quiet=True)
 
