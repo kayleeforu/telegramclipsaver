@@ -1,10 +1,14 @@
 from shazamio import Shazam
+import logging
+import traceback
 
 shazam = Shazam()
 
 async def recognizeSong(file_path: str):
     try:
         result = await shazam.recognize(file_path)
+        logging.info(f"Shazam raw result type: {type(result)}")
+        logging.info(f"Shazam raw result: {result}")
         
         if isinstance(result, tuple):
             result = result[0]
@@ -14,6 +18,6 @@ async def recognizeSong(file_path: str):
         else:
             return None
     except Exception as e:
-        import logging
-        logging.error(f"Shazam recognition failed for {file_path}: {e}")
+        logging.error(f"Shazam recognition failed: {e}")
+        logging.error(traceback.format_exc())
         return None
