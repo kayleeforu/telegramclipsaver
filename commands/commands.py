@@ -97,19 +97,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
                 songResult = await recognizeSong(tempAudioPath)
 
-                if songResult:
-                    track = songResult['track']
-                    title = track.get('title')
-                    artist = track.get('subtitle')
-                    url = track.get('url')
-                    
+                if songResult and songResult.get("title") and songResult.get("artist"):
+                    title = songResult["title"]
+                    artist = songResult["artist"]
+
                     text = f"<tg-emoji emoji-id='5445276884965291212'>🎧</tg-emoji> Found: <b>{artist} — {title}</b>"
-                    if url:
-                        text += f"\n\n<a href='{url}'>Listen on Shazam</a>"
-                    
-                    await statusMessage.edit_text(text, parse_mode="HTML", disable_web_page_preview=False)
                 else:
-                    await statusMessage.edit_text("<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Song not found.", parse_mode="HTML")
+                    text = "<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Song not found."
+                    
+                await statusMessage.edit_text(text, parse_mode="HTML")
 
             except Exception as e:
                 logging.error(f"Shazam Error: {e}")
