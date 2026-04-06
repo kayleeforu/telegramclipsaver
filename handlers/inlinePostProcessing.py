@@ -171,6 +171,7 @@ async def processAndEdit(context, inlineMessageID, link):
                 await database.removeLink(link)
                 return
             else:
+                subprocess.run(clearVids, shell=True)
                 await database.insert(link, result)
 
             await context.bot.edit_message_media(

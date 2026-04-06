@@ -1,28 +1,34 @@
-import subprocess
 import asyncio
+import os
 from shazamio import Shazam
 
-def recognize_song_from_video(filename: str) -> dict:
-    audio_path = "temp_audio.mp3"
+shazam = Shazam()
 
-    subprocess.run([
-        "ffmpeg",
-        "-y",
-        "-i", filename,
-        "-vn",
-        "-acodec", "mp3",
-        audio_path
-    ], check=True)
+async def recognizeSong(filename: str) -> dict:
+    if filename.endswith((".mp3", ".ogg", ".m4a")):
+        return await shazam.recognize(filename)
 
-    async def recognize():
-        shazam = Shazam()
-        return await shazam.recognize_song(audio_path)
+    audioPath = f"temp_fast_{os.path.basename(filename)}.mp3"
+    
+    try:
+        process = await asyncio.create_subprocess_exec(
+            "ffmpeg", "-y", "-i", filename,
+            "-vn", "-acodec", "mp3", "-ar", "44100",
+            audioPath,
+            stdout=asyncio.subprocess.DEVNULL,
+            stderr=asyncio.subprocess.STDOUT
+        )
+        
+        await process.wait()
 
-    result = asyncio.run(recognize())
-    return result
+        if os.path.exists(audioPath):
+            return await shazam.recognize(audioPath)
+        return {}
 
-# TODO REMOVE
-if __name__ == "__main__":
-    video_file = "input_video.mp4"
-    result = recognize_song_from_video(video_file)
-    print(result)
+    except Exception as e:
+        print(f"Error in recognizeSong: {e}")
+        return {}
+
+    finally:
+        if os.path.exists(audioPath):
+            os.remove(audioPath)

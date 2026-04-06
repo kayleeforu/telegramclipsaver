@@ -1,8 +1,10 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 from handlers.linkAnswer import getLinkAnswer
+from utilities.shazamMusic import recognizeSong
 import db
 import logging
+import os
 
 database = db.database()
 
@@ -14,16 +16,80 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     if context.args:
         parameter = context.args[0]
-
+                
         if parameter.startswith("download_"):
             key = parameter[len("download_"):]
             
             link = await database.getLinkByDeepKey(key)
             if not link:
-                await update.message.reply_text("❌ This link expired or is invalid.")
+                await update.message.reply_text(
+                    text = "<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Invalid link.\n\n@clip_saverbot",
+                    parse_mode = "HTML")
                 return
 
             await getLinkAnswer(update, context, link, "instagrampost")
+            return
+        
+        if parameter.startswith("getSong_"):
+            key = parameter[len("getSong_"):]
+
+            link = await database.getLinkByDeepKey(key)
+            if not link:
+                await update.message.reply_text(
+                    text = "<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Invalid link.",
+                    parse_mode = "HTML"
+                )
+                return 
+
+            audio_id = None
+            if link.get('audioFile_ids') and len(link['audioFile_ids']) > 0:
+                audio_id = link['audioFile_ids'][0]
+
+            if not audio_id:
+                await update.message.reply_text(
+                    text = "<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> No audio track found for this video.",
+                    parse_mode = "HTML"
+                    )
+                return
+
+            statusMessage = await update.message.reply_text(
+                text = "<tg-emoji emoji-id='5447282724886839705'>📂</tg-emoji> Downloading audio...",
+                parse_mode="HTML"
+                )
+
+            try:
+                audioFile = await context.bot.get_file(audio_id)
+                tempAudioPath = f"temp_{key}.mp3"
+                
+                await audioFile.download_to_drive(tempAudioPath)
+                await statusMessage.edit_text(
+                    text="<tg-emoji emoji-id='5444883062234053429'>▶️</tg-emoji> Recognizing...",
+                    parse_mode="HTML"
+                )
+
+                song_result = await recognizeSong(tempAudioPath)
+
+                if song_result and 'track' in song_result:
+                    track = song_result['track']
+                    title = track.get('title')
+                    artist = track.get('subtitle')
+                    url = track.get('url')
+                    
+                    text = f"<tg-emoji emoji-id='5445276884965291212'>🎧</tg-emoji> Found: <b>{artist} — {title}</b>"
+                    if url:
+                        text += f"\n\n<a href='{url}'>Listen on Shazam</a>"
+                    
+                    await statusMessage.edit_text(text, parse_mode="HTML", disable_web_page_preview=False)
+                else:
+                    await statusMessage.edit_text("<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Song not found.", parse_mode="HTML")
+
+            except Exception as e:
+                logging.error(f"Shazam Error: {e}")
+                await statusMessage.edit_text("<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Something went wrong.", parse_mode="HTML")
+            
+            finally:
+                if 'tempAudioPath' in locals() and os.path.exists(tempAudioPath):
+                    os.remove(tempAudioPath)
             return
 
     user = update.effective_user

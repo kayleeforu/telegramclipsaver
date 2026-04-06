@@ -22,14 +22,14 @@ class database:
         videoID = file[0]
         hasAudio = file[1]
         audioID = file[2] if len(file) > 2 else None
-        row = [link, videoID, hasAudio, audioID]
+        
         db = self.getClient()
 
         db.table("savedVideos").upsert({
-            "link": row[0],
-            "file_ids": [row[1]],
-            "has_audio": [file[1]],
-            "audioFile_ids": [row[2]]
+            "link": link,
+            "file_ids": videoID,
+            "has_audio": hasAudio,
+            "audioFile_ids": audioID
         }).execute()
     
     async def insertMediaGroup(self, link, fileArray):

@@ -1,4 +1,4 @@
-from telegram import Update, InputMediaVideo, InputMediaPhoto
+from telegram import Update, InputMediaVideo, InputMediaPhoto, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
 from telegram.error import RetryAfter
 import asyncio
@@ -8,6 +8,7 @@ from handlers.linkProcessing import processLink
 from handlers.photosProcessing import processInstagramPost
 from utilities.deleteOriginalMessage import deleteOriginalMessage
 import db
+import uuid
 
 videoPost = [
     r"((https://)?v.\.tiktok\.com/\S*)",
@@ -45,6 +46,9 @@ async def processMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def databaseCheck(update: Update, context: ContextTypes.DEFAULT_TYPE, link, caption, repliesTo):
     response = await database.lookUpLink(link)
     if response.data:
+        key = str(uuid.uuid4())[:8]
+        await database.insertDeepLink(key, link)
+        deepLinkSong = f"https://t.me/clip_saverbot?start=getSong_{key}"
         row = response.data[0]
         if len(row["file_ids"]) > 1:
             return False
@@ -55,7 +59,10 @@ async def databaseCheck(update: Update, context: ContextTypes.DEFAULT_TYPE, link
                 video=file[0],
                 caption=caption,
                 reply_to_message_id=repliesTo,
-                parse_mode="HTML"
+                parse_mode="HTML",
+                reply_markup = InlineKeyboardMarkup([
+                    [InlineKeyboardButton(text="🎧 Get Song", link=deepLinkSong)]
+                ])
             )
         else:
             await context.bot.send_animation(

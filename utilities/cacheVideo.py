@@ -49,5 +49,3 @@ async def uploadToChannel(context: ContextTypes.DEFAULT_TYPE, filepath, hasAudio
     except Exception as e:
         logging.error(f"uploadToChannel error: {e}")
         return None
-    finally:
-        subprocess.run(clearVids, shell=True)
