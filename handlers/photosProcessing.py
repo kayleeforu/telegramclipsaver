@@ -7,6 +7,7 @@ from telegram.ext import ContextTypes
 import db
 
 database = db.database()
+proxy = os.environ.get("INSTAGRAM_PROXY")
 
 SLIDESHOW_DIR = "tiktok-slideshow"
 INSTAGRAM_DIR = "instagram-downloads"
@@ -22,12 +23,14 @@ async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str, dire
     clearFolder(directory)
     try:
         config.load()
+        config.set(("extractor",), "cookies", "cookies.txt")
         config.set(("extractor",), "base-directory", directory)
-
+        if proxy:
+            config.set(("extractor",), "proxy", proxy)
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(None, lambda: job.DownloadJob(link).run())
     except Exception as e:
-        print(f"[downloadMediaGroup] Download error: {e}")
+        print(f"Download error: {e}")
         await database.removeLink(link)
         return False
 
@@ -46,15 +49,15 @@ async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str, dire
 
     msgs = []
     for i in range(0, len(media), 10):
-        chunk = media[i:i + 10]
+        chunk = media[i:i+10]
         chunk_msgs = await context.bot.send_media_group(chat_id=-1003794009076, media=chunk)
         msgs.extend(chunk_msgs)
         if i + 10 < len(media):
-            await asyncio.sleep(3)
+            await asyncio.sleep(5)
 
     files = []
     for entry in msgs:
-        if getattr(entry, "video", None):
+        if entry.video:
             files.append((entry.video.file_id, True))
         else:
             files.append((entry.photo[-1].file_id, False))
