@@ -7,8 +7,8 @@ from handlers.linkAnswer import processMessage
 from commands.commands import start, support
 
 logging.basicConfig(
-   format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-   level=logging.INFO
+   format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+   level = logging.INFO
 )
 
 videoPost = [
@@ -41,22 +41,23 @@ if __name__ == '__main__':
         .connect_timeout(120) \
         .build()
 
-    # Commands
+    # Handlers
     startHandler = CommandHandler("start", start)
     supportHandler = CommandHandler("support", support)
-    # Message Handler
-    messageHandler = MessageHandler(filters.TEXT, processMessage)
+    messageHandler = MessageHandler(filters.TEXT & (~filters.COMMAND), processMessage)
+    
+    # Inline Handlers
+    inlineVideoLinkHandler = InlineQueryHandler(processPostInline, pattern = combinedVideos)
+    inlineInstagramPostLinkHandler = InlineQueryHandler(processPostInline, pattern = instagramPost)
     chosenInlineResultHandler = ChosenInlineResultHandler(chosenInlineResult)
-    
-    try:
-        # Link, which is not instagram post, handler
-        inlineVideoLinkHandler = InlineQueryHandler(processPostInline, pattern = combinedVideos, block = True)
-        inlineInstagramPostLinkHandler = InlineQueryHandler(processPostInline, pattern = instagramPost, block = True)
 
-        # Adding handlers to the bot
-        application.add_handlers([startHandler, supportHandler, messageHandler, chosenInlineResultHandler, inlineVideoLinkHandler, inlineInstagramPostLinkHandler])
-    except Exception as e:
-        logging.error(f"Error: {e}")
-    
+    # Adding handlers
+    application.add_handler(startHandler)
+    application.add_handler(supportHandler)
+    application.add_handler(inlineVideoLinkHandler)
+    application.add_handler(inlineInstagramPostLinkHandler)
+    application.add_handler(chosenInlineResultHandler)
+    application.add_handler(messageHandler)
+
     # Run bot
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+    application.run_polling(allowed_updates = Update.ALL_TYPES)

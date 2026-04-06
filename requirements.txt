@@ -7,3 +7,4 @@ instaloader
 numpy
 gallery-dl
 Pillow
+shazamio==0.8.1
