@@ -69,15 +69,27 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             try:
                 audioFile = await context.bot.get_file(audio_id)
-                tempAudioPath = audioFile.file_path
                 
-                logging.info(f"Local file path: {tempAudioPath}")
+                raw_path = audioFile.file_path
+                
+                if "http" in raw_path:
+                    import re
+                    match = re.search(r'/file/bot[^/]+/(.+)', raw_path)
+                    if match:
+                        tempAudioPath = os.path.join("/app", match.group(1))
+                    else:
+                        tempAudioPath = raw_path
+                else:
+                    tempAudioPath = raw_path
+
+                logging.info(f"Final check for file at: {tempAudioPath}")
 
                 if not os.path.exists(tempAudioPath):
+                    logging.error(f"File not found at {tempAudioPath}")
                     await statusMessage.edit_text(
-                        "<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Expired link.",
+                        "<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> File not found on disk.",
                         parse_mode="HTML"
-                        )
+                    )
                     return
 
                 await statusMessage.edit_text(
