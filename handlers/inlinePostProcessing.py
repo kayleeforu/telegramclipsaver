@@ -181,7 +181,7 @@ async def processAndEdit(context, inlineMessageID, link):
                 else InputMediaAnimation(result[0], caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot", parse_mode = "HTML"),
                 reply_markup = InlineKeyboardMarkup([
                     [InlineKeyboardButton('🎧 Get Song', url=deepLinkSong)]
-                ])
+                ]) if result[1] else None
             )
 
         elif linkType == "instagrampost":
