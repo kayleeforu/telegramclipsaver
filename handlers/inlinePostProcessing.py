@@ -117,6 +117,7 @@ async def processAndEdit(context, inlineMessageID, link):
         key = str(uuid.uuid4())[:8]
         await database.insertDeepLink(key, link)
         deepLink = f"https://t.me/clip_saverbot?start=download_{key}"
+        # deepLinkSong = f"https://t.me/clip_saverbot?start=getSong_{key}"
         loop = asyncio.get_running_loop()
 
         if linkType == "video":
@@ -176,7 +177,10 @@ async def processAndEdit(context, inlineMessageID, link):
                 inline_message_id = inlineMessageID,
                 media = InputMediaVideo(result[0], caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot", parse_mode = "HTML")
                 if result[1]
-                else InputMediaAnimation(result[0], caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot", parse_mode = "HTML")
+                else InputMediaAnimation(result[0], caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot", parse_mode = "HTML"),
+                # reply_markup = InlineKeyboardMarkup([
+                #     [InlineKeyboardButton('🎧 Get Song', url=deepLinkSong)]
+                # ])
             )
 
         elif linkType == "instagrampost":
