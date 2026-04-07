@@ -23,7 +23,7 @@ videoPost = [
 ]
 combinedVideos = "|".join(f"({p})" for p in videoPost)
 
-instagramPost = r"((https://(www\.))?instagram\.com/p/(.*)/\S*)"
+instagramPost = r"((https://(www\.))?instagrammmm\.com/p/(.*)/\S*)"
 
 database = db.database()
 
