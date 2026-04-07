@@ -24,7 +24,7 @@ videoPost = [
 ]
 combinedVideos = "|".join(f"({p})" for p in videoPost)
 
-instagramPost = r"((https://(www\.))?instagram\.com/p/(.*)/\S*)"
+instagramPost = r"((https://(www\.))?instagrammmm\.com/p/(.*)/\S*)"
 
 if __name__ == '__main__':
     TOKEN = os.environ.get("BOT_TOKEN")
