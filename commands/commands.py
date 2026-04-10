@@ -58,7 +58,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             if not audio_id:
                 await update.message.reply_text(
-                    text="<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> No audio track found for this video.",
+                    text="<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Can't extract audio from here.",
                     parse_mode="HTML"
                 )
                 return
