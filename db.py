@@ -45,12 +45,13 @@ class database:
 
         return db.table("users").select("*").eq("id", int(userID)).execute()
 
-    async def insertUser(self, userID, username):
+    async def insertUser(self, userID, username, firstName):
         db = self.getClient()
 
-        db.table("users").insert({
+        db.table("users").upsert({
             "id": int(userID),
-            "username": username
+            "username": username,
+            "firstName": firstName
         }).execute()
 
     async def removeLink(self, link):
@@ -75,3 +76,14 @@ class database:
     async def removeDeepLink(self, key):
         db = self.getClient()
         db.table("deeplinks").delete().eq("key", key).execute()
+
+    async def addCount(self, userID: int):
+        db = self.getClient()
+        response = db.table("users").select("count").eq("id", userID).execute()
+        count = 0
+        if response.data:
+            count = int(response.data[0]["count"])
+        db.table("users").upsert({
+            "id": userID,
+            "count": count + 1
+        }).execute()

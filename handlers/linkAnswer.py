@@ -148,9 +148,9 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
     userID = user.id
 
     response = await database.lookUpUser(userID)
-    if not response.data:
-        username = user.username or "NULL"
-        await database.insertUser(userID, username)
+    if not response.data or not response.data[0]["firstName"]:
+        username = user.username or None
+        await database.insertUser(userID, username, user.first_name)
 
     # Check if the message was requested in a group
     isGroupChat = update.effective_chat.type in ["group", "supergroup"]
@@ -215,7 +215,6 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
         if linkType == "video":
             result = await processLink(update, context, link)
 
-            # RickRoll for too long videos
             if result is None:
                 await database.removeLink(link)
                 return
@@ -227,14 +226,17 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
         if result == "slideshow":
             await databaseCheckMediaGroup(update, context, link, caption, repliesTo)
             await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
+            await database.addCount(userID)
             return
         elif result and not isMediaGroup:
             await databaseCheck(update, context, link, caption, repliesTo)
             await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
+            await database.addCount(userID)
             return
         elif result and isMediaGroup:
             await databaseCheckMediaGroup(update, context, link, caption, repliesTo)
             await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
+            await database.addCount(userID)
             return
         else:
             await context.bot.send_message(

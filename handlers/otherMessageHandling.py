@@ -1,6 +1,9 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 import re
+import db
+
+database = db.Database()
 
 async def otherMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
     isGroupChat = update.effective_chat.type in ["group", "supergroup"]
@@ -12,6 +15,12 @@ async def otherMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     message = update.message.text if update.message and update.message.text else ""
     isLink = bool(re.search(r"https?://\S+|www\.\S+", message))
+
+    userID = user.id
+    response = await database.lookUpUser(userID)
+    if not response.data or not response.data[0]["firstName"]:
+        username = user.username or None
+        await database.insertUser(userID, username, user.first_name)
 
     if not isLink and len(message) < 3:
         return

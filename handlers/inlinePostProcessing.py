@@ -93,6 +93,13 @@ async def chosenInlineResult(update: Update, context: ContextTypes.DEFAULT_TYPE)
     inlineMessageID = update.chosen_inline_result.inline_message_id
     link = update.chosen_inline_result.query
 
+    user = update.effective_user
+    userID = user.id
+    response = await database.lookUpUser(userID)
+    if not response.data or not response.data[0]["firstName"]:
+        username = user.username or None
+        await database.insertUser(userID, username, user.first_name)
+
     if not inlineMessageID:
         logging.warning(f"[chosenInlineResult] No inline_message_id for result {resultID}")
         return
@@ -108,10 +115,10 @@ async def chosenInlineResult(update: Update, context: ContextTypes.DEFAULT_TYPE)
     await database.insert(link, ("processing", False))
 
     asyncio.create_task(
-        processAndEdit(context, inlineMessageID, link)
+        processAndEdit(user, context, inlineMessageID, link)
     )
 
-async def processAndEdit(context, inlineMessageID, link):
+async def processAndEdit(user, context, inlineMessageID, link):
     try:
         linkType, isTiktok = getLinkType(link)
         key = str(uuid.uuid4())[:8]
@@ -119,6 +126,8 @@ async def processAndEdit(context, inlineMessageID, link):
         deepLink = f"https://t.me/clip_saverbot?start=download_{key}"
         deepLinkSong = f"https://t.me/clip_saverbot?start=getSong_{key}"
         loop = asyncio.get_running_loop()
+
+        userID = int(user.id)
 
         if linkType == "video":
             filepath, hasAudio, audioPath, thumbnailpath, height, width = await loop.run_in_executor(
@@ -150,6 +159,8 @@ async def processAndEdit(context, inlineMessageID, link):
                             parse_mode = "HTML"
                         )
                         await database.removeLink(link)
+
+                    await database.addCount(userID)
                     return
                 else:
                     await context.bot.edit_message_text(
@@ -190,6 +201,9 @@ async def processAndEdit(context, inlineMessageID, link):
                 ]) if result[1] else None
             )
 
+            await database.addCount(userID)
+            return
+
         elif linkType == "instagrampost":
             await processInstagramPost(context, link)
             response = (await database.lookUpLink(link)).data
@@ -207,6 +221,8 @@ async def processAndEdit(context, inlineMessageID, link):
                             [InlineKeyboardButton('🏙 View full post', url = deepLink)]
                         ])
                     )
+
+                    await database.addCount(userID)
                 else:
                     await context.bot.edit_message_media(
                         inline_message_id = inlineMessageID,
@@ -223,6 +239,8 @@ async def processAndEdit(context, inlineMessageID, link):
                             [InlineKeyboardButton('🎧 Get Song', url = deepLinkSong)]
                         ]) if result[1] else None
                     )
+
+                    await database.addCount(userID)
             else:
                 await context.bot.edit_message_text(
                     inline_message_id = inlineMessageID,
@@ -230,6 +248,7 @@ async def processAndEdit(context, inlineMessageID, link):
                     parse_mode = "HTML"
                 )
                 await database.removeLink(link)
+        
             return
 
     except Exception as e:
