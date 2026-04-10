@@ -3,7 +3,7 @@ from telegram.ext import ContextTypes
 import re
 import db
 
-database = db.Database()
+database = db.database()
 
 async def otherMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
     isGroupChat = update.effective_chat.type in ["group", "supergroup"]
