@@ -233,7 +233,7 @@ async def processAndEdit(user, context, inlineMessageID, link):
                         ),
                         reply_markup = InlineKeyboardMarkup([
                             [InlineKeyboardButton('🎧 Get Song', url = deepLinkSong)]
-                        ]) if result[1] else None
+                        ])
                     )
 
                     await database.addCount(userID)
