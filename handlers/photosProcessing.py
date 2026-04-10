@@ -22,7 +22,7 @@ async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str, dire
     clearFolder(directory)
     try:
         config.load()
-        config.set(("extractor",), "cookies", "cookies.txt")
+        #config.set(("extractor",), "cookies", "cookies.txt")
         config.set(("extractor",), "base-directory", directory)
         
         loop = asyncio.get_event_loop()
