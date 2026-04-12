@@ -141,17 +141,31 @@ async def processAndEdit(user, context, inlineMessageID, link):
                     response = (await database.lookUpLink(link)).data
                     if response:
                         file_id = response[0]["file_ids"][0]
-                        await context.bot.edit_message_media(
-                            inline_message_id = inlineMessageID,
-                            media = InputMediaPhoto(
-                                file_id,
-                                caption = '<tg-emoji emoji-id="5447637214307579793">🌅</tg-emoji> Here is one photo.\n\n@clip_saverbot',
-                                parse_mode = "HTML"
-                            ),
-                            reply_markup = InlineKeyboardMarkup([
-                                [InlineKeyboardButton('🏙 View full post', url = deepLink)]
-                            ])
-                        )
+
+                        # --- CHANGED: detect file type by prefix, same pattern as instagrampost branch ---
+                        if file_id.startswith("AgAC"):
+                            await context.bot.edit_message_media(
+                                inline_message_id = inlineMessageID,
+                                media = InputMediaPhoto(
+                                    file_id,
+                                    caption = '<tg-emoji emoji-id="5447637214307579793">🌅</tg-emoji> Here is one photo.\n\n@clip_saverbot',
+                                    parse_mode = "HTML"
+                                ),
+                                reply_markup = InlineKeyboardMarkup([
+                                    [InlineKeyboardButton('🏙 View full post', url = deepLink)]
+                                ])
+                            )
+                        else:
+                            await context.bot.edit_message_media(
+                                inline_message_id = inlineMessageID,
+                                media = InputMediaVideo(
+                                    file_id,
+                                    caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot",
+                                    parse_mode = "HTML"
+                                )
+                            )
+                        # --- END CHANGE ---
+
                     else:
                         await context.bot.edit_message_text(
                             inline_message_id = inlineMessageID,
