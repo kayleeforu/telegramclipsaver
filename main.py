@@ -5,6 +5,32 @@ import os
 from handlers.inlinePostProcessing import processPostInline, chosenInlineResult
 from handlers.linkAnswer import processMessage
 from commands.commands import start, support
+import httpx
+from telegram.error import TelegramError
+
+async def errorHandler(update, context):
+    error = context.error
+
+    if not update or not update.message:
+        return
+
+    logging.error(f"Error: {error}", exc_info = context.error)
+
+    if isinstance(error, httpx.ConnectError):
+        await update.message.reply_text (
+            text = '<tg-emoji emoji-id="5447429226221303478">⚫️</tg-emoji> Bot is unreachable right now, try again later.\nIf you want to report the error, DM @kayleeforu',
+            parse_mode = "HTML"
+        )
+    elif isinstance(error, TelegramError):
+        await update.message.reply_text (
+            text = '<tg-emoji emoji-id="5445059250382469069">📲</tg-emoji> Telegram error. Try again.',
+            parse_mode = "HTML"
+        )
+    else:
+        await update.message.reply_text (
+            text = '<tg-emoji emoji-id="5445373981290952548">®️</tg-emoji> Unexpected error.\nIf you want to report the error, DM @kayleeforu',
+            parse_mode = "HTML"
+        )
 
 logging.basicConfig(
    format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -57,6 +83,8 @@ if __name__ == '__main__':
     application.add_handler(inlineInstagramPostLinkHandler)
     application.add_handler(chosenInlineResultHandler)
     application.add_handler(messageHandler)
+
+    application.add_error_handler(errorHandler)
 
     # Run bot
     application.run_polling(allowed_updates = Update.ALL_TYPES)
