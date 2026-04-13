@@ -18,7 +18,7 @@ async def errorHandler(update, context):
 
     if isinstance(error, httpx.ConnectError):
         await update.message.reply_text (
-            text = '<tg-emoji emoji-id="5447429226221303478">⚫️</tg-emoji> Bot is unreachable right now, try again later.\nIf you want to report the error, DM @kayleeforu',
+            text = '<tg-emoji emoji-id="5447429226221303478">⚫️</tg-emoji> Bot is unreachable right now, try again later.\n     If you want to report the error, DM @kayleeforu',
             parse_mode = "HTML"
         )
     elif isinstance(error, TelegramError):
@@ -28,7 +28,7 @@ async def errorHandler(update, context):
         )
     else:
         await update.message.reply_text (
-            text = '<tg-emoji emoji-id="5445373981290952548">®️</tg-emoji> Unexpected error.\nIf you want to report the error, DM @kayleeforu',
+            text = '<tg-emoji emoji-id="5445373981290952548">®️</tg-emoji> Unexpected error.\n     If you want to report the error, DM @kayleeforu',
             parse_mode = "HTML"
         )
 
