@@ -5,6 +5,7 @@ import os
 from PIL import Image
 import requests
 
+
 def convertThumbnail(filepath):
     base = filepath.rsplit(".", 1)[0]
     for ext in ["webp", "jpg", "jpeg", "png", "image"]:
@@ -17,31 +18,26 @@ def convertThumbnail(filepath):
             return jpg_path
     return None
 
+
 def downloadThumbnail(info):
     try:
         thumbnails = info.get("thumbnails")
         videoID = info.get("id")
+
         if not thumbnails or not videoID:
             return None
+
         thumb_url = thumbnails[-1]["url"]
         thumb_path = f"downloadedVideos/video{videoID}_thumb.jpg"
+
         r = requests.get(thumb_url, timeout=10)
         with open(thumb_path, "wb") as f:
             f.write(r.content)
+
         return thumb_path
     except Exception:
         return None
 
-def gifToMp4(gif_path):
-    try:
-        mp4_path = gif_path.rsplit(".", 1)[0] + ".mp4"
-        ffmpeg.input(gif_path).output(mp4_path, vcodec='libx264', pix_fmt='yuv420p').run(overwrite_output=True, quiet=True)
-        if os.path.exists(gif_path):
-            os.remove(gif_path)
-        return mp4_path
-    except Exception as e:
-        print(f"Error converting GIF to MP4: {e}")
-        return None
 
 def downloadVideo(url):
     ydl_opts = {
@@ -69,39 +65,42 @@ def downloadVideo(url):
         "noplaylist": True,
         "hls_prefer_native": False,
     }
+
     try:
         with YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
+
             duration = info.get("duration")
             height = info.get("height", 0)
             width = info.get("width", 0)
+
+            thumbnailpath = downloadThumbnail(info)
+
             if duration:
                 if duration > 3600:
                     return "too_long", None, None, None, None, None
+
             is_live = info.get("is_live")
             if is_live:
                 return None, None, None, None, None, None
+
             info = ydl.extract_info(url, download=True)
+
             filepath = ydl.prepare_filename(info)
-            
-            # Handle GIF - check if it's a GIF and convert to MP4
-            if filepath.endswith(".gif"):
-                filepath = gifToMp4(filepath)
-                if not filepath:
-                    return None, None, None, None, None, None
-            else:
-                filepath = filepath.rsplit(".", 1)[0] + ".mp4"
-            
+            filepath = filepath.rsplit(".", 1)[0] + ".mp4"
+
             converted_thumb = convertThumbnail(filepath)
-            thumbnailpath = downloadThumbnail(info)
             if converted_thumb:
                 thumbnailpath = converted_thumb
+
             height = info.get("height", height)
             width = info.get("width", width)
+
             probe = ffmpeg.probe(filepath)
             audio_streams = [
                 s for s in probe["streams"] if s["codec_type"] == "audio"
             ]
+
             hasAudio = len(audio_streams) > 0
             audioPath = None
             if hasAudio:
@@ -110,10 +109,13 @@ def downloadVideo(url):
                     audioPath,
                     acodec='libmp3lame'
                 ).run(overwrite_output=True, quiet=True)
+
             return filepath, hasAudio, audioPath, thumbnailpath, height, width
+
     except DownloadError as e:
         print(f"DownloadError: {e}")
         return None, None, None, None, None, None
+
     except Exception as e:
         print(f"Error: {e}")
         return None, None, None, None, None, None
