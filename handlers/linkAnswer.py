@@ -77,6 +77,42 @@ async def databaseCheckMediaGroup(update: Update, context: ContextTypes.DEFAULT_
     response = await database.lookUpLink(link)
     if response.data:
         row = response.data[0]
+        
+        key = str(uuid.uuid4())[:8]
+        await database.insertDeepLink(key, link)
+        deepLinkSong = f"https://t.me/clip_saverbot?start=getSong_{key}"
+
+        if len(row["file_ids"]) == 1:
+            file_id = row["file_ids"][0]
+            has_audio = row["has_audio"][0]
+            if str(file_id).startswith("AgAC"):
+                await context.bot.send_photo(
+                    chat_id=update.effective_chat.id,
+                    photo=file_id,
+                    caption=caption,
+                    reply_to_message_id=repliesTo,
+                    parse_mode="HTML"
+                )
+            else:
+                if has_audio:
+                    await context.bot.send_video(
+                        chat_id=update.effective_chat.id,
+                        video=file_id,
+                        caption=caption,
+                        reply_to_message_id=repliesTo,
+                        parse_mode="HTML",
+                        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(text="🎧 Get Song", url=deepLinkSong)]])
+                    )
+                else:
+                    await context.bot.send_animation(
+                        chat_id=update.effective_chat.id,
+                        animation=file_id,
+                        caption=caption,
+                        reply_to_message_id=repliesTo,
+                        parse_mode="HTML"
+                    )
+            return True
+
         media = []
         for file_id, has_audio in zip(row["file_ids"], row["has_audio"]):
             if str(file_id).startswith("AgAC"):
@@ -87,12 +123,17 @@ async def databaseCheckMediaGroup(update: Update, context: ContextTypes.DEFAULT_
         for i in range(0, len(media), 10):
             chunk = media[i:i+10]
             is_last = i + 10 >= len(media)
+            
+            final_caption = caption
+            if is_last and any(row["has_audio"]):
+                final_caption += f'\n\n<a href="{deepLinkSong}">🎧 Get Song</a>'
+
             try:
                 await context.bot.send_media_group(
                     chat_id=update.effective_chat.id,
                     media=chunk,
                     reply_to_message_id=repliesTo if i == 0 else None,
-                    caption=caption if is_last else None,
+                    caption=final_caption if is_last else None,
                     parse_mode="HTML" if is_last else None
                 )
             except RetryAfter as e:
@@ -101,7 +142,7 @@ async def databaseCheckMediaGroup(update: Update, context: ContextTypes.DEFAULT_
                     chat_id=update.effective_chat.id,
                     media=chunk,
                     reply_to_message_id=repliesTo if i == 0 else None,
-                    caption=caption if is_last else None,
+                    caption=final_caption if is_last else None,
                     parse_mode="HTML" if is_last else None
                 )
 

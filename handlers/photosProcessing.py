@@ -54,55 +54,94 @@ async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str, dire
         await database.removeLink(link)
         return False
 
-    media = []
-    has_audio_list = []
+    media_objects = []
 
     for file in sorted(glob(f"{directory}/**/*", recursive=True)):
         if not os.path.isfile(file):
             continue
 
         if file.endswith(".gif"):
-            newFile = gifToMp4(file)
-            if not newFile:
+            new_file = gifToMp4(file)
+            if not new_file:
                 continue
-            file = newFile
+            file = new_file
 
         if file.endswith(".mp4"):
-            media.append(InputMediaVideo(open(file, "rb"), supports_streaming=True))
+            has_audio = False
+            audio_file_id = None
             try:
                 probe = ffmpeg.probe(file)
                 audio_streams = [s for s in probe.get("streams", []) if s.get("codec_type") == "audio"]
-                has_audio_list.append(len(audio_streams) > 0)
+                if len(audio_streams) > 0:
+                    audio_path = file.rsplit(".", 1)[0] + ".mp3"
+                    # Extract audio track
+                    (
+                        ffmpeg
+                        .input(file)
+                        .audio
+                        .output(audio_path, acodec='libmp3lame')
+                        .run(overwrite_output=True, quiet=True)
+                    )
+                    # Upload audio to cache channel
+                    msg_audio = await context.bot.send_audio(
+                        chat_id=-1003794009076,
+                        audio=open(audio_path, "rb"),
+                        title="Audio"
+                    )
+                    audio_file_id = msg_audio.audio.file_id
+                    has_audio = True
             except Exception as e:
-                print(f"Probe error: {e}")
-                has_audio_list.append(False)
+                print(f"Probe/Audio extract error: {e}")
+
+            media_objects.append((file, "video", has_audio, audio_file_id))
 
         elif file.endswith((".jpg", ".jpeg", ".png", ".webp")):
-            media.append(InputMediaPhoto(open(file, "rb")))
-            has_audio_list.append(False)
+            media_objects.append((file, "photo", False, None))
 
-    if not media:
+    if not media_objects:
         await database.removeLink(link)
         return False
 
-    msgs = []
-
-    for i in range(0, len(media), 10):
-        chunk = media[i:i + 10]
-        chunk_msgs = await context.bot.send_media_group(
-            chat_id = -1003794009076,
-            media = chunk
-        )
-        msgs.extend(chunk_msgs)
-        if i + 10 < len(media):
-            await asyncio.sleep(5)
-
     files = []
-    for index, entry in enumerate(msgs):
-        if entry.video:
-            files.append((entry.video.file_id, has_audio_list[index]))
-        else:
-            files.append((entry.photo[-1].file_id, False))
+    if len(media_objects) == 1:
+        file_path, m_type, has_audio, audio_file_id = media_objects[0]
+        with open(file_path, "rb") as f:
+            if m_type == "photo":
+                msg = await context.bot.send_photo(chat_id=-1003794009076, photo=f)
+                files.append((msg.photo[-1].file_id, False, None))
+            else:
+                if has_audio:
+                    msg = await context.bot.send_video(chat_id=-1003794009076, video=f, supports_streaming=True)
+                    files.append((msg.video.file_id, True, audio_file_id))
+                else:
+                    msg = await context.bot.send_animation(chat_id=-1003794009076, animation=f)
+                    files.append((msg.animation.file_id, False, None))
+    
+    else:
+        media_group = []
+        for file_path, m_type, has_audio, audio_file_id in media_objects:
+            if m_type == "photo":
+                media_group.append(InputMediaPhoto(open(file_path, "rb")))
+            else:
+                media_group.append(InputMediaVideo(open(file_path, "rb"), supports_streaming=True))
+        
+        msgs = []
+        for i in range(0, len(media_group), 10):
+            chunk = media_group[i:i + 10]
+            chunk_msgs = await context.bot.send_media_group(
+                chat_id=-1003794009076,
+                media=chunk
+            )
+            msgs.extend(chunk_msgs)
+            if i + 10 < len(media_group):
+                await asyncio.sleep(5)
+        
+        for index, entry in enumerate(msgs):
+            _, m_type, has_audio, audio_file_id = media_objects[index]
+            if entry.video:
+                files.append((entry.video.file_id, has_audio, audio_file_id))
+            else:
+                files.append((entry.photo[-1].file_id, False, None))
 
     clearFolder(directory)
     await database.insert(link, files)

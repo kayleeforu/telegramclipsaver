@@ -1,7 +1,6 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 import logging
-import subprocess
 import db
 
 clearVids = "rm -f downloadedVideos/*"
