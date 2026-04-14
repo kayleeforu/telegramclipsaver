@@ -55,22 +55,31 @@ async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str, dire
         return False
 
     media = []
+    has_audio_list = []
 
     for file in sorted(glob(f"{directory}/**/*", recursive=True)):
         if not os.path.isfile(file):
             continue
 
         if file.endswith(".gif"):
-            new_file = gifToMp4(file)
-            if not new_file:
+            newFile = gifToMp4(file)
+            if not newFile:
                 continue
-            file = new_file
+            file = newFile
 
         if file.endswith(".mp4"):
             media.append(InputMediaVideo(open(file, "rb"), supports_streaming=True))
+            try:
+                probe = ffmpeg.probe(file)
+                audio_streams = [s for s in probe.get("streams", []) if s.get("codec_type") == "audio"]
+                has_audio_list.append(len(audio_streams) > 0)
+            except Exception as e:
+                print(f"Probe error: {e}")
+                has_audio_list.append(False)
 
         elif file.endswith((".jpg", ".jpeg", ".png", ".webp")):
             media.append(InputMediaPhoto(open(file, "rb")))
+            has_audio_list.append(False)
 
     if not media:
         await database.removeLink(link)
@@ -89,9 +98,9 @@ async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str, dire
             await asyncio.sleep(5)
 
     files = []
-    for entry in msgs:
+    for index, entry in enumerate(msgs):
         if entry.video:
-            files.append((entry.video.file_id, True))
+            files.append((entry.video.file_id, has_audio_list[index]))
         else:
             files.append((entry.photo[-1].file_id, False))
 

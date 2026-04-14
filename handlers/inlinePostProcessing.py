@@ -141,8 +141,8 @@ async def processAndEdit(user, context, inlineMessageID, link):
                     response = (await database.lookUpLink(link)).data
                     if response:
                         file_id = response[0]["file_ids"][0]
+                        has_audio = response[0]["has_audio"][0]
 
-                        # --- CHANGED: detect file type by prefix, same pattern as instagrampost branch ---
                         if file_id.startswith("AgAC"):
                             await context.bot.edit_message_media(
                                 inline_message_id = inlineMessageID,
@@ -156,16 +156,27 @@ async def processAndEdit(user, context, inlineMessageID, link):
                                 ])
                             )
                         else:
-                            await context.bot.edit_message_media(
-                                inline_message_id = inlineMessageID,
-                                media = InputMediaVideo(
-                                    file_id,
-                                    caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot",
-                                    parse_mode = "HTML"
+                            if has_audio:
+                                await context.bot.edit_message_media(
+                                    inline_message_id = inlineMessageID,
+                                    media = InputMediaVideo(
+                                        file_id,
+                                        caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot",
+                                        parse_mode = "HTML"
+                                    ),
+                                    reply_markup = InlineKeyboardMarkup([
+                                        [InlineKeyboardButton('🎧 Get Song', url = deepLinkSong)]
+                                    ])
                                 )
-                            )
-                        # --- END CHANGE ---
-
+                            else:
+                                await context.bot.edit_message_media(
+                                    inline_message_id = inlineMessageID,
+                                    media = InputMediaAnimation(
+                                        file_id,
+                                        caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot",
+                                        parse_mode = "HTML"
+                                    )
+                                )
                     else:
                         await context.bot.edit_message_text(
                             inline_message_id = inlineMessageID,
@@ -223,6 +234,8 @@ async def processAndEdit(user, context, inlineMessageID, link):
             response = (await database.lookUpLink(link)).data
             if response:
                 file_id = response[0]["file_ids"][0]
+                has_audio = response[0]["has_audio"][0]
+                
                 if file_id.startswith("AgAC"):
                     await context.bot.edit_message_media(
                         inline_message_id = inlineMessageID,
@@ -235,21 +248,29 @@ async def processAndEdit(user, context, inlineMessageID, link):
                             [InlineKeyboardButton('🏙 View full post', url = deepLink)]
                         ])
                     )
-
                     await database.addCount(userID)
                 else:
-                    await context.bot.edit_message_media(
-                        inline_message_id = inlineMessageID,
-                        media = InputMediaVideo(
-                            file_id,
-                            caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot",
-                            parse_mode = "HTML"
-                        ),
-                        reply_markup = InlineKeyboardMarkup([
-                            [InlineKeyboardButton('🎧 Get Song', url = deepLinkSong)]
-                        ])
-                    )
-
+                    if has_audio:
+                        await context.bot.edit_message_media(
+                            inline_message_id = inlineMessageID,
+                            media = InputMediaVideo(
+                                file_id,
+                                caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot",
+                                parse_mode = "HTML"
+                            ),
+                            reply_markup = InlineKeyboardMarkup([
+                                [InlineKeyboardButton('🎧 Get Song', url = deepLinkSong)]
+                            ])
+                        )
+                    else:
+                        await context.bot.edit_message_media(
+                            inline_message_id = inlineMessageID,
+                            media = InputMediaAnimation(
+                                file_id,
+                                caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot",
+                                parse_mode = "HTML"
+                            )
+                        )
                     await database.addCount(userID)
             else:
                 await context.bot.edit_message_text(

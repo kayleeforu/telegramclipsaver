@@ -79,10 +79,10 @@ async def databaseCheckMediaGroup(update: Update, context: ContextTypes.DEFAULT_
         row = response.data[0]
         media = []
         for file_id, has_audio in zip(row["file_ids"], row["has_audio"]):
-            if has_audio:
-                media.append(InputMediaVideo(file_id))
-            else:
+            if str(file_id).startswith("AgAC"):
                 media.append(InputMediaPhoto(file_id))
+            else:
+                media.append(InputMediaVideo(file_id))
 
         for i in range(0, len(media), 10):
             chunk = media[i:i+10]
@@ -115,7 +115,6 @@ async def sendTypingWhileWorking(context, chat_id, stop_event, linkType):
         await asyncio.sleep(4)
 
 async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link, linkType):
-    # Check if the link is already being processed
     response = await database.lookUpLink(link)
     if response.data and response.data[0]["file_ids"][0] == "processing":
         processing_msg = await context.bot.send_message(
@@ -130,14 +129,12 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
         )
         return
 
-    # Set bot to typing to let user know that bot is working on their request
     stop_event = asyncio.Event()
     typing_task = asyncio.create_task(
         sendTypingWhileWorking(context, update.effective_chat.id, stop_event, linkType)
     )
     await asyncio.sleep(0)
 
-    # Add user to DB to see how many users use the bot
     user = update.effective_user
     if user is None:
         stop_event.set()
@@ -150,9 +147,7 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
         username = user.username or None
         await database.insertUser(userID, username, user.first_name)
 
-    # Check if the message was requested in a group
     isGroupChat = update.effective_chat.type in ["group", "supergroup"]
-
     hasUserName = False
 
     if isGroupChat:
@@ -165,11 +160,9 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
     else:
         requestedBy = None
 
-    # Get user who requested the message and check their interface language
     requestedMessage = update.effective_message.id if isGroupChat else None
     isRussian = user and user.language_code == "ru"
 
-    # Prepare caption depending on whether the chat is a group and if the interface language is Russian or not
     caption = f"<tg-emoji emoji-id='5447471097857473538'>📎</tg-emoji> "
     if isRussian:
         if isGroupChat:
@@ -188,9 +181,6 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
         else:
             caption += "Here is your post."
     caption += f"\n\n@clip_saverbot"
-
-    # April fools update
-    # caption += f'\n\n<a href="https://t.me/boost/operaofkaylee">Мой бот в Макс</a>'
 
     repliesTo = update.effective_message.reply_to_message.id if update.effective_message.reply_to_message else None
 
