@@ -17,12 +17,11 @@ videoPost = [
     r"((https://(www\.)?)?youtube\.com/watch(\S*))",
     r"((https://(www\.)?)?youtu\.be/\S*)",
     r"((https://(www\.)?)?youtube\.com/shorts/\S*)",
-    r"((https://(www\.)?)?pin\..{2}/\S*)",
     r"((https://(www\.)?)?pinterest\.com/pin/\S*)",
 ]
 combinedVideos = "|".join(f"({p})" for p in videoPost)
 
-instagramPost = r"((https://(www\.))?instagram\.com/p/(.*)/\S*)|((https://(www\.)?)?instagram\.com/reel/\S*)"
+instagramPost = r"((https://(www\.))?instagram\.com/p/(.*)/\S*)|((https://(www\.)?)?instagram\.com/reel/\S*)|((https://(www\.)?)?pin\..{2}/\S*)"
 
 database = db.database()
 
