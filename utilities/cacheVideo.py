@@ -2,6 +2,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 import logging
 import db
+import time
 
 clearVids = "rm -f downloadedVideos/*"
 database = db.database()
@@ -15,6 +16,7 @@ async def uploadToChannel(context: ContextTypes.DEFAULT_TYPE, filepath, hasAudio
                     audio = audioPath,
                     title = "Audio"
                 )
+                time.sleep(1)
                 message = await context.bot.send_video(
                     chat_id = -1003794009076,
                     video = file,
