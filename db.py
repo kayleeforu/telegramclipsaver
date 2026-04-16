@@ -37,7 +37,8 @@ class database:
         db.table("savedVideos").upsert({
             "link": link,
             "file_ids": [file[0] for file in fileArray],
-            "has_audio": [file[1] for file in fileArray]
+            "has_audio": [file[1] for file in fileArray],
+            "audioFile_ids": [file[2] for file in fileArray]
         }).execute()
 
     async def lookUpUser(self, userID):

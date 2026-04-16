@@ -114,7 +114,7 @@ async def databaseCheckMediaGroup(update: Update, context: ContextTypes.DEFAULT_
             return True
 
         media = []
-        for file_id, has_audio in zip(row["file_ids"], row["has_audio"]):
+        for file_id, has_audio, audio_id in zip(row["file_ids"], row["has_audio"], row["audioFile_ids"]):
             if str(file_id).startswith("AgAC"):
                 media.append(InputMediaPhoto(file_id))
             else:
