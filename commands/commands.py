@@ -144,19 +144,16 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     randomInt = random.randint(0, 100)
     if randomInt > 50:
-        video = "resources/botChat.mp4"
+        video = "BAACAgQAAxkDAAIUnGnkBvaRNgrhaRvSKXqnryy1A0fCAALIGwAC4sQhU7FzvebEMzmEOgQ"
     else:
-        video = "resources/botInline.mp4"
+        video = "BAACAgQAAxkDAAIUnmnkBwiREHJ3awL3ztwLvRV6hs0EAALJGwAC4sQhU8SApFC18oN5OgQ"
 
-    message = await context.bot.send_video(
+    await context.bot.send_video(
         chat_id = update.effective_chat.id,
         caption = text,
         video = video,
         supports_streaming = True
     )
-
-    logging.info(message.video.file_id)
-
 
 async def support(update: Update, context: ContextTypes.DEFAULT_TYPE):
     isGroupChat = update.effective_chat.type in ["group", "supergroup"]
