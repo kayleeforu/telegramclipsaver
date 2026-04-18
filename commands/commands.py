@@ -144,15 +144,18 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     randomInt = random.randint(0, 100)
     if randomInt > 50:
-        animation = "CgACAgQAAxkDAAIUkGnkAiJLv7K-WwUvLWjVJemyDVpRAALGGwAC4sQhU-Q8nJQtDa0TOgQ"
+        video = "resources/botChat.mp4"
     else:
-        animation = "CgACAgQAAxkDAAIUjGnkAgnP4m4GVHvyY3W1yiVa6GCMAALEGwAC4sQhU_LRVEW-V8kHOgQ"
+        video = "resources/botInline.mp4"
 
-    await context.bot.send_animation(
+    message = await context.bot.send_video(
         chat_id = update.effective_chat.id,
         caption = text,
-        animation = animation
+        video = video,
+        supports_streaming = True
     )
+
+    logging.info(message.video.file_id)
 
 
 async def support(update: Update, context: ContextTypes.DEFAULT_TYPE):
