@@ -26,13 +26,20 @@ async def checkDatabase(context: ContextTypes.DEFAULT_TYPE, link, inlineMessageI
             )
             return True
         elif file[1]:
+            key = str(uuid.uuid4())[:8]
+            await database.insertDeepLink(key, link)
+            deepLinkSong = f"https://t.me/clip_saverbot?start=getSong_{key}"
+
             await context.bot.edit_message_media(
                 inline_message_id = inlineMessageID,
                 media = InputMediaVideo(
                     file[0], 
                     caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot", 
                     parse_mode = "HTML"
-                )
+                ),
+                reply_markup = InlineKeyboardMarkup([
+                    [InlineKeyboardButton('🎧 Get Song', url = deepLinkSong)]
+                ])
             )
         else:
             if file[0].startswith("AgAC"):
