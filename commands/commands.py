@@ -142,9 +142,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     randomInt = random.randint(0, 100)
     if randomInt > 50:
-        animation = "CgACAgQAAxkBAAEwCyVp4_johZNW9i2eLTgGwUnCQAJ5kQACxyAAApSbIVPj5ga_RkQejDsE"
+        animation = "resources/botChat.mp4"
     else:
-        animation = "CgACAgQAAxkBAAEwC15p4_zv55bbZ0Pe5cqEn8at-rBAagACzCAAApSbIVMV3w0Sii37yjsE"
+        animation = "resources/botInline.mp4"
 
     await context.bot.send_animation(
         chat_id = update.effective_chat.id,
@@ -169,8 +169,10 @@ async def support(update: Update, context: ContextTypes.DEFAULT_TYPE):
         text = f"Hey, {name}. You can support me by buying me a coffee at: ko-fi.com/kayleeforu, I will be really grateful!\n\n" \
         "If you want to contact me, write me in direct messages: @kayleeforu"
 
-    await context.bot.send_photo(
+    message = await context.bot.send_photo(
         chat_id = update.effective_chat.id,
-        photo = "AgACAgQAAxkBAAEwC1Rp4_yTR9WSGVmdGJWji6g-HCLuvgACti9rG5SbIVMbXz7SUsiunAEAAwIAA3gAAzsE",
+        photo = "resources/supportPic.jpg",
         caption = text
     )
+
+    logging.info(message.photo.file_id)
