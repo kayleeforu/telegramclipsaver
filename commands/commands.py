@@ -126,7 +126,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "• ТикТок видео\n" \
             "• Инстаграм пост/рилс. Поддерживаются посты до 10 вложений.\n" \
             "• YouTube шортс\n" \
-            "• YouTube видео до 60 минут\n\n" \
+            "• YouTube видео до 60 минут\n" \
+            "• Пинтерест видео/фотки\n\n" \
             "Чтобы скачать видео просто пришлите мне ссылку на него.\n" \
             "Вы так же можете использовать @clip_saverbot {ссылка} в любом другом чате, чтобы отправить пост через команду @\n\n" \
             "Спасибо за использование этого бота. Если хотите поддержать меня, напишите /support"
@@ -135,9 +136,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "• TikTok video\n" \
             "• Instagram Post/Reels. Only posts up to 10 attachments are supported\n" \
             "• YouTube Shorts\n" \
-            "• YouTube video up to 60 minutes\n\n" \
-            "To download a post just send me a link to it." \
-            "You can also use @clip_saverbot {link} in any other chat to send the post via the @ command.\n" \
+            "• YouTube video up to 60 minutes\n" \
+            "• Pinterest video\photos\n\n" \
+            "To download a post just send me a link to it.\n" \
+            "You can also use @clip_saverbot {link} in any other chat to send the post via the @ command.\n\n" \
             "Thank you for using this bot. If you want to support me, write /support"
 
     randomInt = random.randint(0, 100)
@@ -152,7 +154,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         animation = animation
     )
 
-    logging.info(message.photo.file_id)
+    logging.info(message.animation.file_id)
 
 
 async def support(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -177,4 +179,4 @@ async def support(update: Update, context: ContextTypes.DEFAULT_TYPE):
         caption = text
     )
 
-    logging.info(message.photo.file_id)
+    logging.info(message.photo[-1].file_id)
