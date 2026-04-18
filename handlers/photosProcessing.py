@@ -74,7 +74,6 @@ async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str, dire
                 audio_streams = [s for s in probe.get("streams", []) if s.get("codec_type") == "audio"]
                 if len(audio_streams) > 0:
                     audio_path = file.rsplit(".", 1)[0] + ".mp3"
-                    # Extract audio track
                     (
                         ffmpeg
                         .input(file)
@@ -82,7 +81,6 @@ async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str, dire
                         .output(audio_path, acodec='libmp3lame')
                         .run(overwrite_output=True, quiet=True)
                     )
-                    # Upload audio to cache channel
                     msg_audio = await context.bot.send_audio(
                         chat_id=-1003794009076,
                         audio=open(audio_path, "rb"),
