@@ -148,7 +148,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await context.bot.send_animation(
         chat_id = update.effective_chat.id,
-        text = text,
+        caption = text,
         animation = animation
     )
 
