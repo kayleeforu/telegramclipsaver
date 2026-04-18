@@ -137,7 +137,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "• Instagram Post/Reels. Only posts up to 10 attachments are supported\n" \
             "• YouTube Shorts\n" \
             "• YouTube video up to 60 minutes\n" \
-            "• Pinterest video\photos\n\n" \
+            "• Pinterest video/photos\n\n" \
             "To download a post just send me a link to it.\n" \
             "You can also use @clip_saverbot {link} in any other chat to send the post via the @ command.\n\n" \
             "Thank you for using this bot. If you want to support me, write /support"
