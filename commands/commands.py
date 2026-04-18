@@ -5,15 +5,15 @@ from utilities.shazamMusic import recognizeSong
 import db
 import logging
 import os
-import re
+import random
 
 database = db.database()
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info(f"[start] args={context.args}")
-    isGroupChat = update.effective_chat.type in ["group", "supergroup"]
-    if isGroupChat:
-        return
+    # isGroupChat = update.effective_chat.type in ["group", "supergroup"]
+    # if isGroupChat:
+    #     return
     
     if context.args:
         parameter = context.args[0]
@@ -140,9 +140,16 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "You can also use @clip_saverbot {link} in any other chat to send the post via the @ command.\n" \
             "Thank you for using this bot. If you want to support me, write /support"
 
-    await context.bot.send_message(
+    randomInt = random.randint(0, 100)
+    if randomInt > 50:
+        animation = "CgACAgQAAxkBAAEwCyVp4_johZNW9i2eLTgGwUnCQAJ5kQACxyAAApSbIVPj5ga_RkQejDsE"
+    else:
+        animation = "CgACAgQAAxkBAAEwC15p4_zv55bbZ0Pe5cqEn8at-rBAagACzCAAApSbIVMV3w0Sii37yjsE"
+
+    await context.bot.send_animation(
         chat_id = update.effective_chat.id,
-        text = text
+        text = text,
+        animation = animation
     )
 
 
@@ -164,6 +171,6 @@ async def support(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await context.bot.send_photo(
         chat_id = update.effective_chat.id,
-        photo = "resources/supportPic.jpg",
+        photo = "AgACAgQAAxkBAAEwC1Rp4_yTR9WSGVmdGJWji6g-HCLuvgACti9rG5SbIVMbXz7SUsiunAEAAwIAA3gAAzsE",
         caption = text
     )
