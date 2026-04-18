@@ -146,11 +146,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         animation = "resources/botInline.mp4"
 
-    await context.bot.send_animation(
+    message = await context.bot.send_animation(
         chat_id = update.effective_chat.id,
         caption = text,
         animation = animation
     )
+
+    logging.info(message.photo.file_id)
 
 
 async def support(update: Update, context: ContextTypes.DEFAULT_TYPE):
