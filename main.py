@@ -38,16 +38,23 @@ logging.basicConfig(
 )
 
 videoPost = [
-    r"((https://)?v.\.tiktok\.com/\S*)",
-    r"((https://(www\.)?)?tiktok.com/@(.*)/(\d{19})\?\S*)",
-    r"((https://(www\.)?)?tiktok.com/\S*)",
     r"((https://(www\.)?)?youtube\.com/watch(\S*))",
     r"((https://(www\.)?)?youtu\.be/\S*)",
     r"((https://(www\.)?)?youtube\.com/shorts/\S*)",
 ]
 combinedVideos = "|".join(f"({p})" for p in videoPost)
 
-instagramPost = r"((https://(www\.))?instagram\.com/p/(.*)/\S*)|((https://(www\.)?)?instagram\.com/reel/\S*)|((https://(www\.)?)?pin\..{2}/\S*)|((https://(www\.)?)?pinterest\.com/pin/\S*)"
+galleryDl = [
+    r"((https://(www\.))?instagram\.com/p/(.*)/\S*)",
+    r"((https://(www\.)?)?instagram\.com/reel/\S*)",
+    r"((https://(www\.)?)?pin\..{2}/\S*)",
+    r"((https://(www\.)?)?pinterest\.com/pin/\S*)",
+    r"((https://)?v.\.tiktok\.com/\S*)",
+    r"((https://(www\.)?)?tiktok.com/@(.*)/(\d{19})\?\S*)",
+    r"((https://(www\.)?)?tiktok.com/\S*)",
+]
+combinedGalleryDl = "|".join(f"({p})" for p in galleryDl)
+             
 
 if __name__ == '__main__':
     TOKEN = os.environ.get("BOT_TOKEN")
@@ -71,14 +78,14 @@ if __name__ == '__main__':
     
     # Inline Handlers
     inlineVideoLinkHandler = InlineQueryHandler(processPostInline, pattern = combinedVideos)
-    inlineInstagramPostLinkHandler = InlineQueryHandler(processPostInline, pattern = instagramPost)
+    inlineGalleryDlLinkHandler = InlineQueryHandler(processPostInline, pattern = combinedGalleryDl)
     chosenInlineResultHandler = ChosenInlineResultHandler(chosenInlineResult)
 
     # Adding handlers
     application.add_handler(startHandler)
     application.add_handler(supportHandler)
     application.add_handler(inlineVideoLinkHandler)
-    application.add_handler(inlineInstagramPostLinkHandler)
+    application.add_handler(inlineGalleryDlLinkHandler)
     application.add_handler(chosenInlineResultHandler)
     application.add_handler(messageHandler)
 

@@ -11,23 +11,29 @@ import db
 import uuid
 
 videoPost = [
-    r"((https://)?v.\.tiktok\.com/\S*)",
-    r"((https://(www\.)?)?tiktok.com/@(.*)/(\d{19})\?\S*)",
-    r"((https://(www\.)?)?tiktok.com/\S*)",
     r"((https://(www\.)?)?youtube\.com/watch(\S*))",
     r"((https://(www\.)?)?youtu\.be/\S*)",
     r"((https://(www\.)?)?youtube\.com/shorts/\S*)",
 ]
 combinedVideos = "|".join(f"({p})" for p in videoPost)
 
-instagramPost = r"((https://(www\.))?instagram\.com/p/(.*)/\S*)|((https://(www\.)?)?instagram\.com/reel/\S*)|((https://(www\.)?)?pin\..{2}/\S*)|((https://(www\.)?)?pinterest\.com/pin/\S*)"
+galleryDl = [
+    r"((https://(www\.))?instagram\.com/p/(.*)/\S*)",
+    r"((https://(www\.)?)?instagram\.com/reel/\S*)",
+    r"((https://(www\.)?)?pin\..{2}/\S*)",
+    r"((https://(www\.)?)?pinterest\.com/pin/\S*)",
+    r"((https://)?v.\.tiktok\.com/\S*)",
+    r"((https://(www\.)?)?tiktok.com/@(.*)/(\d{19})\?\S*)",
+    r"((https://(www\.)?)?tiktok.com/\S*)",
+]
+combinedGalleryDl = "|".join(f"({p})" for p in galleryDl)
 
 database = db.database()
 
 async def processMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.effective_message.text
     videoPostLink = re.search(combinedVideos, message)
-    instagramPostLink = re.search(instagramPost, message)
+    instagramPostLink = re.search(combinedGalleryDl, message)
     if videoPostLink:
         link = videoPostLink.group(0)
         linkType = "video"
@@ -149,7 +155,7 @@ async def databaseCheckMediaGroup(update: Update, context: ContextTypes.DEFAULT_
     return False
 
 async def sendTypingWhileWorking(context, chat_id, stop_event, linkType):
-    action = "upload_photo" if linkType == "instagrampost" else "upload_video"
+    action = "upload_video"
     while not stop_event.is_set():
         await context.bot.send_chat_action(chat_id=chat_id, action=action)
         await asyncio.sleep(4)
