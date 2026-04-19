@@ -150,13 +150,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # video = "BAACAgQAAxkDAAIUnmnkBwiREHJ3awL3ztwLvRV6hs0EAALJGwAC4sQhU8SApFC18oN5OgQ"
         video = "resources/botChat.mp4"
 
-    message = await context.bot.send_animation(
+    message = await context.bot.send_video(
         chat_id = update.effective_chat.id,
         caption = text,
-        animation = video
+        video = video,
+        supports_streaming = True
     )
 
-    logging.info(message.animation.file_id)
+    logging.info(message.video.file_id)
 
 async def support(update: Update, context: ContextTypes.DEFAULT_TYPE):
     isGroupChat = update.effective_chat.type in ["group", "supergroup"]
