@@ -144,11 +144,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     randomInt = random.randint(0, 100)
     if randomInt > 30:
-        # video = "BAACAgQAAxkDAAIUnGnkBvaRNgrhaRvSKXqnryy1A0fCAALIGwAC4sQhU7FzvebEMzmEOgQ"
-        video = "resources/botInline.mp4"
+        # video = "BAACAgQAAxkDAAIUnGnkBvaRNgrhaRvSKXqnryy1A0fCAALIGwAC4sQhU7FzvebEMzmEOgQ" mp4 BROKEN ON SOME PHONES
+        # video = "BAACAgQAAxkDAAIVUGnlG2k6wSGszoNrFEOCzOt5FFDJAAJsHQACu28pU7CaufcIXRfhOgQ" mp4
+        video = "BAACAgQAAxkDAAIVUGnlG2k6wSGszoNrFEOCzOt5FFDJAAJsHQACu28pU7CaufcIXRfhOgQ"
     else:
-        # video = "BAACAgQAAxkDAAIUnmnkBwiREHJ3awL3ztwLvRV6hs0EAALJGwAC4sQhU8SApFC18oN5OgQ"
-        video = "resources/botChat.mp4"
+        # video = "BAACAgQAAxkDAAIUnmnkBwiREHJ3awL3ztwLvRV6hs0EAALJGwAC4sQhU8SApFC18oN5OgQ" mp4 BROKEN ON SOME PHONES
+        # video = "BAACAgQAAxkDAAIVVGnlG3BMNqu08X9q93kC_QZk0ZCkAAJuHQACu28pU5PvkTxuKNg5OgQ" mp4 SLOW ON PHONE
+        video = "BAACAgQAAxkDAAIVVGnlG3BMNqu08X9q93kC_QZk0ZCkAAJuHQACu28pU5PvkTxuKNg5OgQ"
 
     message = await context.bot.send_video(
         chat_id = update.effective_chat.id,
