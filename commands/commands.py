@@ -143,17 +143,20 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "Thank you for using this bot. If you want to support me, write /support"
 
     randomInt = random.randint(0, 100)
-    if randomInt > 50:
-        video = "BAACAgQAAxkDAAIUnGnkBvaRNgrhaRvSKXqnryy1A0fCAALIGwAC4sQhU7FzvebEMzmEOgQ"
+    if randomInt > 30:
+        # video = "BAACAgQAAxkDAAIUnGnkBvaRNgrhaRvSKXqnryy1A0fCAALIGwAC4sQhU7FzvebEMzmEOgQ"
+        video = "resources/botInline.mp4"
     else:
-        video = "BAACAgQAAxkDAAIUnmnkBwiREHJ3awL3ztwLvRV6hs0EAALJGwAC4sQhU8SApFC18oN5OgQ"
+        # video = "BAACAgQAAxkDAAIUnmnkBwiREHJ3awL3ztwLvRV6hs0EAALJGwAC4sQhU8SApFC18oN5OgQ"
+        video = "resources/botChat.mp4"
 
-    await context.bot.send_video(
+    message = await context.bot.send_animation(
         chat_id = update.effective_chat.id,
         caption = text,
-        video = video,
-        supports_streaming = True
+        animation = video
     )
+
+    logging.info(message.animation.file_id)
 
 async def support(update: Update, context: ContextTypes.DEFAULT_TYPE):
     isGroupChat = update.effective_chat.type in ["group", "supergroup"]
