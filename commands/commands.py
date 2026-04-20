@@ -11,9 +11,6 @@ database = db.database()
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info(f"[start] args={context.args}")
-    # isGroupChat = update.effective_chat.type in ["group", "supergroup"]
-    # if isGroupChat:
-    #     return
     
     if context.args:
         parameter = context.args[0]
@@ -159,7 +156,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         supports_streaming = True
     )
 
-    logging.info(message.video.file_id)
+    # logging.info(message.video.file_id)
 
 async def support(update: Update, context: ContextTypes.DEFAULT_TYPE):
     isGroupChat = update.effective_chat.type in ["group", "supergroup"]
