@@ -7,6 +7,7 @@ from handlers.linkAnswer import processMessage
 from commands.commands import start, support
 import httpx
 from telegram.error import TelegramError
+import utilities.patterns as patterns
 
 async def errorHandler(update, context):
     error = context.error
@@ -35,26 +36,7 @@ async def errorHandler(update, context):
 logging.basicConfig(
    format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
    level = logging.INFO
-)
-
-videoPost = [
-    r"((https://(www\.)?)?youtube\.com/watch(\S*))",
-    r"((https://(www\.)?)?youtu\.be/\S*)",
-    r"((https://(www\.)?)?youtube\.com/shorts/\S*)",
-]
-combinedVideos = "|".join(f"({p})" for p in videoPost)
-
-galleryDl = [
-    r"((https://(www\.))?instagram\.com/p/(.*)/\S*)",
-    r"((https://(www\.)?)?instagram\.com/reel/\S*)",
-    r"((https://(www\.)?)?pin\..{2}/\S*)",
-    r"((https://(www\.)?)?pinterest\.com/pin/\S*)",
-    r"((https://)?v.\.tiktok\.com/\S*)",
-    r"((https://(www\.)?)?tiktok.com/@(.*)/(\d{19})\?\S*)",
-    r"((https://(www\.)?)?tiktok.com/\S*)",
-]
-combinedGalleryDl = "|".join(f"({p})" for p in galleryDl)
-             
+)             
 
 if __name__ == '__main__':
     TOKEN = os.environ.get("BOT_TOKEN")
@@ -77,8 +59,8 @@ if __name__ == '__main__':
     messageHandler = MessageHandler(filters.TEXT & (~filters.COMMAND), processMessage)
     
     # Inline Handlers
-    inlineVideoLinkHandler = InlineQueryHandler(processPostInline, pattern = combinedVideos)
-    inlineGalleryDlLinkHandler = InlineQueryHandler(processPostInline, pattern = combinedGalleryDl)
+    inlineVideoLinkHandler = InlineQueryHandler(processPostInline, pattern = patterns.combinedVideos)
+    inlineGalleryDlLinkHandler = InlineQueryHandler(processPostInline, pattern = patterns.combinedGalleryDl)
     chosenInlineResultHandler = ChosenInlineResultHandler(chosenInlineResult)
 
     # Adding handlers
