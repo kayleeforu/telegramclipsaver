@@ -10,19 +10,21 @@ from utilities.deleteOriginalMessage import deleteOriginalMessage
 import db
 import uuid
 import utilities.patterns as patterns
+import logging
 
 database = db.database()
 
 async def processMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.effective_message.text
+    logging.info(f"[processMessage] message: {message}")
     videoPostLink = re.search(patterns.combinedVideos, message)
-    instagramPostLink = re.search(patterns.combinedGalleryDl, message)
+    galleryDlLink = re.search(patterns.combinedGalleryDl, message)
     if videoPostLink:
         link = videoPostLink.group(0)
         linkType = "video"
-    elif instagramPostLink:
-        link = instagramPostLink.group(0)
-        linkType = "instagrampost"
+    elif galleryDlLink:
+        link = galleryDlLink.group(0)
+        linkType = "galleryDl"
     else:
         await otherMessage(update, context)
         return
@@ -221,7 +223,7 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
             if await databaseCheckMediaGroup(update, context, link, caption, repliesTo):
                 await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
                 return
-        elif linkType == "instagrampost":
+        elif linkType == "galleryDl":
             if await databaseCheckMediaGroup(update, context, link, caption, repliesTo):
                 await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
                 return
@@ -236,7 +238,7 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
                 await database.removeLink(link)
                 return
 
-        elif linkType == "instagrampost":
+        elif linkType == "galleryDl":
             result = await processInstagramPost(context, link)
             isMediaGroup = True
 
