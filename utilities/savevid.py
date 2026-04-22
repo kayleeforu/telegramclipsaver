@@ -52,7 +52,7 @@ def downloadVideo(url):
         "merge_output_format": "mp4",
         "cookiefile": "cookies.txt",
         "writethumbnail": True,
-        "js_runtimes": {"node": {}},
+        "js_runtimes": {"node": {"path": "/usr/bin/node"}},
         "extractor_args": {
             "youtube": {
                 "player_client": ["web", "web_safari"],
