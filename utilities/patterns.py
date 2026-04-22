@@ -26,5 +26,5 @@ def getLinkType(link):
         linkType = "video"
     elif instagramPostLink:
         link = instagramPostLink.group(0)
-        linkType = "instagrampost"
+        linkType = "galleryDl"
     return linkType, "tiktok" in link

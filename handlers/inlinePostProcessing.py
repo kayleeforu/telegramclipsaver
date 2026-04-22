@@ -236,7 +236,7 @@ async def processAndEdit(user, context, inlineMessageID, link):
             await database.addCount(userID)
             return
 
-        elif linkType == "instagrampost":
+        elif linkType == "galleryDl":
             await processInstagramPost(context, link)
             response = (await database.lookUpLink(link)).data
             if response:

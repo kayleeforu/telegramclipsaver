@@ -25,7 +25,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     parse_mode = "HTML")
                 return
 
-            await getLinkAnswer(update, context, link, "instagrampost")
+            await getLinkAnswer(update, context, link, "galleryDl")
             return
         
         if parameter.startswith("getSong_"):

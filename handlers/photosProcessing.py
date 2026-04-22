@@ -1,6 +1,8 @@
 from gallery_dl import config, job
 import os
 import asyncio
+import tempfile
+import shutil
 from glob import glob
 from telegram import InputMediaPhoto, InputMediaVideo
 from telegram.ext import ContextTypes
@@ -9,17 +11,6 @@ import ffmpeg
 
 database = db.database()
 
-SLIDESHOW_DIR = "tiktok-slideshow"
-INSTAGRAM_DIR = "instagram-downloads"
-
-os.makedirs(SLIDESHOW_DIR, exist_ok=True)
-os.makedirs(INSTAGRAM_DIR, exist_ok=True)
-
-
-def clearFolder(directory):
-    for file in glob(f"{directory}/**/*", recursive=True):
-        if os.path.isfile(file):
-            os.remove(file)
 
 def gifToMp4(gif_path):
     try:
@@ -38,120 +29,132 @@ def gifToMp4(gif_path):
         return None
 
 
-async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str, directory: str):
-    clearFolder(directory)
+def extractAudio(file_path):
+    """Synchronous audio extraction — runs in executor."""
+    try:
+        probe = ffmpeg.probe(file_path)
+        audio_streams = [s for s in probe.get("streams", []) if s.get("codec_type") == "audio"]
+        if not audio_streams:
+            return None
+        audio_path = file_path.rsplit(".", 1)[0] + ".mp3"
+        (
+            ffmpeg
+            .input(file_path)
+            .audio
+            .output(audio_path, acodec='libmp3lame')
+            .run(overwrite_output=True, quiet=True)
+        )
+        return audio_path
+    except Exception as e:
+        print(f"Probe/Audio extract error: {e}")
+        return None
+
+
+async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str):
+    tmp_dir = tempfile.mkdtemp()
+    loop = asyncio.get_event_loop()
 
     try:
         config.load()
         config.set(("extractor", "instagram"), "cookies", "cookiesInstagram.txt")
-        config.set(("extractor",), "base-directory", directory)
+        config.set(("extractor",), "base-directory", tmp_dir)
 
-        loop = asyncio.get_event_loop()
         await loop.run_in_executor(None, lambda: job.DownloadJob(link).run())
+
+        media_objects = []
+
+        for file in sorted(glob(f"{tmp_dir}/**/*", recursive=True)):
+            if not os.path.isfile(file):
+                continue
+
+            if file.endswith(".gif"):
+                file = await loop.run_in_executor(None, gifToMp4, file)
+                if not file:
+                    continue
+
+            if file.endswith(".mp4"):
+                audio_path = await loop.run_in_executor(None, extractAudio, file)
+                has_audio = audio_path is not None
+                audio_file_id = None
+
+                if has_audio:
+                    with open(audio_path, "rb") as af:
+                        msg_audio = await context.bot.send_audio(
+                            chat_id=-1003794009076,
+                            audio=af,
+                            title="Audio"
+                        )
+                    audio_file_id = msg_audio.audio.file_id
+
+                media_objects.append((file, "video", has_audio, audio_file_id))
+
+            elif file.endswith((".jpg", ".jpeg", ".png", ".webp")):
+                media_objects.append((file, "photo", False, None))
+
+        if not media_objects:
+            await database.removeLink(link)
+            return False
+
+        files = []
+
+        if len(media_objects) == 1:
+            file_path, m_type, has_audio, audio_file_id = media_objects[0]
+            with open(file_path, "rb") as f:
+                if m_type == "photo":
+                    msg = await context.bot.send_photo(chat_id=-1003794009076, photo=f)
+                    files.append((msg.photo[-1].file_id, False, None))
+                else:
+                    msg = await context.bot.send_video(
+                        chat_id=-1003794009076,
+                        video=f,
+                        supports_streaming=True
+                    )
+                    files.append((msg.video.file_id, has_audio, audio_file_id))
+
+        else:
+            media_group = []
+            for file_path, m_type, has_audio, audio_file_id in media_objects:
+                if m_type == "photo":
+                    media_group.append(InputMediaPhoto(open(file_path, "rb")))
+                else:
+                    media_group.append(InputMediaVideo(open(file_path, "rb"), supports_streaming=True))
+
+            msgs = []
+            for i in range(0, len(media_group), 10):
+                chunk = media_group[i:i + 10]
+                chunk_msgs = await context.bot.send_media_group(
+                    chat_id=-1003794009076,
+                    media=chunk
+                )
+                msgs.extend(chunk_msgs)
+                if i + 10 < len(media_group):
+                    await asyncio.sleep(5)
+
+            for index, msg in enumerate(msgs):
+                _, m_type, has_audio, audio_file_id = media_objects[index]
+                if msg.video:
+                    files.append((msg.video.file_id, has_audio, audio_file_id))
+                elif msg.photo:
+                    files.append((msg.photo[-1].file_id, False, None))
+                else:
+                    print(f"Warning: skipping message at index {index} — no video or photo found")
+
+        await database.insert(link, files)
+        return True
 
     except Exception as e:
         print(f"Download error: {e}")
         await database.removeLink(link)
         return False
 
-    media_objects = []
+    finally:
+        # Always clean up the temp dir, even on error
+        shutil.rmtree(tmp_dir, ignore_errors=True)
 
-    for file in sorted(glob(f"{directory}/**/*", recursive=True)):
-        if not os.path.isfile(file):
-            continue
-
-        if file.endswith(".gif"):
-            new_file = gifToMp4(file)
-            if not new_file:
-                continue
-            file = new_file
-
-        if file.endswith(".mp4"):
-            has_audio = False
-            audio_file_id = None
-            try:
-                probe = ffmpeg.probe(file)
-                audio_streams = [s for s in probe.get("streams", []) if s.get("codec_type") == "audio"]
-                if len(audio_streams) > 0:
-                    audio_path = file.rsplit(".", 1)[0] + ".mp3"
-                    (
-                        ffmpeg
-                        .input(file)
-                        .audio
-                        .output(audio_path, acodec='libmp3lame')
-                        .run(overwrite_output=True, quiet=True)
-                    )
-                    msg_audio = await context.bot.send_audio(
-                        chat_id=-1003794009076,
-                        audio=open(audio_path, "rb"),
-                        title="Audio"
-                    )
-                    audio_file_id = msg_audio.audio.file_id
-                    has_audio = True
-            except Exception as e:
-                print(f"Probe/Audio extract error: {e}")
-
-            media_objects.append((file, "video", has_audio, audio_file_id))
-
-        elif file.endswith((".jpg", ".jpeg", ".png", ".webp")):
-            media_objects.append((file, "photo", False, None))
-
-    if not media_objects:
-        await database.removeLink(link)
-        return False
-
-    files = []
-    if len(media_objects) == 1:
-        file_path, m_type, has_audio, audio_file_id = media_objects[0]
-        with open(file_path, "rb") as f:
-            if m_type == "photo":
-                msg = await context.bot.send_photo(chat_id=-1003794009076, photo=f)
-                files.append((msg.photo[-1].file_id, False, None))
-            else:
-                # Always send as video — GIFs are already converted to MP4 above,
-                # and send_animation can return msg.animation=None when Telegram
-                # reclassifies the file as a video, causing AttributeError.
-                msg = await context.bot.send_video(
-                    chat_id=-1003794009076,
-                    video=f,
-                    supports_streaming=True
-                )
-                files.append((msg.video.file_id, has_audio, audio_file_id))
-
-    else:
-        media_group = []
-        for file_path, m_type, has_audio, audio_file_id in media_objects:
-            if m_type == "photo":
-                media_group.append(InputMediaPhoto(open(file_path, "rb")))
-            else:
-                media_group.append(InputMediaVideo(open(file_path, "rb"), supports_streaming=True))
-
-        msgs = []
-        for i in range(0, len(media_group), 10):
-            chunk = media_group[i:i + 10]
-            chunk_msgs = await context.bot.send_media_group(
-                chat_id=-1003794009076,
-                media=chunk
-            )
-            msgs.extend(chunk_msgs)
-            if i + 10 < len(media_group):
-                await asyncio.sleep(5)
-
-        for index, msg in enumerate(msgs):
-            _, m_type, has_audio, audio_file_id = media_objects[index]
-            if msg.video:
-                files.append((msg.video.file_id, has_audio, audio_file_id))
-            elif msg.photo:
-                files.append((msg.photo[-1].file_id, False, None))
-            else:
-                print(f"Warning: skipping message at index {index} — no video or photo found")
-
-    clearFolder(directory)
-    await database.insert(link, files)
-    return True
 
 async def processTikTokSlideshow(context: ContextTypes.DEFAULT_TYPE, link: str):
-    return await downloadMediaGroup(context, link, SLIDESHOW_DIR)
+    return await downloadMediaGroup(context, link)
+
 
 async def processInstagramPost(context: ContextTypes.DEFAULT_TYPE, link: str):
-    return await downloadMediaGroup(context, link, INSTAGRAM_DIR)
+    return await downloadMediaGroup(context, link)
