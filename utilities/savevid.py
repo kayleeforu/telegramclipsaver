@@ -90,25 +90,30 @@ def downloadVideo(url):
     }
     try:
         with YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=False)
+            info = ydl.extract_info(url, download=True)
             duration = info.get("duration")
             height = info.get("height", 0)
             width = info.get("width", 0)
-            thumbnailpath = downloadThumbnail(info)
+            
             if duration:
                 if duration > 3600:
                     return "too_long", None, None, None, None, None
+            
             is_live = info.get("is_live")
             if is_live:
                 return None, None, None, None, None, None
-            info = ydl.extract_info(url, download=True)
+            
             filepath = ydl.prepare_filename(info)
             filepath = filepath.rsplit(".", 1)[0] + ".mp4"
+            
+            thumbnailpath = downloadThumbnail(info)
             converted_thumb = convertThumbnail(filepath)
             if converted_thumb:
                 thumbnailpath = converted_thumb
+            
             height = info.get("height", height)
             width = info.get("width", width)
+            
             probe = ffmpeg.probe(filepath)
             audio_streams = [
                 s for s in probe["streams"] if s["codec_type"] == "audio"
