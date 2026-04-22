@@ -64,10 +64,10 @@ def downloadVideo(url):
         "quiet": False,
         "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
         "format": (
-            "bestvideo[vcodec^=avc][height<=720]+bestaudio/"
-            "bestvideo[vcodec^=h264][height<=720]+bestaudio/"
-            "bestvideo[height<=720][ext=mp4]+bestaudio/"
-            "best[height<=720]/best"
+            "bestvideo[vcodec^=avc][height<=1080]+bestaudio/"
+            "bestvideo[vcodec^=h264][height<=1080]+bestaudio/"
+            "bestvideo[height<=1080][ext=mp4]+bestaudio/"
+            "best[height<=1080]/best"
         ),
         "merge_output_format": "mp4",
         "cookiefile": "cookies.txt",
@@ -79,11 +79,14 @@ def downloadVideo(url):
             }
         },
         "remote_components": {"ejs:github": {"path": solverPath}} if solverPath else {},
-        "concurrent_fragment_downloads": 12,
+        "concurrent_fragment_downloads": 16,
         "http_chunk_size": 1024 * 1024 * 10,
         "buffersize": 1024 * 64,
         "noplaylist": True,
         "hls_prefer_native": False,
+        "postprocessor_args": {
+            "ffmpeg": ["-crf", "18", "-preset", "slow"]
+        },
     }
     try:
         with YoutubeDL(ydl_opts) as ydl:
