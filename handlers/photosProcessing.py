@@ -10,6 +10,7 @@ import db
 import ffmpeg
 
 database = db.database()
+gallery_dl_lock = asyncio.Lock()
 
 
 def gifToMp4(gif_path):
@@ -30,7 +31,6 @@ def gifToMp4(gif_path):
 
 
 def extractAudio(file_path):
-    """Synchronous audio extraction — runs in executor."""
     try:
         probe = ffmpeg.probe(file_path)
         audio_streams = [s for s in probe.get("streams", []) if s.get("codec_type") == "audio"]
@@ -55,11 +55,17 @@ async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str):
     loop = asyncio.get_event_loop()
 
     try:
-        config.load()
-        config.set(("extractor", "instagram"), "cookies", "cookiesInstagram.txt")
-        config.set(("extractor",), "base-directory", tmp_dir)
-
-        await loop.run_in_executor(None, lambda: job.DownloadJob(link).run())
+        async with gallery_dl_lock:
+            try:
+                config.load()
+                config.set(("extractor", "instagram"), "cookies", "cookiesInstagram.txt")
+                config.set(("extractor",), "base-directory", tmp_dir)
+                await loop.run_in_executor(None, lambda: job.DownloadJob(link).run())
+            except Exception as e:
+                print(f"Download error: {e}")
+                await database.removeLink(link)
+                shutil.rmtree(tmp_dir, ignore_errors=True)
+                return False
 
         media_objects = []
 
@@ -143,12 +149,11 @@ async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str):
         return True
 
     except Exception as e:
-        print(f"Download error: {e}")
+        print(f"Unexpected error: {e}")
         await database.removeLink(link)
         return False
 
     finally:
-        # Always clean up the temp dir, even on error
         shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
