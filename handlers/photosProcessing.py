@@ -108,13 +108,16 @@ async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str, dire
                 msg = await context.bot.send_photo(chat_id=-1003794009076, photo=f)
                 files.append((msg.photo[-1].file_id, False, None))
             else:
-                if has_audio:
-                    msg = await context.bot.send_video(chat_id=-1003794009076, video=f, supports_streaming=True)
-                    files.append((msg.video.file_id, True, audio_file_id))
-                else:
-                    msg = await context.bot.send_animation(chat_id=-1003794009076, animation=f)
-                    files.append((msg.animation.file_id, False, None))
-    
+                # Always send as video — GIFs are already converted to MP4 above,
+                # and send_animation can return msg.animation=None when Telegram
+                # reclassifies the file as a video, causing AttributeError.
+                msg = await context.bot.send_video(
+                    chat_id=-1003794009076,
+                    video=f,
+                    supports_streaming=True
+                )
+                files.append((msg.video.file_id, has_audio, audio_file_id))
+
     else:
         media_group = []
         for file_path, m_type, has_audio, audio_file_id in media_objects:
@@ -122,7 +125,7 @@ async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str, dire
                 media_group.append(InputMediaPhoto(open(file_path, "rb")))
             else:
                 media_group.append(InputMediaVideo(open(file_path, "rb"), supports_streaming=True))
-        
+
         msgs = []
         for i in range(0, len(media_group), 10):
             chunk = media_group[i:i + 10]
@@ -133,13 +136,15 @@ async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str, dire
             msgs.extend(chunk_msgs)
             if i + 10 < len(media_group):
                 await asyncio.sleep(5)
-        
-        for index, entry in enumerate(msgs):
+
+        for index, msg in enumerate(msgs):
             _, m_type, has_audio, audio_file_id = media_objects[index]
-            if entry.video:
-                files.append((entry.video.file_id, has_audio, audio_file_id))
+            if msg.video:
+                files.append((msg.video.file_id, has_audio, audio_file_id))
+            elif msg.photo:
+                files.append((msg.photo[-1].file_id, False, None))
             else:
-                files.append((entry.photo[-1].file_id, False, None))
+                print(f"Warning: skipping message at index {index} — no video or photo found")
 
     clearFolder(directory)
     await database.insert(link, files)
