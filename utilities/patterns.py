@@ -1,6 +1,9 @@
 import re
 
 videoPost = [
+    r"((https://(www\.)?)?youtube\.com/watch(\S*))",
+    r"((https://(www\.)?)?youtu\.be/\S*)",
+    r"((https://(www\.)?)?youtube\.com/shorts/\S*)",
 ]
 combinedVideos = "|".join(f"({p})" for p in videoPost)
 
@@ -12,9 +15,6 @@ galleryDl = [
     r"((https://)?v.\.tiktok\.com/\S*)",
     r"((https://(www\.)?)?tiktok.com/@(.*)/(\d{19})\?\S*)",
     r"((https://(www\.)?)?tiktok.com/\S*)",
-    r"((https://(www\.)?)?youtube\.com/watch(\S*))",
-    r"((https://(www\.)?)?youtu\.be/\S*)",
-    r"((https://(www\.)?)?youtube\.com/shorts/\S*)",
 ]
 combinedGalleryDl = "|".join(f"({p})" for p in galleryDl)
 
