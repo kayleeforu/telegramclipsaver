@@ -146,30 +146,26 @@ async def sendTypingWhileWorking(context, chat_id, stop_event, linkType):
         await asyncio.sleep(4)
 
 async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link, linkType):
-    response = await database.lookUpLink(link)
-    if response.data and response.data[0]["file_ids"][0] == "processing":
-        processing_msg = await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text="<tg-emoji emoji-id='5447389837076231920'>⏳</tg-emoji> The link is already being processed.",
-            parse_mode="HTML",
-        )
-        await asyncio.sleep(5)
-        await context.bot.delete_message(
-            chat_id=update.effective_chat.id,
-            message_id=processing_msg.message_id
-        )
-        return
+    inserted = await database.insertProcessingIfNotExists(link)
 
-    stop_event = asyncio.Event()
-    typing_task = asyncio.create_task(
-        sendTypingWhileWorking(context, update.effective_chat.id, stop_event, linkType)
-    )
-    await asyncio.sleep(0)
+    if not inserted:
+        response = await database.lookUpLink(link)
+        if response.data and response.data[0]["file_ids"][0] == "processing":
+            processing_msg = await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text="<tg-emoji emoji-id='5447389837076231920'>⏳</tg-emoji> The link is already being processed.",
+                parse_mode="HTML",
+            )
+            await asyncio.sleep(5)
+            await context.bot.delete_message(
+                chat_id=update.effective_chat.id,
+                message_id=processing_msg.message_id
+            )
+            return
 
     user = update.effective_user
     if user is None:
-        stop_event.set()
-        await typing_task
+        await database.removeLink(link)
         return
     userID = user.id
 
@@ -180,7 +176,6 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
 
     isGroupChat = update.effective_chat.type in ["group", "supergroup"]
     hasUserName = False
-
     if isGroupChat:
         if update.effective_sender.username:
             requestedBy = "@" + update.effective_sender.username
@@ -194,7 +189,7 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
     requestedMessage = update.effective_message.id if isGroupChat else None
     isRussian = user and user.language_code == "ru"
 
-    caption = f"<tg-emoji emoji-id='5447471097857473538'>📎</tg-emoji> "
+    caption = "<tg-emoji emoji-id='5447471097857473538'>📎</tg-emoji> "
     if isRussian:
         if isGroupChat:
             if hasUserName:
@@ -215,29 +210,36 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
 
     repliesTo = update.effective_message.reply_to_message.id if update.effective_message.reply_to_message else None
 
-    try:
-        if linkType == "video":
-            if await databaseCheck(update, context, link, caption, repliesTo):
-                await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
-                return
-            if await databaseCheckMediaGroup(update, context, link, caption, repliesTo):
-                await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
-                return
-        elif linkType == "galleryDl":
-            if await databaseCheckMediaGroup(update, context, link, caption, repliesTo):
-                await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
-                return
+    stop_event = asyncio.Event()
+    typing_task = asyncio.create_task(
+        sendTypingWhileWorking(context, update.effective_chat.id, stop_event, linkType)
+    )
+    await asyncio.sleep(0)
 
-        await database.insert(link, ("processing", False))
+    try:
+        if not inserted:
+            if linkType == "video":
+                if await databaseCheck(update, context, link, caption, repliesTo):
+                    await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
+                    await database.addCount(userID)
+                    return
+                if await databaseCheckMediaGroup(update, context, link, caption, repliesTo):
+                    await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
+                    await database.addCount(userID)
+                    return
+            elif linkType == "galleryDl":
+                if await databaseCheckMediaGroup(update, context, link, caption, repliesTo):
+                    await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
+                    await database.addCount(userID)
+                    return
+            return
 
         isMediaGroup = False
         if linkType == "video":
             result = await processLink(update, context, link)
-
             if result is None:
                 await database.removeLink(link)
                 return
-
         elif linkType == "galleryDl":
             result = await processInstagramPost(context, link)
             isMediaGroup = True
@@ -246,17 +248,14 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
             await databaseCheckMediaGroup(update, context, link, caption, repliesTo)
             await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
             await database.addCount(userID)
-            return
         elif result and not isMediaGroup:
             await databaseCheck(update, context, link, caption, repliesTo)
             await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
             await database.addCount(userID)
-            return
         elif result and isMediaGroup:
             await databaseCheckMediaGroup(update, context, link, caption, repliesTo)
             await deleteOriginalMessage(update, context, requestedMessage, requestedBy)
             await database.addCount(userID)
-            return
         else:
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
@@ -264,7 +263,6 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
                 parse_mode="HTML"
             )
             await database.removeLink(link)
-            return
     finally:
         stop_event.set()
         await typing_task

@@ -88,3 +88,17 @@ class database:
             "id": userID,
             "count": count + 1
         }).execute()
+    
+    async def insertProcessingIfNotExists(self, link):
+        db = self.getClient()
+        result = db.table("savedVideos").upsert(
+            {
+                "link": link,
+                "file_ids": ["processing"],
+                "has_audio": [False],
+                "audioFile_ids": [None]
+            },
+            on_conflict="link",
+            ignore_duplicates=True
+        ).execute()
+        return len(result.data) > 0
