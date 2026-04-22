@@ -13,6 +13,7 @@ database = db.database()
 
 async def processLink(update: Update, context: ContextTypes.DEFAULT_TYPE, link):
     isTiktok = "tiktok" in link
+    logging.info(f"[processLink] link: {link}")
 
     def runDownload():
         return downloadVideo(link)
