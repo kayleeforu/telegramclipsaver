@@ -58,7 +58,7 @@ def downloadVideo(url):
                 "player_client": ["web", "web_safari"],
             }
         },
-        "remote_components": ["ejs:github"],
+        "remote_components": {"ejs:github": {"path": "resources/yt.solver.lib.min.js"}},
         "concurrent_fragment_downloads": 12,
         "http_chunk_size": 1024 * 1024 * 10,
         "buffersize": 1024 * 64,
