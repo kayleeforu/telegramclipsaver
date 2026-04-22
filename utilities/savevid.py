@@ -72,7 +72,8 @@ def downloadVideo(url):
         "merge_output_format": "mp4",
         "cookiefile": "cookies.txt",
         "writethumbnail": True,
-        "js_runtimes": {"node": {"path": "/usr/bin/node"}},
+        "cache_dir": "yt_dlp_cache",
+        "js_runtimes": {"bun": {"path": "/root/.bun/bin/bun"}},
         "extractor_args": {
             "youtube": {
                 "player_client": ["web", "web_safari"],
