@@ -73,7 +73,7 @@ def downloadVideo(url):
         "cookiefile": "cookies.txt",
         "writethumbnail": True,
         "cache_dir": "yt_dlp_cache",
-        "js_runtimes": {"bun": {"path": "/root/.bun/bin/bun"}},
+        "js_runtimes": {"node": {"path": "/usr/bin/node"}},
         "extractor_args": {
             "youtube": {
                 "player_client": ["web", "web_safari"],
