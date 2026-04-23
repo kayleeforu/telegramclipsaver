@@ -1,7 +1,8 @@
-![Python](https://img.shields.io/badge/Made%20with-Python-blue?style=flat&logo=python) ![Telegram](https://img.shields.io/badge/Made%20for-Telegram-26A5E0?style=flat&logo=telegram) ![Supabase](https://img.shields.io/badge/Database-Supabase-3ECF8E?style=flat&logo=supabase) ![Status](https://img.shields.io/badge/Status-Active-brightgreen?style=flat)
-# Telegram Bot that downloads media from links
+<span align="center"><img src="https://img.shields.io/badge/Made%20with-Python-blue?style=flat&logo=python" alt="Python"> <img src="https://img.shields.io/badge/Made%20for-Telegram-26A5E0?style=flat&logo=telegram" alt="Telegram"> <img src="https://img.shields.io/badge/Database-Supabase-3ECF8E?style=flat&logo=supabase" alt="Supabase"> <img src="https://img.shields.io/badge/Status-Active-brightgreen?style=flat" alt="Status"></span>
+
+<h1 align="center"> Telegram Bot that downloads media from links</h1>
 <p align="center">
-  <img src="resources/botInline.gif" width="600">
+  <img src="resources/botInline.gif" width="800">
 </p>
 
 This is my first big project that I built. Previously, I was only doing university works, but this is the bot that I can be proud of.
