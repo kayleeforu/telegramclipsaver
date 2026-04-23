@@ -42,14 +42,17 @@ def convertThumbnail(filepath):
             return jpg_path
     return None
 
-def downloadThumbnail(info):
+# tmp_dir is now a parameter with a safe default fallback.
+# downloadVideo passes it here so the thumbnail lands in the same
+# temporary directory as the video, and gets cleaned up together.
+def downloadThumbnail(info, tmp_dir="downloadedVideos"):
     try:
         thumbnails = info.get("thumbnails")
         videoID = info.get("id")
         if not thumbnails or not videoID:
             return None
         thumb_url = thumbnails[-1]["url"]
-        thumb_path = f"downloadedVideos/video{videoID}_thumb.jpg"
+        thumb_path = f"{tmp_dir}/video{videoID}_thumb.jpg"
         r = requests.get(thumb_url, timeout=10)
         with open(thumb_path, "wb") as f:
             f.write(r.content)
@@ -57,12 +60,18 @@ def downloadThumbnail(info):
     except Exception:
         return None
 
-def downloadVideo(url):
+# tmp_dir defaults to "downloadedVideos" so existing call-sites that
+# don't pass it yet continue to work without changes.
+def downloadVideo(url, tmp_dir="downloadedVideos"):
     solverPath = ensureSolverScript()
     
+    # outtmpl now writes into tmp_dir instead of the hardcoded folder.
+    # This means every file produced by yt-dlp (video + thumbnail) ends
+    # up inside the temporary directory that linkProcessing.py creates
+    # and cleans up via shutil.rmtree in its finally block.
     ydl_opts = {
         "quiet": False,
-        "outtmpl": "downloadedVideos/video%(id)s.%(ext)s",
+        "outtmpl": f"{tmp_dir}/video%(id)s.%(ext)s",
         "format": (
             "bestvideo[vcodec^=avc][height<=1080]+bestaudio/"
             "bestvideo[vcodec^=h264][height<=1080]+bestaudio/"
@@ -107,7 +116,8 @@ def downloadVideo(url):
             filepath = ydl.prepare_filename(info)
             filepath = filepath.rsplit(".", 1)[0] + ".mp4"
             
-            thumbnailpath = downloadThumbnail(info)
+            # Pass tmp_dir so the thumbnail is saved alongside the video.
+            thumbnailpath = downloadThumbnail(info, tmp_dir)
             converted_thumb = convertThumbnail(filepath)
             if converted_thumb:
                 thumbnailpath = converted_thumb
