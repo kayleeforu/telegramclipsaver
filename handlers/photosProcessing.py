@@ -8,11 +8,10 @@ from telegram import InputMediaPhoto, InputMediaVideo
 from telegram.ext import ContextTypes
 import db
 import ffmpeg
-import httpx
-import re
 
 database = db.database()
 gallery_dl_lock = asyncio.Lock()
+
 
 def gifToMp4(gif_path):
     try:
@@ -65,143 +64,23 @@ def extractAudio(file_path):
         print(f"Probe/Audio extract error: {e}")
         return None
 
-SNAPINSTA_HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/124.0.0.0 Safari/537.36"
-    ),
-    "Accept-Language": "en-US,en;q=0.9",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-}
-
-
-async def fetchSnapinstaToken(client: httpx.AsyncClient) -> tuple[str, dict]:
-    response = await client.get(
-        "https://snapinsta.app/",
-        headers=SNAPINSTA_HEADERS,
-        follow_redirects=True,
-    )
-    response.raise_for_status()
-    match = re.search(
-        r'<input[^>]+name=["\']token["\'][^>]+value=["\']([^"\']+)["\']',
-        response.text
-    )
-    if not match:
-        match = re.search(
-            r'<input[^>]+value=["\']([^"\']+)["\'][^>]+name=["\']token["\']',
-            response.text
-        )
-
-    if not match:
-        raise ValueError("Could not find CSRF token on snapinsta.app page")
-
-    token = match.group(1)
-    cookies = dict(response.cookies)
-
-    return token, cookies
-
-
-async def fetchSnapinstaLinks(client: httpx.AsyncClient, instagram_url: str) -> list[str]:
-    token, cookies = await fetchSnapinstaToken(client)
-
-    form_data = {
-        "url": instagram_url,
-        "token": token,
-    }
-    post_headers = {
-        **SNAPINSTA_HEADERS,
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Referer": "https://snapinsta.app/",
-        "Origin": "https://snapinsta.app",
-        "X-Requested-With": "XMLHttpRequest",
-    }
-
-    response = await client.post(
-        "https://snapinsta.app/action.php",
-        data=form_data,
-        headers=post_headers,
-        cookies=cookies,
-        follow_redirects=True,
-    )
-    response.raise_for_status()
-
-    cdn_links = re.findall(
-        r'href=["\']((https?://[^"\']*(?:cdninstagram\.com|fbcdn\.net)[^"\']*?))["\']',
-        response.text
-    )
-
-    links = [match[0] for match in cdn_links if match[0]]
-
-    seen = set()
-    unique_links = []
-    for link in links:
-        if link not in seen:
-            seen.add(link)
-            unique_links.append(link)
-
-    return unique_links
-
-
-async def downloadInstagramWithSnapinsta(link: str, tmp_dir: str) -> list[str]:
-    async with httpx.AsyncClient(timeout=30) as client:
-
-        print(f"[snapinsta] Fetching CDN links for: {link}")
-        cdn_links = await fetchSnapinstaLinks(client, link)
-
-        if not cdn_links:
-            raise ValueError(f"snapinsta returned no download links for: {link}")
-
-        print(f"[snapinsta] Found {len(cdn_links)} media item(s)")
-
-        downloaded = []
-
-        for idx, cdn_url in enumerate(cdn_links):
-            url_path = cdn_url.split("?")[0]
-            ext = os.path.splitext(url_path)[1].lower()
-
-            if ext not in (".mp4", ".jpg", ".jpeg", ".png", ".webp"):
-                ext = ".mp4"
-
-            dest_path = os.path.join(tmp_dir, f"media_{idx:03d}{ext}")
-            async with client.stream("GET", cdn_url, headers=SNAPINSTA_HEADERS) as stream:
-                stream.raise_for_status()
-                with open(dest_path, "wb") as f:
-                    async for chunk in stream.aiter_bytes(chunk_size=8192):
-                        f.write(chunk)
-
-            print(f"[snapinsta] Downloaded: {dest_path}")
-            downloaded.append(dest_path)
-
-    return sorted(downloaded)
 
 async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str):
     tmp_dir = tempfile.mkdtemp()
     loop = asyncio.get_event_loop()
 
     try:
-        is_instagram = "instagram.com" in link
-
-        if is_instagram:
+        async with gallery_dl_lock:
             try:
-                await downloadInstagramWithSnapinsta(link, tmp_dir)
+                config.load()
+                config.set(("extractor", "instagram"), "cookies", "cookiesInstagram.txt")
+                config.set(("extractor",), "base-directory", tmp_dir)
+                await loop.run_in_executor(None, lambda: job.DownloadJob(link).run())
             except Exception as e:
-                print(f"[snapinsta] Download failed: {e}")
+                print(f"Download error: {e}")
                 await database.removeLink(link)
                 shutil.rmtree(tmp_dir, ignore_errors=True)
                 return False
-
-        else:
-            async with gallery_dl_lock:
-                try:
-                    config.load()
-                    config.set(("extractor",), "base-directory", tmp_dir)
-                    await loop.run_in_executor(None, lambda: job.DownloadJob(link).run())
-                except Exception as e:
-                    print(f"Download error: {e}")
-                    await database.removeLink(link)
-                    shutil.rmtree(tmp_dir, ignore_errors=True)
-                    return False
 
         media_objects = []
 
