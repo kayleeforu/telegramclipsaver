@@ -42,9 +42,6 @@ def convertThumbnail(filepath):
             return jpg_path
     return None
 
-# tmp_dir is now a parameter with a safe default fallback.
-# downloadVideo passes it here so the thumbnail lands in the same
-# temporary directory as the video, and gets cleaned up together.
 def downloadThumbnail(info, tmp_dir="downloadedVideos"):
     try:
         thumbnails = info.get("thumbnails")
@@ -60,15 +57,8 @@ def downloadThumbnail(info, tmp_dir="downloadedVideos"):
     except Exception:
         return None
 
-# tmp_dir defaults to "downloadedVideos" so existing call-sites that
-# don't pass it yet continue to work without changes.
 def downloadVideo(url, tmp_dir="downloadedVideos"):
     solverPath = ensureSolverScript()
-    
-    # outtmpl now writes into tmp_dir instead of the hardcoded folder.
-    # This means every file produced by yt-dlp (video + thumbnail) ends
-    # up inside the temporary directory that linkProcessing.py creates
-    # and cleans up via shutil.rmtree in its finally block.
     ydl_opts = {
         "quiet": False,
         "outtmpl": f"{tmp_dir}/video%(id)s.%(ext)s",
