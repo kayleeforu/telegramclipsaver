@@ -78,7 +78,7 @@ SNAPINSTA_HEADERS = {
 
 async def fetchSnapinstaToken(client: httpx.AsyncClient) -> tuple[str, dict]:
     response = await client.get(
-        "https://snapinsta.app/",
+        "https://snapinsta.to/",
         headers=SNAPINSTA_HEADERS,
         follow_redirects=True,
     )
@@ -94,7 +94,7 @@ async def fetchSnapinstaToken(client: httpx.AsyncClient) -> tuple[str, dict]:
         )
 
     if not match:
-        raise ValueError("Could not find CSRF token on snapinsta.app page")
+        raise ValueError("Could not find CSRF token on snapinsta.to page")
 
     token = match.group(1)
     cookies = dict(response.cookies)
@@ -112,13 +112,13 @@ async def fetchSnapinstaLinks(client: httpx.AsyncClient, instagram_url: str) -> 
     post_headers = {
         **SNAPINSTA_HEADERS,
         "Content-Type": "application/x-www-form-urlencoded",
-        "Referer": "https://snapinsta.app/",
-        "Origin": "https://snapinsta.app",
+        "Referer": "https://snapinsta.to/",
+        "Origin": "https://snapinsta.to",
         "X-Requested-With": "XMLHttpRequest",
     }
 
     response = await client.post(
-        "https://snapinsta.app/action.php",
+        "https://snapinsta.to/action.php",
         data=form_data,
         headers=post_headers,
         cookies=cookies,
