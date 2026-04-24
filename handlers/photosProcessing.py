@@ -14,6 +14,7 @@ import re
 database = db.database()
 gallery_dl_lock = asyncio.Lock()
 
+
 def gifToMp4(gif_path):
     try:
         mp4path = gif_path.rsplit(".", 1)[0] + ".mp4"
@@ -65,6 +66,7 @@ def extractAudio(file_path):
         print(f"Probe/Audio extract error: {e}")
         return None
 
+
 SNAPINSTA_HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -76,39 +78,7 @@ SNAPINSTA_HEADERS = {
 }
 
 
-async def fetchSnapinstaToken(client: httpx.AsyncClient) -> tuple[str, dict]:
-    response = await client.get(
-        "https://snapinsta.to/",
-        headers=SNAPINSTA_HEADERS,
-        follow_redirects=True,
-    )
-    response.raise_for_status()
-    match = re.search(
-        r'<input[^>]+name=["\']token["\'][^>]+value=["\']([^"\']+)["\']',
-        response.text
-    )
-    if not match:
-        match = re.search(
-            r'<input[^>]+value=["\']([^"\']+)["\'][^>]+name=["\']token["\']',
-            response.text
-        )
-
-    if not match:
-        raise ValueError("Could not find CSRF token on snapinsta.to page")
-
-    token = match.group(1)
-    cookies = dict(response.cookies)
-
-    return token, cookies
-
-
 async def fetchSnapinstaLinks(client: httpx.AsyncClient, instagram_url: str) -> list[str]:
-    token, cookies = await fetchSnapinstaToken(client)
-
-    form_data = {
-        "url": instagram_url,
-        "token": token,
-    }
     post_headers = {
         **SNAPINSTA_HEADERS,
         "Content-Type": "application/x-www-form-urlencoded",
@@ -119,12 +89,14 @@ async def fetchSnapinstaLinks(client: httpx.AsyncClient, instagram_url: str) -> 
 
     response = await client.post(
         "https://snapinsta.to/action.php",
-        data=form_data,
+        data={"q": instagram_url},
         headers=post_headers,
-        cookies=cookies,
         follow_redirects=True,
     )
     response.raise_for_status()
+
+    print(f"[snapinsta] action.php status: {response.status_code}")
+    print(f"[snapinsta] action.php response: {response.text[:500]}")
 
     cdn_links = re.findall(
         r'href=["\']((https?://[^"\']*(?:cdninstagram\.com|fbcdn\.net)[^"\']*?))["\']',
@@ -145,7 +117,6 @@ async def fetchSnapinstaLinks(client: httpx.AsyncClient, instagram_url: str) -> 
 
 async def downloadInstagramWithSnapinsta(link: str, tmp_dir: str) -> list[str]:
     async with httpx.AsyncClient(timeout=30) as client:
-
         print(f"[snapinsta] Fetching CDN links for: {link}")
         cdn_links = await fetchSnapinstaLinks(client, link)
 
@@ -164,6 +135,7 @@ async def downloadInstagramWithSnapinsta(link: str, tmp_dir: str) -> list[str]:
                 ext = ".mp4"
 
             dest_path = os.path.join(tmp_dir, f"media_{idx:03d}{ext}")
+
             async with client.stream("GET", cdn_url, headers=SNAPINSTA_HEADERS) as stream:
                 stream.raise_for_status()
                 with open(dest_path, "wb") as f:
@@ -174,6 +146,7 @@ async def downloadInstagramWithSnapinsta(link: str, tmp_dir: str) -> list[str]:
             downloaded.append(dest_path)
 
     return sorted(downloaded)
+
 
 async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str):
     tmp_dir = tempfile.mkdtemp()
