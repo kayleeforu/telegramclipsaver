@@ -19,16 +19,18 @@ async def processMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info(f"[processMessage] message: {message}")
     videoPostLink = re.search(patterns.combinedVideos, message)
     galleryDlLink = re.search(patterns.combinedGalleryDl, message)
+    
     instagramLink = re.search(r"((https://(www\.))?instagram\.com/p/(.*)/\S*)|((https://(www\.)?)?instagram\.com/reel/\S*)", message)
+    if instagramLink:
+        await instagramTempDisabled(update, context)
+        return
+    
     if videoPostLink:
         link = videoPostLink.group(0)
         linkType = "video"
     elif galleryDlLink:
         link = galleryDlLink.group(0)
         linkType = "galleryDl"
-    elif instagramLink:
-        await instagramTempDisabled(update, context)
-        return
     else:
         await otherMessage(update, context)
         return
