@@ -28,6 +28,7 @@ async def processMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
         linkType = "galleryDl"
     elif instagramLink:
         await instagramTempDisabled(update, context)
+        return
     else:
         await otherMessage(update, context)
         return
