@@ -8,6 +8,8 @@ videoPost = [
 combinedVideos = "|".join(f"({p})" for p in videoPost)
 
 galleryDl = [
+    r"((https://(www\.))?instagram\.com/p/(.*)/\S*)",
+    r"((https://(www\.)?)?instagram\.com/reel/\S*)",
     r"((https://(www\.)?)?pin\..{2}/\S*)",
     r"((https://(www\.)?)?pinterest\.com/pin/\S*)",
     r"((https://)?v.\.tiktok\.com/\S*)",

@@ -26,9 +26,9 @@ async def processMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif galleryDlLink:
         link = galleryDlLink.group(0)
         linkType = "galleryDl"
-    elif instagramLink:
-        await instagramTempDisabled(update, context)
-        return
+    # elif instagramLink:
+    #     await instagramTempDisabled(update, context)
+    #     return
     else:
         await otherMessage(update, context)
         return
