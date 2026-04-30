@@ -60,3 +60,14 @@ async def otherMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
         chat_id = update.effective_chat.id,
         text = text
     )
+
+async def instagramTempDisabled(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    isGroupChat = update.effective_chat.type in ["group", "supergroup"]
+    if not isGroupChat:
+        return
+    
+    context.bot.send_message(
+        chat_id = update.effective_chat.id,
+        text = "<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji>Sorry, Instagram is currently not supported.",
+        parse_mode = "HTML"
+    )
