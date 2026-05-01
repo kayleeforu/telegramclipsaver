@@ -8,50 +8,9 @@ from telegram import InputMediaPhoto, InputMediaVideo
 from telegram.ext import ContextTypes
 import db
 import ffmpeg
-import logging
-from utilities.savevid import downloadVideo as ytdlpDownloadVideo
 
 database = db.database()
 gallery_dl_lock = asyncio.Lock()
-
-
-def needsReencode(file_path):
-    try:
-        probe = ffmpeg.probe(file_path)
-        video_streams = [s for s in probe["streams"] if s.get("codec_type") == "video"]
-        if not video_streams:
-            return True
-        vcodec = video_streams[0].get("codec_name", "")
-        pix_fmt = video_streams[0].get("pix_fmt", "")
-        return not (vcodec == "h264" and pix_fmt == "yuv420p")
-    except Exception as e:
-        logging.warning(f"needsReencode probe failed for {file_path}: {e} — will re-encode")
-        return True
-
-
-def reencodeVideo(input_path):
-    try:
-        output_path = input_path.rsplit(".", 1)[0] + "_reenc.mp4"
-        (
-            ffmpeg
-            .input(input_path)
-            .output(
-                output_path,
-                vcodec='libx264',
-                acodec='aac',
-                pix_fmt='yuv420p',
-                movflags='faststart',
-                crf=24,
-                preset='fast'
-            )
-            .run(overwrite_output=True, quiet=True)
-        )
-        if os.path.exists(input_path):
-            os.remove(input_path)
-        return output_path
-    except Exception as e:
-        logging.error(f"Re-encode error: {e}")
-        return input_path
 
 
 def gifToMp4(gif_path):
@@ -67,7 +26,7 @@ def gifToMp4(gif_path):
             os.remove(gif_path)
         return mp4path
     except Exception as e:
-        logging.error(f"GIF to MP4 error: {e}")
+        print(f"Error converting GIF to MP4: {e}")
         return None
 
 
@@ -82,7 +41,7 @@ def extractThumbnail(video_path):
         )
         return thumb_path if os.path.exists(thumb_path) else None
     except Exception as e:
-        logging.error(f"Thumbnail extraction error: {e}")
+        print(f"Thumbnail extraction error: {e}")
         return None
 
 
@@ -102,7 +61,7 @@ def extractAudio(file_path):
         )
         return audio_path
     except Exception as e:
-        logging.error(f"Audio extraction error: {e}")
+        print(f"Probe/Audio extract error: {e}")
         return None
 
 
@@ -118,13 +77,12 @@ async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str):
                 config.set(("extractor",), "base-directory", tmp_dir)
                 await loop.run_in_executor(None, lambda: job.DownloadJob(link).run())
             except Exception as e:
-                logging.error(f"gallery-dl download error: {e}")
+                print(f"Download error: {e}")
                 await database.removeLink(link)
                 shutil.rmtree(tmp_dir, ignore_errors=True)
                 return False
 
         media_objects = []
-        found_missing_audio = False
 
         for file in sorted(glob(f"{tmp_dir}/**/*", recursive=True)):
             if not os.path.isfile(file):
@@ -136,20 +94,10 @@ async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str):
                     continue
 
             if file.endswith(".mp4"):
-                should_reencode = await loop.run_in_executor(None, needsReencode, file)
-                if should_reencode:
-                    logging.info(f"Re-encoding {os.path.basename(file)}")
-                    file = await loop.run_in_executor(None, reencodeVideo, file)
-
                 audio_path, thumb_path = await asyncio.gather(
                     loop.run_in_executor(None, extractAudio, file),
                     loop.run_in_executor(None, extractThumbnail, file),
                 )
-
-                if audio_path is None:
-                    logging.warning(f"No audio found in gallery-dl result for {link}")
-                    found_missing_audio = True
-
                 has_audio = audio_path is not None
                 audio_file_id = None
 
@@ -166,35 +114,6 @@ async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str):
 
             elif file.endswith((".jpg", ".jpeg", ".png", ".webp")):
                 media_objects.append((file, "photo", False, None, None))
-
-        if found_missing_audio:
-            logging.info(f"Falling back to yt-dlp for {link}")
-
-            media_objects = []
-
-            yt_filepath, yt_hasAudio, yt_audioPath, yt_thumb, _, _ = \
-                await loop.run_in_executor(None, lambda: ytdlpDownloadVideo(link))
-
-            if not yt_filepath:
-                logging.error(f"yt-dlp fallback failed entirely for {link}")
-                await database.removeLink(link)
-                return False
-
-            should_reencode = await loop.run_in_executor(None, needsReencode, yt_filepath)
-            if should_reencode:
-                logging.info(f"Re-encoding yt-dlp result for {link}")
-                yt_filepath = await loop.run_in_executor(None, reencodeVideo, yt_filepath)
-
-            yt_audio_file_id = None
-            if yt_hasAudio and yt_audioPath:
-                with open(yt_audioPath, "rb") as af:
-                    msg_audio = await context.bot.send_audio(
-                        chat_id=-1003794009076,
-                        audio=af,
-                        title="Audio"
-                    )
-                yt_audio_file_id = msg_audio.audio.file_id
-            media_objects.append((yt_filepath, "video", yt_hasAudio, yt_audio_file_id, yt_thumb))
 
         if not media_objects:
             await database.removeLink(link)
@@ -263,13 +182,13 @@ async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str):
                 elif msg.photo:
                     files.append((msg.photo[-1].file_id, False, None))
                 else:
-                    logging.warning(f"Skipping message at index {index} — no video or photo")
+                    print(f"Warning: skipping message at index {index} — no video or photo found")
 
         await database.insert(link, files)
         return True
 
     except Exception as e:
-        logging.error(f"Unexpected error: {e}")
+        print(f"Unexpected error: {e}")
         await database.removeLink(link)
         return False
 
