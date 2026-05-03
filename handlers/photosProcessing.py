@@ -38,20 +38,28 @@ def reencodeIfNeeded(video_path):
             return video_path
 
         codec = video_streams[0].get("codec_name", "")
-        if codec == "h264":
-            return video_path
+        out_path = video_path.rsplit(".", 1)[0] + "_out.mp4"
 
-        print(f"Re-encoding from {codec} to H.264...")
-        reenc_path = video_path.rsplit(".", 1)[0] + "_reenc.mp4"
-        (
-            ffmpeg
-            .input(video_path)
-            .output(reenc_path, vcodec="libx264", pix_fmt="yuv420p", acodec="aac")
-            .run(overwrite_output=True, quiet=True)
-        )
+        if codec == "h264":
+            (
+                ffmpeg
+                .input(video_path)
+                .output(out_path, vcodec="copy", acodec="copy", movflags="+faststart")
+                .run(overwrite_output=True, quiet=True)
+            )
+        else:
+            print(f"Re-encoding from {codec} to H.264...")
+            (
+                ffmpeg
+                .input(video_path)
+                .output(out_path, vcodec="libx264", pix_fmt="yuv420p", acodec="aac", movflags="+faststart")
+                .run(overwrite_output=True, quiet=True)
+            )
+
         if os.path.exists(video_path):
             os.remove(video_path)
-        return reenc_path
+        return out_path
+
     except Exception as e:
         print(f"Re-encode error: {e}")
         return video_path
