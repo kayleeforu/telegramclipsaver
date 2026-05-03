@@ -59,7 +59,7 @@ def reencodeIfNeeded(video_path):
             (
                 ffmpeg
                 .input(video_path)
-                .output(out_path, vcodec="libx264", pix_fmt="yuv420p", acodec="aac", movflags="+faststart")
+                .output(out_path, vcodec="libx264", pix_fmt="yuv420p", acodec="aac", movflags="+faststart", preset="ultrafast", crf="28")
                 .run(overwrite_output=True, quiet=True)
             )
 
