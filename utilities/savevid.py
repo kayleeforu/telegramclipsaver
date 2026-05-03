@@ -92,7 +92,7 @@ def downloadVideo(url, tmp_dir="downloadedVideos"):
     try:
         with YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
-            logging.info("codec: {info.get("codec")}")
+            logging.info(f"codec: {info.get('vcodec')}")
             duration = info.get("duration")
             height = info.get("height", 0)
             width = info.get("width", 0)
