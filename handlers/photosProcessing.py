@@ -136,7 +136,11 @@ async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str):
                 shutil.rmtree(tmp_dir, ignore_errors=True)
                 return False
 
-        files_found = sorted(glob(f"{tmp_dir}/**/*", recursive=True))
+        files_found = []
+        for root, dirs, files in os.walk(tmp_dir):
+            for f in files:
+                files_found.append(os.path.join(root, f))
+        files_found.sort()
         logging.info(f"[downloadMediaGroup] Files found after download: {files_found}")
 
         media_objects = []
