@@ -30,6 +30,33 @@ def gifToMp4(gif_path):
         return None
 
 
+def reencodeIfNeeded(video_path):
+    try:
+        probe = ffmpeg.probe(video_path)
+        video_streams = [s for s in probe["streams"] if s.get("codec_type") == "video"]
+        if not video_streams:
+            return video_path
+
+        codec = video_streams[0].get("codec_name", "")
+        if codec == "h264":
+            return video_path
+
+        print(f"Re-encoding from {codec} to H.264...")
+        reenc_path = video_path.rsplit(".", 1)[0] + "_reenc.mp4"
+        (
+            ffmpeg
+            .input(video_path)
+            .output(reenc_path, vcodec="libx264", pix_fmt="yuv420p", acodec="aac")
+            .run(overwrite_output=True, quiet=True)
+        )
+        if os.path.exists(video_path):
+            os.remove(video_path)
+        return reenc_path
+    except Exception as e:
+        print(f"Re-encode error: {e}")
+        return video_path
+
+
 def extractThumbnail(video_path):
     try:
         thumb_path = video_path.rsplit(".", 1)[0] + "_thumb.jpg"
@@ -94,6 +121,7 @@ async def downloadMediaGroup(context: ContextTypes.DEFAULT_TYPE, link: str):
                     continue
 
             if file.endswith(".mp4"):
+                file = await loop.run_in_executor(None, reencodeIfNeeded, file)
                 audio_path, thumb_path = await asyncio.gather(
                     loop.run_in_executor(None, extractAudio, file),
                     loop.run_in_executor(None, extractThumbnail, file),
