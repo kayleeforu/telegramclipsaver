@@ -5,6 +5,7 @@ import os
 from PIL import Image
 import requests
 from pathlib import Path
+import logging
 
 def ensureSolverScript():
     solverDir = Path("resources")
@@ -91,6 +92,7 @@ def downloadVideo(url, tmp_dir="downloadedVideos"):
     try:
         with YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
+            logging.info("codec: {info.get("codec")}")
             duration = info.get("duration")
             height = info.get("height", 0)
             width = info.get("width", 0)
