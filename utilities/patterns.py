@@ -15,6 +15,7 @@ galleryDl = [
     r"((https://)?v.\.tiktok\.com/\S*)",
     r"((https://(www\.)?)?tiktok.com/@(.*)/(\d{19})\?\S*)",
     r"((https://(www\.)?)?tiktok.com/\S*)",
+    r"((https://(www\.)?)?x.com/\S*)"
 ]
 combinedGalleryDl = "|".join(f"({p})" for p in galleryDl)
 
