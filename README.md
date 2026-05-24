@@ -17,7 +17,7 @@ My bot doesn't ask you to do anything, you can simply send a link and get your v
 | Platform  | Media Type              | Note (See Maintenance for cookies explanation) |
 | --------- | ----------------------- | ---------------------------------------------- |
 | TikTok    | Slideshow and Videos    | High speed                                     |
-| Instagram | Posts and Reels         | Currently doesn't work         |
+| Instagram | Posts and Reels         | Works, but need maintenance         |
 | Pinterest | Photos, GIFs and Videos | High speed                                     |
 | Twitter | Photos, GIFs and Videos | High speed                                     |
 | YouTube   | Videos and Shorts       | Low speed due to JS Challenges                 |
