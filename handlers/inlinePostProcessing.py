@@ -9,10 +9,14 @@ import subprocess
 import db
 import asyncio
 import logging
+import html
 
 clearVids = "rm -f downloadedVideos/*"
 database = db.database()
 pending = {}
+
+def getDownloadedCaption(link):
+    return f"<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> <a href='{html.escape(link)}'>Post</a> downloaded via @clip_saverbot"
 
 async def checkDatabase(context: ContextTypes.DEFAULT_TYPE, link, inlineMessageID):
     response = (await database.lookUpLink(link)).data
@@ -34,7 +38,7 @@ async def checkDatabase(context: ContextTypes.DEFAULT_TYPE, link, inlineMessageI
                 inline_message_id = inlineMessageID,
                 media = InputMediaVideo(
                     file[0], 
-                    caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot", 
+                    caption = getDownloadedCaption(link), 
                     parse_mode = "HTML"
                 ),
                 reply_markup = InlineKeyboardMarkup([
@@ -63,7 +67,7 @@ async def checkDatabase(context: ContextTypes.DEFAULT_TYPE, link, inlineMessageI
                     inline_message_id = inlineMessageID,
                     media = InputMediaAnimation(
                         file[0], 
-                        caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot", 
+                        caption = getDownloadedCaption(link), 
                         parse_mode = "HTML"
                     )
                 )
@@ -168,7 +172,7 @@ async def processAndEdit(user, context, inlineMessageID, link):
                                     inline_message_id = inlineMessageID,
                                     media = InputMediaVideo(
                                         file_id,
-                                        caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot",
+                                        caption = getDownloadedCaption(link),
                                         parse_mode = "HTML"
                                     ),
                                     reply_markup = InlineKeyboardMarkup([
@@ -180,7 +184,7 @@ async def processAndEdit(user, context, inlineMessageID, link):
                                     inline_message_id = inlineMessageID,
                                     media = InputMediaAnimation(
                                         file_id,
-                                        caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot",
+                                        caption = getDownloadedCaption(link),
                                         parse_mode = "HTML"
                                     )
                                 )
@@ -221,11 +225,11 @@ async def processAndEdit(user, context, inlineMessageID, link):
                 inline_message_id = inlineMessageID,
                 media = InputMediaVideo(
                     result[0],
-                    caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot",
+                    caption = getDownloadedCaption(link),
                     parse_mode = "HTML"
                 ) if result[1] else InputMediaAnimation(
                     result[0],
-                    caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot",
+                    caption = getDownloadedCaption(link),
                     parse_mode = "HTML"
                 ),
                 reply_markup = InlineKeyboardMarkup([
@@ -262,7 +266,7 @@ async def processAndEdit(user, context, inlineMessageID, link):
                             inline_message_id = inlineMessageID,
                             media = InputMediaVideo(
                                 file_id,
-                                caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot",
+                                caption = getDownloadedCaption(link),
                                 parse_mode = "HTML"
                             ),
                             reply_markup = InlineKeyboardMarkup([
@@ -274,7 +278,7 @@ async def processAndEdit(user, context, inlineMessageID, link):
                             inline_message_id = inlineMessageID,
                             media = InputMediaAnimation(
                                 file_id,
-                                caption = "<tg-emoji emoji-id='5445158077579952110'>🎬</tg-emoji> Downloaded via @clip_saverbot",
+                                caption = getDownloadedCaption(link),
                                 parse_mode = "HTML"
                             )
                         )

@@ -11,6 +11,7 @@ import db
 import uuid
 import utilities.patterns as patterns
 import logging
+import html
 
 database = db.database()
 
@@ -203,7 +204,7 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
             else:
                 caption += f"Ваш пост.\nЗапрошено пользователем: <code>{requestedBy}</code>"
         else:
-            caption += "Ваш пост."
+            caption += f"Ваш <a href='{html.escape(link)}'>пост</a>."
     else:
         if isGroupChat:
             if hasUserName:
@@ -211,7 +212,7 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
             else:
                 caption += f"Here is your post.\nRequested by: <code>{requestedBy}</code>"
         else:
-            caption += "Here is your post."
+            caption += f"Here is your <a href='{html.escape(link)}'>post</a>."
     caption += f"\n\n@clip_saverbot"
 
     repliesTo = update.effective_message.reply_to_message.id if update.effective_message.reply_to_message else None
