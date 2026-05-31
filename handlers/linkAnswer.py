@@ -266,7 +266,7 @@ async def getLinkAnswer(update: Update, context: ContextTypes.DEFAULT_TYPE, link
         else:
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
-                text="<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Something went wrong :(\nMake sure your video is 60 min long or less",
+                text="<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Something went wrong, try again later",
                 parse_mode="HTML"
             )
             await database.removeLink(link)

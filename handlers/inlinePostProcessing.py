@@ -55,7 +55,7 @@ async def checkDatabase(context: ContextTypes.DEFAULT_TYPE, link, inlineMessageI
                     inline_message_id = inlineMessageID,
                     media = InputMediaPhoto(
                         file[0],
-                        caption = '<tg-emoji emoji-id="5447637214307579793">🌅</tg-emoji> Here is one photo.\n\n@clip_saverbot',
+                        caption = f'<tg-emoji emoji-id="5447637214307579793">🌅</tg-emoji> Here is one <a href="{html.escape(link)}">photo</a>.\n\n@clip_saverbot',
                         parse_mode = "HTML"
                     ),
                     reply_markup = InlineKeyboardMarkup([
@@ -159,7 +159,7 @@ async def processAndEdit(user, context, inlineMessageID, link):
                                 inline_message_id = inlineMessageID,
                                 media = InputMediaPhoto(
                                     file_id,
-                                    caption = '<tg-emoji emoji-id="5447637214307579793">🌅</tg-emoji> Here is one photo.\n\n@clip_saverbot',
+                                    caption = f'<tg-emoji emoji-id="5447637214307579793">🌅</tg-emoji> Here is one <a href="{html.escape(link)}">photo</a>.\n\n@clip_saverbot',
                                     parse_mode = "HTML"
                                 ),
                                 reply_markup = InlineKeyboardMarkup([
@@ -191,7 +191,7 @@ async def processAndEdit(user, context, inlineMessageID, link):
                     else:
                         await context.bot.edit_message_text(
                             inline_message_id = inlineMessageID,
-                            text = "<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Failed to download the post.\n\n@clip_saverbot",
+                            text = f"<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Failed to download the <a href='{html.escape(link)}'>post</a>.\n\n@clip_saverbot",
                             parse_mode = "HTML"
                         )
                         await database.removeLink(link)
@@ -201,7 +201,7 @@ async def processAndEdit(user, context, inlineMessageID, link):
                 else:
                     await context.bot.edit_message_text(
                         inline_message_id = inlineMessageID,
-                        text = "<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Failed to download the video.\n\n@clip_saverbot",
+                        text = f"<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Failed to download the <a href='{html.escape(link)}'>video</a>.\n\n@clip_saverbot",
                         parse_mode = "HTML"
                     )
                     await database.removeLink(link)
@@ -211,7 +211,7 @@ async def processAndEdit(user, context, inlineMessageID, link):
             if result is None:
                 await context.bot.edit_message_text(
                     inline_message_id = inlineMessageID,
-                    text = "<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Failed to download the video.\n\n@clip_saverbot",
+                    text = f"<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Failed to download the <a href='{html.escape(link)}'>video</a>.\n\n@clip_saverbot",
                     parse_mode = "HTML"
                 )
                 subprocess.run(clearVids, shell = True)
@@ -252,7 +252,7 @@ async def processAndEdit(user, context, inlineMessageID, link):
                         inline_message_id = inlineMessageID,
                         media = InputMediaPhoto(
                             file_id,
-                            caption = '<tg-emoji emoji-id="5447637214307579793">🌅</tg-emoji> Here is one photo.\n\n@clip_saverbot',
+                            caption = f'<tg-emoji emoji-id="5447637214307579793">🌅</tg-emoji> Here is one <a href="{html.escape(link)}">photo</a>.\n\n@clip_saverbot',
                             parse_mode = "HTML"
                         ),
                         reply_markup = InlineKeyboardMarkup([
@@ -286,7 +286,7 @@ async def processAndEdit(user, context, inlineMessageID, link):
             else:
                 await context.bot.edit_message_text(
                     inline_message_id = inlineMessageID,
-                    text = "<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Failed to download the video.\n\n@clip_saverbot",
+                    text = f"<tg-emoji emoji-id='5447647474984449520'>❌</tg-emoji> Failed to download the <a href='{html.escape(link)}'>video</a>.\n\n@clip_saverbot",
                     parse_mode = "HTML"
                 )
                 await database.removeLink(link)
