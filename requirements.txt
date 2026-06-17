@@ -1,6 +1,6 @@
 python-telegram-bot==21.*
 supabase
-yt-dlp
+yt-dlp[default]
 ffmpeg-python
 opencv-python-headless
 instaloader

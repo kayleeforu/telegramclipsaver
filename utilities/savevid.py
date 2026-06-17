@@ -59,7 +59,6 @@ def downloadThumbnail(info, tmp_dir="downloadedVideos"):
         return None
 
 def downloadVideo(url, tmp_dir="downloadedVideos"):
-    solverPath = ensureSolverScript()
     ydl_opts = {
         "quiet": False,
         "outtmpl": f"{tmp_dir}/video%(id)s.%(ext)s",
@@ -79,7 +78,6 @@ def downloadVideo(url, tmp_dir="downloadedVideos"):
                 "player_client": ["web", "web_safari"],
             }
         },
-        "remote_components": {"ejs:github": {"path": solverPath}} if solverPath else {},
         "concurrent_fragment_downloads": 16,
         "http_chunk_size": 1024 * 1024 * 10,
         "buffersize": 1024 * 64,
